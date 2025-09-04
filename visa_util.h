@@ -1,0 +1,28 @@
+#ifndef VISA_UTIL_H
+#define VISA_UTIL_H
+
+#include "visa.h"
+
+// Function to open the VISA device
+ViStatus open_device(ViSession* defaultRM, ViSession* instr, const char* resourceName);
+
+// Function to write a command to the VISA device
+ViUInt32 viwrite_str(ViSession instr, ViBuf buffer);
+ViStatus set_attribute(ViSession vi, ViAttr attribute, ViAttrState value);
+
+// Function to read a binary waveform from the VISA device
+ViUInt32 viread_buf(ViSession instr, char *buffer,ViUInt32 requested_bytes);
+
+// Function to convert a binary buffer to an array of samples
+// The `scale` and `offset` parameters are instrument-specific
+int get_binary_block_length(const char* header_str);
+void convert_buffer_to_samples(const char* buffer, ViUInt32 num_bytes, float* samples, int bytes_per_sample, float scale, float offset);
+
+// Function to close the VISA sessions
+void close_device(ViSession defaultRM, ViSession instr);
+
+void print_buf(char *buffer,unsigned int offset, unsigned int length);
+void print_str(char *buffer,unsigned int offset, unsigned int length);
+
+#endif // VISA_UTIL_H
+

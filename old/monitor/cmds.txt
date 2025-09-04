@@ -1,0 +1,20 @@
+*CLS
+CHDR OFF
+STOP
+
+MSIZ 14K
+TDIV 1e-3
+
+# one-shot acquisition (per Siglent: ARM then FRTR) [ARM/FRTR documented]
+:acq_once 2000 2000
+
+# set up 256-point transfers (BYTE format, 1-based start)
+WAV:WIDT BYTE
+WAV:POIN 256
+WAV:STAR 1
+WAV:INT 1
+
+# fetch C1..C4   (panel sends WAV:SOUR Cn + WAV:DATA?)
+:fetch4
+
+SYST:ERR?

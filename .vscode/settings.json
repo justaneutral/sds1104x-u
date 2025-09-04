@@ -1,0 +1,11 @@
+{
+  "terminal.integrated.defaultProfile.windows": "Cygwin",
+  "terminal.integrated.cwd": "${workspaceFolder}",
+  "terminal.integrated.profiles.windows": {
+    "Cygwin": {
+      "path": "C:\\cygwin64\\bin\\bash.exe",
+      "args": ["-i"],
+      "env": { "CHERE_INVOKING": "1" }
+    }
+  }
+}
