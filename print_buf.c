@@ -16,6 +16,11 @@ void print_buf(char *buffer,unsigned int offset, unsigned int length,unsigned in
     {
         for(int i=offset;i<(offset+length);i++)
         {
+                if((body_offset == 0 || body_offset_counter >= body_offset) && indentation_counter == 0)
+                {
+                      printf("%04u> ", line_counter++);
+                }
+
             b = buffer[i];
             short v = b;
             if(isprint(b))
@@ -34,7 +39,7 @@ void print_buf(char *buffer,unsigned int offset, unsigned int length,unsigned in
                 if((++indentation_counter)>= indentation)
                 {
                     indentation_counter = 0;
-                    printf("\n%04u> ", line_counter++);
+                    printf("\n");
                 }
             }
         }

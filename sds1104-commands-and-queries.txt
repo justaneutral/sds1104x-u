@@ -1,0 +1,135 @@
+Commands & Queries
+This chapter introduces each command subsystem of the SIGLENTs Digital Oscilloscope Series
+command set. The contents of this chapter are shown as below:
+ COMMON (*) Commands
+ *IDN? (Identification Number)
+ *OPC (Operation Complete)
+ *RST (Reset)
+ COMM_HEADER Commands
+ ACQUIRE Commands
+ ARM
+ STOP
+ ACQW
+ AVGA
+ MSIZ
+ SAST?
+ SARA?
+ SANU?
+ SXSA
+ XYDS
+ AUTOSET Commands
+ ASET
+ CHANNEL Commands
+ ATTN
+ BWL
+ CPL
+ OFST
+ SKEW
+ TRA
+ UNIT
+ VDIV
+ INVS
+ CURSOR Commands
+ CRMS
+ CRST
+ CRTY
+ CRVA?
+ DECODE Commands
+ DCST
+ DCPA
+ B<n>:DCIC
+ B<n>:DCSP
+ B<n>:DCUT
+ B<n>:DCCN
+ B<n>:DCLN
+ DIGITAL Commands - not in sds1104x-u
+ DISPLAY Commands
+ DTJN
+ GRDS
+ INTS
+ MENU
+ PESU 
+ HISTORY Commands
+ FRAM
+ FTIM?
+ HSMD
+ HSLST
+ MATH Commands
+  Operators: Add, Subtract, Multiply, Divide. Operators perform their function on two analog channel sources.
+  Transforms: DIFF, Integrate, FFT, SQRT.
+ DEF
+ INVS
+ MTVD
+ MTVP
+ FFTC
+ FFTF
+ FFTP
+ FFTS
+ FFTT?
+ FFTU
+ FFTW
+ MEASURE Commands
+ CYMT?
+ MEAD
+ PACU
+ PAVA?
+ PASTAT
+ MEACL
+ MEGS
+ MEGA
+ MEGB
+ PASS/FAIL Commands
+ PACL
+ PFBF
+ PFCM
+ PFDD?
+ PFDS
+ PFEN
+ PFFS
+ PFOP
+ PFSC
+ PFST
+ PRINT Commands
+ SCDP
+ RECALL Commands
+ *RCL
+ RCPN
+ REFERENCE Commands
+ REFCL
+ REFDS
+ REFLA
+ REFPO
+ REFSA
+ REFSC
+ REFSR
+ SAVE Commands
+ *SAV
+ PNSU
+ STPN
+ STATUS Commands
+ INR?
+ SYSTEM Commands
+ *CAL?
+ BUZZ
+ CONET
+ SCSV
+ EMOD
+ TIMEBASE Commands
+ TDIV
+ TRDL
+ HMAG
+ HPOS
+ TRIGGER Commands
+ SET50
+ TRCP
+ TRLV
+ TRLV2
+ TRMD
+ TRPA
+ TRSE
+ TRSL
+ TRWI
+ SERIAL TRIGGER Commands - not needed
+ WAVEFORM Commands
+ WF? <trace - C1,C2,C3,C4>:WAVEFORM? <section - DAT2> example C1:WF? DAT2 , responce C1:WAVEFORM <data block>
+ WFSU SP,<sparsing - 0,1-every pt,4-every 4th pt, etc.>,NP,<number - 0-all pts, 50 - max 50pts, >,FP,<point - 0 -at start, 40 -at 41st pt, etc.> Example for reading 50 points: WFSU SP,0,NP,50,FP,0
