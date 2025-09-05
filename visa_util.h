@@ -1,6 +1,12 @@
 #ifndef VISA_UTIL_H
 #define VISA_UTIL_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
+
 #include "visa.h"
 
 // Function to open the VISA device
@@ -21,8 +27,11 @@ void convert_buffer_to_samples(const char* buffer, ViUInt32 num_bytes, float* sa
 // Function to close the VISA sessions
 void close_device(ViSession defaultRM, ViSession instr);
 
+void set_non_blocking_mode(struct termios *orig_termios);
+void restore_mode_and_blocking(struct termios *orig_termios);
 void print_buf(char *buffer,unsigned int offset, unsigned int length);
 void print_str(char *buffer,unsigned int offset, unsigned int length);
+void print_waveforms(char *buffer,unsigned int offset, unsigned int length);
 
 #endif // VISA_UTIL_H
 

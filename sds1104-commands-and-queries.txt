@@ -115,7 +115,7 @@ command set. The contents of this chapter are shown as below:
  SCSV
  EMOD
  TIMEBASE Commands
- TDIV
+ TDIV TIME_DIV <value> value:={1NS,2NS,5NS,10NS,20NS,50NS,100NS,200NS,500NS,1US,2US,5US,10US,20US,50US,100US,200US,500US,1MS,2MS,5MS,10MS,20MS,50MS,100MS,200MS,500MS,1S,2S,5S,10S,20S,50S,100S} NS — for nanoseconds. US — for microseconds. MS — for milliseconds. S — for seconds.
  TRDL
  HMAG
  HPOS
