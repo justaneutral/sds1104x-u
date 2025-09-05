@@ -11,6 +11,7 @@ void print_waveforms(char *buffer,unsigned int offset, unsigned int length)
     char tmpc;
     char *ch[] = {&buffer[offset],&buffer[offset+length],&buffer[offset+length*2],&buffer[offset+length*3]};
     unsigned int stp[] = {strlen(preambula)+strstr(preambula,ch[0]),strlen(preambula)+strstr(preambula,ch[1]),strlen(preambula)+strstr(preambula,ch[2]),strlen(preambula)+strstr(preambula,ch[3])};
+    //unsigned int stp[] = {strlen(preambula)+strstr(ch[0],preambula),strlen(preambula)+strstr(ch[1],preambula),strlen(preambula)+strstr(ch[2],preambula),strlen(preambula)+strstr(ch[3],preambula)};
     unsigned int num_samp[4],ns;
     for (i=0;i<4;i++)
     {
