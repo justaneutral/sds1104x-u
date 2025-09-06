@@ -22,6 +22,7 @@ void close_device(ViSession defaultRM, ViSession instr);
 #define __BUFFER_CH1_START__ (__BUFFER_CH0_START__+__BUFFER_BYTE_CHANNAL_LEN__)
 #define __BUFFER_CH2_START__ (__BUFFER_CH1_START__+__BUFFER_BYTE_CHANNAL_LEN__)
 #define __BUFFER_CH3_START__ (__BUFFER_CH2_START__+__BUFFER_BYTE_CHANNAL_LEN__)
+#define buffer (&buffer_top[buffer_index*__BUFFER_BYTE_LEN__])
 #define buffer0 (&(buffer[__BUFFER_CH0_START__]))
 #define buffer1 (&(buffer[__BUFFER_CH1_START__]))
 #define buffer2 (&(buffer[__BUFFER_CH2_START__]))
@@ -31,12 +32,13 @@ int main(void) {
     ViSession defaultRM = VI_NULL, instr = VI_NULL;
     ViStatus status;
     ViUInt32 retCount;
-    char *buffer = (char*)malloc(__BUFFER_BYTE_LEN__);
-    if(!buffer)
+    int buffer_index = 0;
+    char *buffer_top = (char*)malloc(2*__BUFFER_BYTE_LEN__);
+    if(!buffer_top)
     {
         return -2;
     }
-
+    
     const char* resourceName = "USB0::0xF4EC::0x1012::SDSAHBAX6R0452::INSTR";
     // Open the VISA device using the function from open_device.c
     status = open_device(&defaultRM, &instr, resourceName);
@@ -187,7 +189,7 @@ _rtn:
     // Close the VISA device using the function from close_device.c
     close_device(defaultRM, instr);
 _stp:
-    free(buffer);
+    free(buffer_top);
     return 0;
 }
 

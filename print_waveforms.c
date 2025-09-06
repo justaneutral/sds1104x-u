@@ -8,21 +8,22 @@
 void print_waveforms(char *buffer,unsigned int offset, unsigned int length)
 {
     int i,j;
-    char tmpc;
-    char *ch[] = {&buffer[offset],&buffer[offset+length],&buffer[offset+length*2],&buffer[offset+length*3]};
-    unsigned int stp[] = {strlen(preambula)+strstr(preambula,ch[0]),strlen(preambula)+strstr(preambula,ch[1]),strlen(preambula)+strstr(preambula,ch[2]),strlen(preambula)+strstr(preambula,ch[3])};
-    //unsigned int stp[] = {strlen(preambula)+strstr(ch[0],preambula),strlen(preambula)+strstr(ch[1],preambula),strlen(preambula)+strstr(ch[2],preambula),strlen(preambula)+strstr(ch[3],preambula)};
+    char *ch[] = 
+    {
+        strlen(preambula)+strstr(&buffer[offset+0*length],preambula),
+        strlen(preambula)+strstr(&buffer[offset+1*length],preambula),
+        strlen(preambula)+strstr(&buffer[offset+2*length],preambula),
+        strlen(preambula)+strstr(&buffer[offset+3*length],preambula)
+    };
     unsigned int num_samp[4],ns;
     for (i=0;i<4;i++)
     {
-        ch[i] += (size_t)stp[i];
-        //printf("chln = %s\n", ch[i]);
         num_samp[i]=0;
         for(j=0;j<9;j++)
         {
             num_samp[i] = num_samp[i]*10 + *(ch[i]++) - '0';
         }
-        printf("stp[%d] = %d, num_samp[%d] = %u\n",i,stp[i],i,num_samp[i]);
+        printf("num_samp[%d] = %u\n",i,num_samp[i]);
         fflush(stdout);
     }
     ns = (num_samp[0]<num_samp[1]?num_samp[0]:num_samp[1])<(num_samp[2]<num_samp[3]?num_samp[2]:num_samp[3])?(num_samp[0]<num_samp[1]?num_samp[0]:num_samp[1]):(num_samp[2]<num_samp[3]?num_samp[2]:num_samp[3]);
