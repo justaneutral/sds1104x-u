@@ -47,103 +47,91 @@ int main(void) {
     printf("Successfully opened session to %s.\n", resourceName);
 
     // --- Device communication logic ---
-    
-    if(-1==viwrite_str(instr, (ViBuf)"*IDN?\n")) goto _rtn;
-    // Read the response
-    status = viRead(instr, (ViBuf)buffer, sizeof(buffer), &retCount);
-    if (status < VI_SUCCESS) {
-        printf("Error reading from the device. Status: %ld\n", status);
-        close_device(defaultRM, instr);
-        return -1;
-    }
-    buffer[retCount] = '\0'; // Null-terminate the string
-    printf("Device Response: %s\n", buffer);
-    
-
     /////////////////////////////////////////////////////////////////
 
     if(-1==viwrite_str(instr, (ViBuf)"*IDN?\n")) goto _rtn;
     if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
     //if(-1==viwrite_str(instr, (ViBuf)"*SAV 20\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"*RST\n")) goto _rtn;
-    usleep(5000000);
-    if(-1==viwrite_str(instr, (ViBuf)"*OPC?\n")) goto _rtn;
-    if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"*RST\n")) goto _rtn;
+    //usleep(5000000);
+    //if(-1==viwrite_str(instr, (ViBuf)"*OPC?\n")) goto _rtn;
+    //if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
     //if(-1==viwrite_str(instr, (ViBuf)"*RCL 20\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"CHDR OFF\n")) goto _rtn;
     printf("Setup\n");
-    if(-1==viwrite_str(instr, (ViBuf)"MSIZ 7M\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"MSIZ?\n")) goto _rtn;
-    if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"TDIV 100US\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"SARA?\n")) goto _rtn;
-    if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"HMAG 100US\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"HPOS 0US\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"SET50\n")) goto _rtn;
-    //if(-1==viwrite_str(instr, (ViBuf)"TRMD SINGLE\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"TRMD STOP\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"TRDL 0\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"TRWI 10V\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"TRPA C1,L,C2,L,C3,L,C4,L,STATE,OR\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"TRSE EDGE,SR,C1,HT,OFF,HV,0,HV2,0\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"TRSE?\n")) goto _rtn;
-    if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"MSIZ 7M\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"MSIZ?\n")) goto _rtn;
+    //if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
+    if(-1==viwrite_str(instr, (ViBuf)"TDIV 20MS\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"SARA?\n")) goto _rtn;
+    //if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"HMAG 100US\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"HPOS 0US\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"SET50\n")) goto _rtn;
+    if(-1==viwrite_str(instr, (ViBuf)"TRMD SINGLE\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"TRMD STOP\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"TRDL 0\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"TRWI 10V\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"TRPA C1,L,C2,L,C3,L,C4,L,STATE,OR\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"TRSE EDGE,SR,C1,HT,OFF,HV,0,HV2,0\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"TRSE?\n")) goto _rtn;
+    //if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"BWL C1,ON,C2,ON,C3,ON,C4,ON\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C1:TRCP AC\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C1:TRLV 0mV\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C1:TRLV2 0mV\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C1:TRSL WINDOW\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C1:TRCP AC\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C1:TRLV 0mV\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C1:TRLV2 0mV\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C1:TRSL WINDOW\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C1:ATTN 1\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C1:CPL A50\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C1:OFST +0V\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C1:SKEW 0.00E-00S\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C1:TRA ON\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C1:UNIT V\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C1:TRA ON\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C1:UNIT V\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C1:VDIV 5mV\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C1:INVS OFF\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C2:TRCP AC\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C2:TRLV 0mV\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C2:TRLV2 0mV\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C2:TRSL WINDOW\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C1:INVS OFF\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C2:TRCP AC\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C2:TRLV 0mV\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C2:TRLV2 0mV\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C2:TRSL WINDOW\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C2:ATTN 1\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C2:CPL A50\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C2:OFST +0V\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C2:SKEW 0.00E-00S\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C2:TRA ON\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C2:UNIT V\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C2:TRA ON\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C2:UNIT V\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C2:VDIV 5mV\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C2:INVS OFF\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C3:TRCP AC\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C3:TRLV 0mV\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C3:TRLV2 0mV\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C3:TRSL WINDOW\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C2:INVS OFF\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C3:TRCP AC\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C3:TRLV 0mV\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C3:TRLV2 0mV\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C3:TRSL WINDOW\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C3:ATTN 1\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C3:CPL A50\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C3:OFST +0V\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C3:SKEW 0.00E-00S\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C3:TRA ON\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C3:UNIT V\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C3:TRA ON\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C3:UNIT V\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C3:VDIV 5mV\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C3:INVS OFF\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C4:TRCP AC\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C4:TRLV 0mV\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C4:TRLV2 0mV\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C4:TRSL WINDOW\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C3:INVS OFF\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C4:TRCP AC\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C4:TRLV 0mV\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C4:TRLV2 0mV\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C4:TRSL WINDOW\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C4:ATTN 1\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C4:CPL A50\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C4:OFST +0V\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C4:SKEW 0.00E-00S\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C4:TRA ON\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C4:UNIT V\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C4:TRA ON\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C4:UNIT V\n")) goto _rtn;
     if(-1==viwrite_str(instr, (ViBuf)"C4:VDIV 5mV\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"C4:INVS OFF\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"WFSU SP,10000,NP,35,FP,0,SN,0\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"STOP\n")) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"INR?\n")) goto _rtn;
-    if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
-    if(-1==viwrite_str(instr, (ViBuf)"INR?\n")) goto _rtn;
-    if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"C4:INVS OFF\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"WFSU SP,10000,NP,35,FP,0,SN,0\n")) goto _rtn;
+    if(-1==viwrite_str(instr, (ViBuf)"WFSU SP,100,NP,16384,FP,0,SN,0\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"STOP\n")) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"INR?\n")) goto _rtn;
+    //if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"INR?\n")) goto _rtn;
+    //if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
     if( 0!=set_attribute(instr, VI_ATTR_TMO_VALUE, 30000)) goto _rtn;
     usleep(5000000);
     //main loop
@@ -155,41 +143,41 @@ int main(void) {
     while(key != 'q' && loop_counter--) 
     {
         printf("Arm and see the state:\n");
+        //if(-1==viwrite_str(instr, (ViBuf)":ARM\n")) goto _rtn;
+        //if(-1==viwrite_str(instr, (ViBuf)"*OPC?\n")) goto _rtn;
+        //if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
+        //if(-1==viwrite_str(instr, (ViBuf)"INR?\n")) goto _rtn;
+        //if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
+        //if(-1==viwrite_str(instr, (ViBuf)"INR?\n")) goto _rtn;
+        //if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
+        //printf("Read the response.\n");
+        //if(-1==viwrite_str(instr, (ViBuf)"INR?\n")) goto _rtn;
+        //if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
+        //usleep(500000);
         if(-1==viwrite_str(instr, (ViBuf)":ARM\n")) goto _rtn;
-        if(-1==viwrite_str(instr, (ViBuf)"*OPC?\n")) goto _rtn;
-        if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
-        if(-1==viwrite_str(instr, (ViBuf)"INR?\n")) goto _rtn;
-        if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
-        if(-1==viwrite_str(instr, (ViBuf)"INR?\n")) goto _rtn;
-        if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
-        printf("Read the response.\n");
-        if(-1==viwrite_str(instr, (ViBuf)"INR?\n")) goto _rtn;
-        if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
         usleep(500000);
-        if(-1==viwrite_str(instr, (ViBuf)":ARM\n")) goto _rtn;
-        usleep(500000);
-        if(-1==viwrite_str(instr, (ViBuf)"*OPC?\n")) goto _rtn;
+        //if(-1==viwrite_str(instr, (ViBuf)"*OPC?\n")) goto _rtn;
         ready = 0;
         do
         {
 #ifdef __INR__
-            if(-1==viwrite_str(instr, (ViBuf)"INR?\n")) goto _rtn;
-            if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
-            buffer[8] =0;
-            if(strstr(buffer,"8193"))
+            //if(-1==viwrite_str(instr, (ViBuf)"INR?\n")) goto _rtn;
+            //if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
+            //buffer[8] =0;
+            //if(strstr(buffer,"8193"))
 #endif
 #ifdef __WF__
-            if(-1==viwrite_str(instr, (ViBuf)":ARM\n")) goto _rtn;
-            if(-1==viwrite_str(instr, (ViBuf)"C1:WF? DAT2\n")) goto _rtn;
-            if(-1==(retCount=viread_str(instr, buffer, strlen("DAT2,#9000000000")))) goto _rtn;
-            buffer[strlen("DAT2,#9000000000")] =0;
-            if(strstr(buffer,"DAT2,#9") && !strstr(buffer,"DAT2,#9000000000"))
+            //if(-1==viwrite_str(instr, (ViBuf)":ARM\n")) goto _rtn;
+            //if(-1==viwrite_str(instr, (ViBuf)"C1:WF? DAT2\n")) goto _rtn;
+            //if(-1==(retCount=viread_str(instr, buffer, strlen("DAT2,#9000000000")))) goto _rtn;
+            //buffer[strlen("DAT2,#9000000000")] =0;
+            //if(strstr(buffer,"DAT2,#9") && !strstr(buffer,"DAT2,#9000000000"))
 #endif
             //usleep(5000000);
             {
                 ready = 1;
             }
-            printf("%s",buffer);
+            //printf("%s",buffer);
         } while(!ready);
 
         if(-1==viwrite_str(instr, (ViBuf)"C1:WF? DAT2\n")) goto _rtn;
@@ -216,8 +204,8 @@ int main(void) {
     }
     //restore_mode_and_blocking(&orig_termios);
     printf("\n***end***\n");
-    if(-1==viwrite_str(instr, (ViBuf)"SANU? C1\n")) goto _rtn;
-    if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
+    //if(-1==viwrite_str(instr, (ViBuf)"SANU? C1\n")) goto _rtn;
+    //if(-1==(retCount=viread_str(instr, buffer, __BUFFER_BYTE_LEN__))) goto _rtn;
     // --- End device communication logic ---
 _rtn:
     // Close the VISA device using the function from close_device.c
