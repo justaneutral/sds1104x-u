@@ -22,7 +22,7 @@ void close_device(ViSession defaultRM, ViSession instr);
 #define __BUFFER_CH1_START__ (__BUFFER_CH0_START__+__BUFFER_BYTE_CHANNAL_LEN__)
 #define __BUFFER_CH2_START__ (__BUFFER_CH1_START__+__BUFFER_BYTE_CHANNAL_LEN__)
 #define __BUFFER_CH3_START__ (__BUFFER_CH2_START__+__BUFFER_BYTE_CHANNAL_LEN__)
-#define buffer (&buffer_top[buffer_index*__BUFFER_BYTE_LEN__])
+//#define buffer (&buffer_top[buffer_index*__BUFFER_BYTE_LEN__])
 #define buffer0 (&(buffer[__BUFFER_CH0_START__]))
 #define buffer1 (&(buffer[__BUFFER_CH1_START__]))
 #define buffer2 (&(buffer[__BUFFER_CH2_START__]))
@@ -32,9 +32,10 @@ int main(void) {
     ViSession defaultRM = VI_NULL, instr = VI_NULL;
     ViStatus status;
     ViUInt32 retCount;
-    int buffer_index = 0;
-    char *buffer_top = (char*)malloc(2*__BUFFER_BYTE_LEN__);
-    if(!buffer_top)
+    long processing_start_us, processing_time_delta_us;
+    //int buffer_index = 0;
+    char *buffer = (char*)malloc(__BUFFER_BYTE_LEN__);
+    if(!buffer)
     {
         return -2;
     }
@@ -154,10 +155,12 @@ int main(void) {
     //struct termios orig_termios;
     //set_non_blocking_mode(&orig_termios);
     //int ready;
+    //first acquistion start
+    unsigned long remaining_acq_delay_us = acq_delay_us;
     if(-1==viwrite_str(instr, (ViBuf)"ARM\n")) goto _rtn;
     while(key != 'q' && loop_counter--) 
     {
-        usleep(acq_delay_us);
+        usleep(remaining_acq_delay_us);
         if(-1==viwrite_str(instr, (ViBuf)"C1:WF? DAT2\n")) goto _rtn;
         if(-1==(retCount=viread_str(instr, buffer0, __BUFFER_BYTE_LEN__))) goto _rtn;
         if(-1==viwrite_str(instr, (ViBuf)"C2:WF? DAT2\n")) goto _rtn;
@@ -166,21 +169,25 @@ int main(void) {
         if(-1==(retCount=viread_str(instr, buffer2, __BUFFER_BYTE_LEN__))) goto _rtn;
         if(-1==viwrite_str(instr, (ViBuf)"C4:WF? DAT2\n")) goto _rtn;
         if(-1==(retCount=viread_str(instr, buffer3, __BUFFER_BYTE_LEN__))) goto _rtn;
+        //next acquistion start
+        if(-1==viwrite_str(instr, (ViBuf)"ARM\n")) goto _rtn;
+        processing_start_us = monotonic_us();
+        //**************can process the previously acquired buffer while waiting for the scope to acquire the next buffer
         //print_buf(buffer0,0,retCount-1,16,1);
         //print_buf(buffer1,1,retCount-1,16,1);
         //print_buf(buffer2,2,retCount-1,16,1);
         //print_buf(buffer3,3,retCount-1,16,1);
         print_waveforms(buffer,__BUFFER_BYTE_OFFSET__,__BUFFER_BYTE_CHANNAL_LEN__);
-
-
         //check keystrokes
         //if (read(STDIN_FILENO, &key, 1) > 0)
         //{
         //    printf("Key pressed: '%c' (ASCII: %d)\n", key, key);
         //}
         fflush(stdout);
-        //next acquistion start
-        if(-1==viwrite_str(instr, (ViBuf)"ARM\n")) goto _rtn;
+        //***********end of the frame processing, can wait the time remaining to the next acquisition and fire.
+        processing_time_delta_us = monotonic_us() - processing_start_us;
+        remaining_acq_delay_us = processing_time_delta_us >= acq_delay_us ? 0 : (unsigned long)(acq_delay_us - processing_time_delta_us);
+        printf("remaining_acq_delay_us = \n%lu\n\n",remaining_acq_delay_us);
     }
     //restore_mode_and_blocking(&orig_termios);
     printf("\n***end***\n");
@@ -189,7 +196,7 @@ _rtn:
     // Close the VISA device using the function from close_device.c
     close_device(defaultRM, instr);
 _stp:
-    free(buffer_top);
+    free(buffer);
     return 0;
 }
 

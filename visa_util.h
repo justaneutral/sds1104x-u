@@ -6,9 +6,11 @@
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
-//#include <time.h>
+#include <time.h>
 
 #include "visa.h"
+
+#define NS_PER_MICROSECOND 1000L
 
 // Function to open the VISA device
 ViStatus open_device(ViSession* defaultRM, ViSession* instr, const char* resourceName);
@@ -33,6 +35,7 @@ void restore_mode_and_blocking(struct termios *orig_termios);
 void print_buf(char *buffer,unsigned int offset, unsigned int length);
 void print_str(char *buffer,unsigned int offset, unsigned int length);
 void print_waveforms(char *buffer,unsigned int offset, unsigned int length);
+long monotonic_us(void);
 
 #endif // VISA_UTIL_H
 
