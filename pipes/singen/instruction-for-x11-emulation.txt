@@ -1,0 +1,11 @@
+1 in cygwin termonal start:
+    $ startxwin
+
+2 in the other terminal:
+    $ export DISPLAY=:0.0
+    $ xterm
+
+3 in the X11 display run the app requiring gnuplot:
+    $ ./run.sh
+
+
