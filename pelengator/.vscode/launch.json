@@ -2,11 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "(Cygwin) Debug sds_stream.exe",
+      "name": "(Cygwin) Debug pelengator.exe",
       "type": "cppdbg",
       "request": "launch",
 
-      "program": "${workspaceFolder}\\sds_stream.exe",
+      "program": "${workspaceFolder}\\pelengator.exe",
       "args": [
         "USB0::0xF4EC::0x1012::SDSAHBAX6R0452::INSTR"
       ],
