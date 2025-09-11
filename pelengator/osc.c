@@ -148,7 +148,7 @@ ViStatus osc_init(OscCtx *ctx, const char *resourceName)
            num_samples, samples_per_second, duration_seconds, ctx->acq_delay_us);
 
     /* Frame configuration (kept from your code) */
-    if (-1==viwrite_str(instr, (ViBuf)"WFSU SP,10000,NP,700,FP,0,SN,0\n")) goto fail;
+    if (-1==viwrite_str(instr, (ViBuf)"WFSU SP,1,NP,7000000,FP,0,SN,0\n")) goto fail;
     usleep(5000);
 
     /* First ARM */
@@ -201,10 +201,10 @@ ViStatus osc_step(OscCtx *ctx)
 
     /* Processing window (do work on previously captured data) */
     ctx->processing_start_us = monotonic_us();
-    set_buffers(ctx->ch, ctx->buffer, __BUFFER_BYTE_OFFSET__, __BUFFER_BYTE_CHANNAL_LEN__);
+    ctx->len = set_buffers(ctx->ch, ctx->buffer, __BUFFER_BYTE_OFFSET__, __BUFFER_BYTE_CHANNAL_LEN__);
 
     /* Your visual/diagnostic processing */
-    print_waveforms(ctx->buffer, __BUFFER_BYTE_OFFSET__, __BUFFER_BYTE_CHANNAL_LEN__);
+    //print_waveforms(ctx->buffer, __BUFFER_BYTE_OFFSET__, __BUFFER_BYTE_CHANNAL_LEN__);
     /* Decrement bounded loop counter if used */
     if (ctx->loop_counter > 0) ctx->loop_counter--;
     return VI_SUCCESS;
