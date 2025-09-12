@@ -171,6 +171,91 @@ static void draw_spectrum_multi(struct PlotContext *ctx,
     }
 }
 
+
+static void draw_spectrum_multic(struct PlotContext *ctx,
+                                int x0, int y0, int w, int h)
+{
+    Display *dpy = ctx->disp;
+    Window win = ctx->win;
+    GC gc = ctx->gc;
+
+    /* fill region with yellow background */
+    XSetForeground(dpy, gc, ctx->bg_pixel);
+    XFillRectangle(dpy, win, gc, x0, y0, (unsigned int)w, (unsigned int)h);
+
+    XSetForeground(dpy, gc, BlackPixel(dpy, ctx->screen));
+    int left = x0 + BORDER_PX;
+    int right = x0 + w - BORDER_PX;
+    int top = y0 + BORDER_PX;
+    int bottom = y0 + h - BORDER_PX;
+    if (right <= left || bottom <= top) return;
+
+    draw_axes_box(dpy, win, gc, left, top, right, bottom, "Spectrum");
+
+    const double dB_min = -120.0, dB_max = 0.0;
+
+    /* y ticks (bottom = -120 dB, top = 0 dB) */
+    int y_ticks = 4;
+    for (int i = 0; i <= y_ticks; i++) {
+        double frac = (double)i / (double)y_ticks;          /* 0..1 bottom->top */
+        int y = bottom - (int)((bottom - top) * frac);
+        XDrawLine(dpy, win, gc, left - 5, y, left, y);
+        char lab[32];
+        double val = dB_min + (dB_max - dB_min) * frac;     /* −120 → 0 */
+        snprintf(lab, sizeof(lab), "%.0f dB", val);
+        draw_string(dpy, win, gc, x0 + 5, y + 5, lab);
+    }
+
+    /* x (frequency) ticks 0..Fs/2 */
+    double f_max = ctx->fs_hz * 0.5;
+    int x_ticks = 8; /* nice resolution */
+    for (int i = -1*x_ticks; i <= x_ticks; i++) {
+        double frac = (double)i / (double)x_ticks;
+        int x = left + (int)((right - left) * frac);
+        XDrawLine(dpy, win, gc, x, bottom, x, bottom + 5);
+        char lab[48];
+        fmt_hz(f_max * frac, lab, sizeof(lab));
+        draw_string(dpy, win, gc, x - 25, bottom + 18, lab);
+    }
+    /* axes labels */
+    draw_string(dpy, win, gc, (left + right)/2 - 40, bottom + 32, "Frequency");
+
+    int N2 = ctx->fft_size / 2;
+    double x_scale = (double)(right - left) / (double)N2;
+
+    /* traces */
+    for (int ch = 0; ch < ctx->num_channels; ch++) {
+        XSetForeground(dpy, gc, ctx->chan_pixels[ch]);
+        const double *mag = ctx->mag_db + (size_t)ch * (size_t)N2;
+        for (int i = 1; i < N2; i++) {
+            int x1 = left + (int)((i - 1) * x_scale);
+            int x2 = left + (int)(i * x_scale);
+
+            double y1f = (mag[i - 1] - dB_min) / (dB_max - dB_min); if (y1f < 0) y1f = 0; if (y1f > 1) y1f = 1;
+            double y2f = (mag[i]     - dB_min) / (dB_max - dB_min); if (y2f < 0) y2f = 0; if (y2f > 1) y2f = 1;
+
+            int y1 = bottom - (int)((bottom - top) * y1f);
+            int y2 = bottom - (int)((bottom - top) * y2f);
+            XDrawLine(dpy, win, gc, x1, y1, x2, y2);
+        }
+    }
+
+    /* Legend (first 4 named) */
+    const char *names[] = {"ch1 (orange)", "ch2 (red)", "ch3 (blue)", "ch4 (dark green)"};
+    int legend_x = right - 200, legend_y = top + 20;
+    for (int ch = 0; ch < ctx->num_channels && ch < 8; ch++) {
+        XSetForeground(dpy, gc, ctx->chan_pixels[ch]);
+        XDrawLine(dpy, win, gc, legend_x, legend_y + ch*16, legend_x + 25, legend_y + ch*16);
+        XSetForeground(dpy, gc, BlackPixel(dpy, ctx->screen));
+        char buf[64];
+        if (ch < 4) snprintf(buf, sizeof(buf), "%s", names[ch]);
+        else snprintf(buf, sizeof(buf), "ch%d", ch+1);
+        draw_string(dpy, win, gc, legend_x + 32, legend_y + ch*16 + 5, buf);
+    }
+}
+
+
+
 static void draw_time_multi(struct PlotContext *ctx,
                             const signed char * const *channels,
                             int x0, int y0, int w, int h)
@@ -318,6 +403,161 @@ PlotContext* plot_create(const char *window_title,
     return ctx;
 }
 
+
+PlotContext* plot_createc(const char *window_title,
+                         int fft_size,
+                         int num_channels,
+                         int width,
+                         int height,
+                         double sample_rate_hz)
+{
+    if (fft_size <= 0 || (fft_size & (fft_size - 1)) != 0) {
+        fprintf(stderr, "fft_size must be a power of two > 0\n");
+        return NULL;
+    }
+    if (num_channels <= 0) {
+        fprintf(stderr, "num_channels must be > 0\n");
+        return NULL;
+    }
+
+    PlotContext *ctx = (PlotContext*)calloc(1, sizeof(PlotContext));
+    if (!ctx) return NULL;
+
+    ctx->fft_size = fft_size;
+    ctx->num_channels = num_channels;
+    ctx->width = (width > 0) ? width : DEFAULT_WINDOW_WIDTH;
+    ctx->height = (height > 0) ? height : DEFAULT_WINDOW_HEIGHT;
+    ctx->fs_hz = (sample_rate_hz > 0) ? sample_rate_hz : 1.0; /* avoid div0 */
+    snprintf(ctx->title, sizeof(ctx->title), "%s", window_title ? window_title : "FFT Viewer");
+
+    ctx->mag_db = (double*)malloc(sizeof(double) * (size_t)num_channels * (size_t)(fft_size/2));
+    if (!ctx->mag_db) { free(ctx); return NULL; }
+
+    ctx->disp = XOpenDisplay(NULL);
+    if (!ctx->disp) {
+        fprintf(stderr, "Cannot open X display\n");
+        free(ctx->mag_db);
+        free(ctx);
+        return NULL;
+    }
+    ctx->screen = DefaultScreen(ctx->disp);
+    ctx->cmap = DefaultColormap(ctx->disp, ctx->screen);
+    ctx->bg_pixel = get_bg(ctx->disp, ctx->cmap); /* yellow */
+
+    unsigned long black = BlackPixel(ctx->disp, ctx->screen);
+
+    ctx->win = XCreateSimpleWindow(ctx->disp,
+                                   RootWindow(ctx->disp, ctx->screen),
+                                   60, 60,
+                                   (unsigned int)ctx->width,
+                                   (unsigned int)ctx->height,
+                                   1, black, ctx->bg_pixel); /* yellow bg */
+    XStoreName(ctx->disp, ctx->win, ctx->title);
+    XSelectInput(ctx->disp, ctx->win, ExposureMask | KeyPressMask | StructureNotifyMask);
+    XMapWindow(ctx->disp, ctx->win);
+
+    ctx->gc = XCreateGC(ctx->disp, ctx->win, 0, NULL);
+    XSetForeground(ctx->disp, ctx->gc, black);
+
+    ctx->font = XLoadQueryFont(ctx->disp, "9x15");
+    if (ctx->font) XSetFont(ctx->disp, ctx->gc, ctx->font->fid);
+
+    ctx->chan_pixels = (unsigned long*)malloc(sizeof(unsigned long) * (size_t)num_channels);
+    if (!ctx->chan_pixels) {
+        XFreeGC(ctx->disp, ctx->gc);
+        XDestroyWindow(ctx->disp, ctx->win);
+        XCloseDisplay(ctx->disp);
+        free(ctx->mag_db);
+        free(ctx);
+        return NULL;
+    }
+    for (int ch = 0; ch < num_channels; ch++)
+        ctx->chan_pixels[ch] = choose_color(ctx->disp, ctx->cmap, ch);
+
+    ctx->is_open = 1;
+    return ctx;
+}
+
+
+
+PlotContext* plot_createc1(const char *window_title,
+                         int fft_size,
+                         int num_channels,
+                         int width,
+                         int height,
+                         double sample_rate_hz)
+{
+    if (fft_size <= 0 || (fft_size & (fft_size - 1)) != 0) {
+        fprintf(stderr, "fft_size must be a power of two > 0\n");
+        return NULL;
+    }
+    if (num_channels <= 0) {
+        fprintf(stderr, "num_channels must be > 0\n");
+        return NULL;
+    }
+
+    PlotContext *ctx = (PlotContext*)calloc(1, sizeof(PlotContext));
+    if (!ctx) return NULL;
+
+    ctx->fft_size = fft_size;
+    ctx->num_channels = num_channels;
+    ctx->width = (width > 0) ? width : DEFAULT_WINDOW_WIDTH;
+    ctx->height = (height > 0) ? height : DEFAULT_WINDOW_HEIGHT;
+    ctx->fs_hz = (sample_rate_hz > 0) ? sample_rate_hz : 1.0; /* avoid div0 */
+    snprintf(ctx->title, sizeof(ctx->title), "%s", window_title ? window_title : "FFT Viewer");
+
+    // The frequency range is now symmetric, so we allocate for the full FFT size (including negative frequencies)
+    ctx->mag_db = (double*)malloc(sizeof(double) * (size_t)num_channels * (size_t)(fft_size));
+    if (!ctx->mag_db) { free(ctx); return NULL; }
+
+    ctx->disp = XOpenDisplay(NULL);
+    if (!ctx->disp) {
+        fprintf(stderr, "Cannot open X display\n");
+        free(ctx->mag_db);
+        free(ctx);
+        return NULL;
+    }
+    ctx->screen = DefaultScreen(ctx->disp);
+    ctx->cmap = DefaultColormap(ctx->disp, ctx->screen);
+    ctx->bg_pixel = get_bg(ctx->disp, ctx->cmap); /* yellow */
+
+    unsigned long black = BlackPixel(ctx->disp, ctx->screen);
+
+    ctx->win = XCreateSimpleWindow(ctx->disp,
+                                   RootWindow(ctx->disp, ctx->screen),
+                                   60, 60,
+                                   (unsigned int)ctx->width,
+                                   (unsigned int)ctx->height,
+                                   1, black, ctx->bg_pixel); /* yellow bg */
+    XStoreName(ctx->disp, ctx->win, ctx->title);
+    XSelectInput(ctx->disp, ctx->win, ExposureMask | KeyPressMask | StructureNotifyMask);
+    XMapWindow(ctx->disp, ctx->win);
+
+    ctx->gc = XCreateGC(ctx->disp, ctx->win, 0, NULL);
+    XSetForeground(ctx->disp, ctx->gc, black);
+
+    ctx->font = XLoadQueryFont(ctx->disp, "9x15");
+    if (ctx->font) XSetFont(ctx->disp, ctx->gc, ctx->font->fid);
+
+    ctx->chan_pixels = (unsigned long*)malloc(sizeof(unsigned long) * (size_t)num_channels);
+    if (!ctx->chan_pixels) {
+        XFreeGC(ctx->disp, ctx->gc);
+        XDestroyWindow(ctx->disp, ctx->win);
+        XCloseDisplay(ctx->disp);
+        free(ctx->mag_db);
+        free(ctx);
+        return NULL;
+    }
+    for (int ch = 0; ch < num_channels; ch++)
+        ctx->chan_pixels[ch] = choose_color(ctx->disp, ctx->cmap, ch);
+
+    ctx->is_open = 1;
+    return ctx;
+}
+
+
+
+
 void plot_update(PlotContext *ctx,
                  const signed char * const *channels,
                  long long current_time_us)
@@ -344,6 +584,38 @@ void plot_update(PlotContext *ctx,
 
     XFlush(ctx->disp);
 }
+
+
+void plot_updatec(PlotContext *ctx,
+                 const double * const *channels_r,
+                 const double * const *channels_i,
+                 long long current_time_us)
+{
+    (void)current_time_us;
+    if (!ctx || !ctx->is_open || !channels_r || !channels_i) return;
+
+    int N = ctx->fft_size, N2 = N/2;
+    for (int ch = 0; ch < ctx->num_channels; ch++) {
+        const double *in_r = channels_r[ch];
+        const double *in_i = channels_i[ch];
+        if (!in_r || !in_i) continue;
+        process_fftc(in_r,in_i, ctx->mag_db + (size_t)ch * (size_t)N2, N);
+    }
+
+    /* drain events so Expose doesn't backlog */
+    XEvent ev;
+    while (XPending(ctx->disp)) XNextEvent(ctx->disp, &ev);
+
+    int spec_h = (int)(ctx->height * 0.65);
+    int time_h = ctx->height - spec_h;
+
+    draw_spectrum_multic(ctx, 0, 0, ctx->width, spec_h);
+    //draw_time_multic(ctx, channels, 0, spec_h, ctx->width, time_h);
+
+    XFlush(ctx->disp);
+}
+
+
 
 int plot_handle_events(PlotContext *ctx) {
     if (!ctx || !ctx->is_open) return 1;

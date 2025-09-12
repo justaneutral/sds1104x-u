@@ -53,8 +53,8 @@ ViStatus osc_init(OscCtx *ctx, const char *resourceName)
     if (-1==viwrite_str(instr, (ViBuf)"*IDN?\n")) goto fail;
     if (-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
 
-    if (-1==viwrite_str(instr, (ViBuf)"*RST\n")) goto fail;
-    usleep(5000000);
+    //if (-1==viwrite_str(instr, (ViBuf)"*RST\n")) goto fail;
+    //usleep(5000000);
     if (-1==viwrite_str(instr, (ViBuf)"*OPC?\n")) goto fail;
     if (-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
 
@@ -65,6 +65,7 @@ ViStatus osc_init(OscCtx *ctx, const char *resourceName)
     if (-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
 
     if (-1==viwrite_str(instr, (ViBuf)"TDIV 1S\n")) goto fail;
+    //if (-1==viwrite_str(instr, (ViBuf)"TDIV 1US\n")) goto fail;
     if (-1==viwrite_str(instr, (ViBuf)"TRMD SINGLE\n")) goto fail;
     if (-1==viwrite_str(instr, (ViBuf)"TRDL 0\n")) goto fail;
     if (-1==viwrite_str(instr, (ViBuf)"TRWI 10V\n")) goto fail;

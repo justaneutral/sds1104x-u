@@ -1,4 +1,5 @@
 #include "fft_lib.h"
+#include <complex.h>
 #include <math.h>
 #include <string.h>
 
@@ -65,6 +66,48 @@ void process_fft(const signed char *input, double *output_mag_db, int n) {
         double db = 10.0 * log10(m2);
         double rel = db - max_db;
         output_mag_db[i] = (rel < -120.0) ? -120.0 : rel;
+    }
+}
+
+
+void process_fftc(const double *input_r, const double *input_i, double *output_mag_db, int n) {
+    double complex in[n], out[n];
+    double win[n];
+
+    // Copy input complex values directly into the in array
+    for (int i = 0; i < n; i++) in[i] = input_r[i] + input_i[i] * I;
+
+    // Apply Hamming window to both the real and imaginary parts of the input
+    for (int i = 0; i < n; i++) win[i] = creal(in[i]);  // Use real part for windowing
+
+    hamming_window(win, n);  // Assuming the hamming_window function applies the window correctly
+
+    // Apply window to both real and imaginary parts
+    for (int i = 0; i < n; i++) {
+        in[i] = win[i] * (creal(in[i]) + I * cimag(in[i]));  // Multiply by window on both real and imaginary parts
+    }
+
+    // Perform FFT
+    fft(in, out, n);
+
+    // Find the maximum magnitude square for normalization
+    double max_m2 = 0.0;
+    for (int i = 0; i < n / 2; i++) {
+        double re = creal(out[i]), im = cimag(out[i]);
+        double m2 = re * re + im * im;
+        if (m2 > max_m2) max_m2 = m2;
+    }
+    if (max_m2 < 1e-12) max_m2 = 1e-12;  // Avoid log(0) by setting a small minimum value
+    double max_db = 10.0 * log10(max_m2);
+
+    // Calculate magnitudes in dB, relative to max_db
+    for (int i = 0; i < n / 2; i++) {
+        double re = creal(out[i]), im = cimag(out[i]);
+        double m2 = re * re + im * im;
+        if (m2 < 1e-12) m2 = 1e-12;  // Avoid log(0) by setting a small minimum value
+        double db = 10.0 * log10(m2);
+        double rel = db - max_db;
+        output_mag_db[i] = (rel < -120.0) ? -120.0 : rel;  // Clamping the dB values
     }
 }
 

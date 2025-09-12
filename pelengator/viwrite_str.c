@@ -13,6 +13,6 @@ ViUInt32 viwrite_str(ViSession instr, ViBuf buffer)
         //close_device(defaultRM, instr);
         return -1;
     }
-    printf("viWrite(%d): %s\n",strlen(buffer),buffer);
+    //printf("viWrite(%d): %s\n",strlen(buffer),buffer);
     return retCount;
 }

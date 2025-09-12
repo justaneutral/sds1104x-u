@@ -11,6 +11,8 @@
 #include "fft_lib.h"
 #include "osc.h"
 
+#include "x11_multiplot.h"
+
 #define INPUT_SAMPLE_RATE 500000.0
 #define OUTPUT_SAMPLE_RATE (INPUT_SAMPLE_RATE/20)
 #define INPUT_N 1024
@@ -139,11 +141,10 @@ int run_scope_n(int n)
 {
     int rv = 0;
 
-    complex_t filter_output;
+    double complex filter_output;
 
     signed char **buf_before = (signed char**)calloc((size_t)DEFAULT_K, sizeof(signed char*));
-    signed char **buf_after  = (signed char**)calloc((size_t)DEFAULT_K, sizeof(signed char*));
-    if (!buf_before || !buf_after)
+    if (!buf_before)
     {
         fprintf(stderr, "OOM\n");
         rv = -1;
@@ -151,14 +152,20 @@ int run_scope_n(int n)
     }
 
     OscCtx ctx;
-    PlotContext *ctx_before = plot_create("Stage A - BEFORE (Overlay)", INPUT_N, DEFAULT_K, WIN_W, WIN_H, INPUT_SAMPLE_RATE);
-    PlotContext *ctx_after  = plot_create("Stage B - AFTER  (Overlay)", OUTPUT_N, DEFAULT_K, WIN_W, WIN_H, OUTPUT_SAMPLE_RATE);
+    PlotContext *ctx_before = plot_create("Input signal", INPUT_N, DEFAULT_K, WIN_W, WIN_H, INPUT_SAMPLE_RATE);
+    x11_multiplot("open,0");
+    x11_multiplot("open,1");
+    x11_multiplot("open,2");
+    x11_multiplot("open,3");
+    x11_multiplot("open,4");
+    x11_multiplot("open,5");
+    x11_multiplot("open,6");
+    x11_multiplot("open,7");
     
-    if (!ctx_before || !ctx_after)
+    if (!ctx_before)
     {
         fprintf(stderr, "Failed to create X11 windows. Is X server available?\n");
         plot_destroy(ctx_before);
-        plot_destroy(ctx_after);
         rv = -2;
         goto _prtn1;
     }
@@ -187,8 +194,7 @@ int run_scope_n(int n)
         for (int ch = 0; ch < DEFAULT_K; ch++) 
         {
             buf_before[ch] = ctx.ch[ch];
-            buf_after[ch] = ctx.ch[ch];
-            if (!(buf_before[ch]) || !(buf_after[ch]))
+            if (!(buf_before[ch]))
             {
                 fprintf(stderr, "OOM\n");
                 return -1;
@@ -201,33 +207,33 @@ int run_scope_n(int n)
         
             plot_update(ctx_before, (const signed char * const *)buf_before, i);
             int m = 0;
-            int ready[DEFAULT_K] = {0,0,0,0};
+            int ready = 0;
 
             for(int j=0;j<INPUT_N;j++)
             {
                 for (int ch = 0; ch < DEFAULT_K; ch++)
                 {
-                    process_sample(buf_before[ch][j], complex_filter_coeffs, history1[ch], &history_idx1[ch], &decimate_counter1[ch], &angle1[ch], angle_increment1, &filter_output, &ready[ch]);
-                    //process_sample(buf_before[i][j], complex_filter_coeffs, history2, &history_idx2, &decimate_counter2, &angle2, angle_increment2, buf_after[i][m], &ready);
+                    process_sample(buf_before[ch][j], complex_filter_coeffs, history1[ch], &history_idx1[ch], &decimate_counter1[ch], &angle1[ch], angle_increment1, &filter_output, &ready);
+                    //process_sample(buf_before[ch][j], complex_filter_coeffs, history2[ch], &history_idx2[ch], &decimate_counter2[ch], &angle2[ch], angle_increment2, &filter_output, &ready);
                     if(ready)
                     {
-                        //buf_after[ch][m] = (signed char)(filter_output.real);  // Take real part as output
-                        //buf_after[ch][m+1] = (signed char)(filter_output.imag);  // Take imag part as output
-                        if(ch==DEFAULT_K-1) m++;
+			char cmd[250];
+			sprintf(cmd, "plot,%d,%f,%f", ch*2,(double)m, creal(filter_output));
+        		x11_multiplot(cmd);
+			sprintf(cmd, "plot,%d,%f,%f", ch*2+1,(double)m, cimag(filter_output));
+        		x11_multiplot(cmd);
+                        m++;
                     }
                 }
-    
             }
-            for(int ch=0;ch<DEFAULT_K;ch++)
+            
+            if(m)
             {
-                for(int k=m;k<OUTPUT_N;k++) buf_after[ch][k] = 0;
+                //plot_updatec(ctx_after, buf_before, buf_before, i);
             }
-
-            plot_update(ctx_after,  (const signed char * const *)buf_after,  i);
 
             int closed_a = plot_handle_events(ctx_before);
-            int closed_b = plot_handle_events(ctx_after);
-            if (closed_a || closed_b) 
+            if (closed_a) 
             {
                 goto _prtn1;
             }
@@ -237,17 +243,22 @@ int run_scope_n(int n)
         for (int ch = 0; ch < DEFAULT_K; ch++) 
         {
             buf_before[ch]+=INPUT_N;
-            buf_after[ch]+=INPUT_N;
         }
     }
 
 _prtn1:
+    x11_multiplot("close,0");
+    x11_multiplot("close,1");
+    x11_multiplot("close,2");
+    x11_multiplot("close,3");
+    x11_multiplot("close,4");
+    x11_multiplot("close,5");
+    x11_multiplot("close,6");
+    x11_multiplot("close,7");
     plot_destroy(ctx_before);
-    plot_destroy(ctx_after);
     osc_close(&ctx);
 _prtn0:
     if(buf_before) free(buf_before);
-    if(buf_after) free(buf_after);
     return rv;
 }
 
