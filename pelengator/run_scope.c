@@ -12,6 +12,7 @@
 #include "osc.h"
 
 #include "x11_multiplot.h"
+#include "lms_filter.h"
 
 #define INPUT_SAMPLE_RATE 500000.0
 #define OUTPUT_SAMPLE_RATE (INPUT_SAMPLE_RATE/20)
@@ -61,14 +62,14 @@ const double complex_filter_coeffs[COMPLEX_FILTER_TAPS] = {
 
 
 // State variables for Filter 1
-complex_t history1[4][COMPLEX_FILTER_TAPS] = {0}; // Initialize to all zeros
+complex_t history1[4][COMPLEX_FILTER_TAPS] = {0,0,0,0}; // Initialize to all zeros
 int history_idx1[4] = {0,0,0,0};
 int decimate_counter1[4] = {0,0,0,0};
 double angle1[4] = {0.0,0.0,0.0,0.0};
 double angle_increment1 = 2.0 * M_PI * F_C1 / INPUT_SAMPLE_RATE;
 
 // State variables for Filter 2
-complex_t history2[4][COMPLEX_FILTER_TAPS] = {0}; // Initialize to all zeros
+complex_t history2[4][COMPLEX_FILTER_TAPS] = {0,0,0,0}; // Initialize to all zeros
 int history_idx2[4] = {0,0,0,0};
 int decimate_counter2[4] = {0,0,0,0};
 double angle2[4] = {0.0,0.0,0.0,0.0};
@@ -141,7 +142,6 @@ int run_scope_n(int n)
 {
     int rv = 0;
 
-    double complex filter_output;
 
     signed char **buf_before = (signed char**)calloc((size_t)DEFAULT_K, sizeof(signed char*));
     if (!buf_before)
@@ -153,14 +153,21 @@ int run_scope_n(int n)
 
     OscCtx ctx;
     PlotContext *ctx_before = plot_create("Input signal", INPUT_N, DEFAULT_K, WIN_W, WIN_H, INPUT_SAMPLE_RATE);
+    
     x11_multiplot("open,0");
     x11_multiplot("open,1");
     x11_multiplot("open,2");
     x11_multiplot("open,3");
     x11_multiplot("open,4");
     x11_multiplot("open,5");
-    x11_multiplot("open,6");
-    x11_multiplot("open,7");
+
+    x11_multiplot("mode,0,0"); // Set mode to Points
+    x11_multiplot("mode,1,0"); // Set mode to Points
+    x11_multiplot("mode,2,0"); // Set mode to Points
+    
+    x11_multiplot("mode,3,2"); // Set mode to X-Y
+    x11_multiplot("mode,4,2"); // Set mode to X-Y
+    x11_multiplot("mode,5,2"); // Set mode to X-Y
     
     if (!ctx_before)
     {
@@ -186,6 +193,22 @@ int run_scope_n(int n)
         history2[ch][i].real = 0;
     }
 
+    double complex filter_output[DEFAULT_K];
+    LMSFilter lmsf[DEFAULT_K];
+    complex double desired_signal = 1.0 + 0.0*I;
+    int num_iterations;
+    int m = 0;
+    int ready[DEFAULT_K];
+    int closed_a;
+    double angle[3];
+    char cmd[250];
+    // Function to initialize the LMS filter
+    for (int ch = 0; ch < DEFAULT_K; ch++)
+    {
+	    lms_filter_init(&lmsf[ch], desired_signal);
+    }
+
+
     while (ctx.loop_counter) 
     {
         st = osc_step(&ctx);
@@ -200,39 +223,49 @@ int run_scope_n(int n)
                 return -1;
             }
         }
-    
-        int num_iterations = (ctx.len - INPUT_N)/INPUT_N;
+   
+        num_iterations = (ctx.len - INPUT_N)/INPUT_N;
         for(int i = 0; i < num_iterations; i++) 
         {
         
             plot_update(ctx_before, (const signed char * const *)buf_before, i);
-            int m = 0;
-            int ready = 0;
 
             for(int j=0;j<INPUT_N;j++)
             {
                 for (int ch = 0; ch < DEFAULT_K; ch++)
                 {
-                    process_sample(buf_before[ch][j], complex_filter_coeffs, history1[ch], &history_idx1[ch], &decimate_counter1[ch], &angle1[ch], angle_increment1, &filter_output, &ready);
-                    //process_sample(buf_before[ch][j], complex_filter_coeffs, history2[ch], &history_idx2[ch], &decimate_counter2[ch], &angle2[ch], angle_increment2, &filter_output, &ready);
-                    if(ready)
-                    {
-			char cmd[250];
-			sprintf(cmd, "plot,%d,%f,%f", ch*2,(double)m, creal(filter_output));
-        		x11_multiplot(cmd);
-			sprintf(cmd, "plot,%d,%f,%f", ch*2+1,(double)m, cimag(filter_output));
-        		x11_multiplot(cmd);
-                        m++;
-                    }
+		            ready[ch] = 0;
+                    process_sample(buf_before[ch][j], complex_filter_coeffs, history1[ch], &history_idx1[ch], &decimate_counter1[ch], &angle1[ch], angle_increment1, &filter_output[ch], &ready[ch]);
+                    //process_sample(buf_before[ch][j], complex_filter_coeffs, history2[ch], &history_idx2[ch], &decimate_counter2[ch], &angle2[ch], angle_increment2, &filter_output[ch], &ready[ch]);
+		}
+
+                if(ready[0] && ready[1] && ready[2])
+                {
+		    // lms filter step function
+
+		    angle[0] = lms_step(&lmsf[0], filter_output[0], filter_output[1]);
+		    angle[1] = lms_step(&lmsf[1], filter_output[1], filter_output[2]);
+		    angle[2] = lms_step(&lmsf[2], filter_output[2], filter_output[0]);
+
+		    sprintf(cmd,"plot,0,%f,%f", (double)m, angle[0]);
+        	    x11_multiplot(cmd);
+		    sprintf(cmd,"plot,1,%f,%f",(double) m,angle[1]);
+        	    x11_multiplot(cmd);
+		    sprintf(cmd,"plot,2,%f,%f", (double)m, angle[2]);
+        	    x11_multiplot(cmd);
+
+		    sprintf(cmd,"plot,3,%f,%f",angle[0],angle[1]);
+        	    x11_multiplot(cmd);
+		    sprintf(cmd,"plot,4,%f,%f",angle[1], angle[2]);
+        	    x11_multiplot(cmd);
+		    sprintf(cmd,"plot,5,%f,%f",angle[2],angle[0]);
+        	    x11_multiplot(cmd);
+
+                    m++;
                 }
             }
             
-            if(m)
-            {
-                //plot_updatec(ctx_after, buf_before, buf_before, i);
-            }
-
-            int closed_a = plot_handle_events(ctx_before);
+            closed_a = plot_handle_events(ctx_before);
             if (closed_a) 
             {
                 goto _prtn1;
@@ -253,8 +286,6 @@ _prtn1:
     x11_multiplot("close,3");
     x11_multiplot("close,4");
     x11_multiplot("close,5");
-    x11_multiplot("close,6");
-    x11_multiplot("close,7");
     plot_destroy(ctx_before);
     osc_close(&ctx);
 _prtn0:

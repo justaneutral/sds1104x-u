@@ -21,6 +21,8 @@ ViStatus set_attribute(ViSession vi, ViAttr attribute, ViAttrState value);
 
 // Function to read a binary waveform from the VISA device
 ViUInt32 viread_buf(ViSession instr, char *buffer,ViUInt32 requested_bytes);
+ViUInt32 viread_str(ViSession instr, char *buffer,ViUInt32 requested_bytes);
+ViUInt32 viwrite_str(ViSession instr, ViBuf buffer);
 
 // Function to convert a binary buffer to an array of samples
 // The `scale` and `offset` parameters are instrument-specific

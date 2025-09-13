@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include "visa_util.h"
 #include "osc.h"
 
 /* ---- Forward declarations for helpers you already have elsewhere ---- */
@@ -50,95 +52,95 @@ ViStatus osc_init(OscCtx *ctx, const char *resourceName)
     ViSession instr = ctx->instr;
     ViUInt32 retCount;
 
-    if (-1==viwrite_str(instr, (ViBuf)"*IDN?\n")) goto fail;
-    if (-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"*IDN?\n")) goto fail;
+    if ((ViUInt32)-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
 
-    //if (-1==viwrite_str(instr, (ViBuf)"*RST\n")) goto fail;
+    //if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"*RST\n")) goto fail;
     //usleep(5000000);
-    if (-1==viwrite_str(instr, (ViBuf)"*OPC?\n")) goto fail;
-    if (-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"*OPC?\n")) goto fail;
+    if ((ViUInt32)-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
 
     printf("Setup\n");
-    if (-1==viwrite_str(instr, (ViBuf)"CHDR OFF\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"MSIZ 7M\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"MSIZ?\n")) goto fail;
-    if (-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"CHDR OFF\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"MSIZ 7M\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"MSIZ?\n")) goto fail;
+    if ((ViUInt32)-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
 
-    if (-1==viwrite_str(instr, (ViBuf)"TDIV 1S\n")) goto fail;
-    //if (-1==viwrite_str(instr, (ViBuf)"TDIV 1US\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"TRMD SINGLE\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"TRDL 0\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"TRWI 10V\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"TRPA C1,L,C2,L,C3,L,C4,L,STATE,OR\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"TRSE EDGE,SR,C1,HT,OFF,HV,0,HV2,0\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"TRSE?\n")) goto fail;
-    if (-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TDIV 1S\n")) goto fail;
+    //if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TDIV 1US\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TRMD SINGLE\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TRDL 0\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TRWI 10V\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TRPA C1,L,C2,L,C3,L,C4,L,STATE,OR\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TRSE EDGE,SR,C1,HT,OFF,HV,0,HV2,0\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TRSE?\n")) goto fail;
+    if ((ViUInt32)-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
 
-    if (-1==viwrite_str(instr, (ViBuf)"BWL C1,ON,C2,ON,C3,ON,C4,ON\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"BWL C1,ON,C2,ON,C3,ON,C4,ON\n")) goto fail;
 
     /* Channel setups C1..C4 (same as original) */
-    if (-1==viwrite_str(instr, (ViBuf)"C1:TRCP AC\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C1:TRLV 0mV\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C1:TRLV2 0mV\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C1:TRSL WINDOW\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C1:ATTN 1\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C1:CPL A50\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C1:OFST +0V\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C1:SKEW 0.00E-00S\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C1:TRA ON\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C1:UNIT V\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C1:VDIV 5mV\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C1:INVS OFF\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:TRCP AC\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:TRLV 0mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:TRLV2 0mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:TRSL WINDOW\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:ATTN 1\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:CPL A50\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:OFST +0V\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:SKEW 0.00E-00S\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:TRA ON\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:UNIT V\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:VDIV 5mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:INVS OFF\n")) goto fail;
 
-    if (-1==viwrite_str(instr, (ViBuf)"C2:TRCP AC\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C2:TRLV 0mV\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C2:TRLV2 0mV\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C2:TRSL WINDOW\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C2:ATTN 1\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C2:CPL A50\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C2:OFST +0V\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C2:SKEW 0.00E-00S\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C2:TRA ON\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C2:UNIT V\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C2:VDIV 5mV\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C2:INVS OFF\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:TRCP AC\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:TRLV 0mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:TRLV2 0mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:TRSL WINDOW\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:ATTN 1\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:CPL A50\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:OFST +0V\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:SKEW 0.00E-00S\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:TRA ON\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:UNIT V\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:VDIV 5mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:INVS OFF\n")) goto fail;
 
-    if (-1==viwrite_str(instr, (ViBuf)"C3:TRCP AC\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C3:TRLV 0mV\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C3:TRLV2 0mV\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C3:TRSL WINDOW\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C3:ATTN 1\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C3:CPL A50\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C3:OFST +0V\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C3:SKEW 0.00E-00S\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C3:TRA ON\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C3:UNIT V\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C3:VDIV 5mV\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C3:INVS OFF\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:TRCP AC\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:TRLV 0mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:TRLV2 0mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:TRSL WINDOW\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:ATTN 1\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:CPL A50\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:OFST +0V\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:SKEW 0.00E-00S\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:TRA ON\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:UNIT V\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:VDIV 5mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:INVS OFF\n")) goto fail;
 
-    if (-1==viwrite_str(instr, (ViBuf)"C4:TRCP AC\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C4:TRLV 0mV\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C4:TRLV2 0mV\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C4:TRSL WINDOW\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C4:ATTN 1\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C4:CPL A50\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C4:OFST +0V\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C4:SKEW 0.00E-00S\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C4:TRA ON\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C4:UNIT V\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C4:VDIV 5mV\n")) goto fail;
-    if (-1==viwrite_str(instr, (ViBuf)"C4:INVS OFF\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:TRCP AC\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:TRLV 0mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:TRLV2 0mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:TRSL WINDOW\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:ATTN 1\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:CPL A50\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:OFST +0V\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:SKEW 0.00E-00S\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:TRA ON\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:UNIT V\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:VDIV 5mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:INVS OFF\n")) goto fail;
 
     /* VISA timeout & sample/time queries */
     if (0 != set_attribute(instr, VI_ATTR_TMO_VALUE, 30000)) goto fail;
 
-    if (-1==viwrite_str(instr, (ViBuf)"SANU? C1\n")) goto fail;
-    if (-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"SANU? C1\n")) goto fail;
+    if ((ViUInt32)-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
     float num_samples = 0.0f, samples_per_second = 0.0f, duration_seconds = 0.0f;
     sscanf(ctx->buffer, "%g", &num_samples);
 
-    if (-1==viwrite_str(instr, (ViBuf)"SARA?\n")) goto fail;
-    if (-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"SARA?\n")) goto fail;
+    if ((ViUInt32)-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
     sscanf(ctx->buffer, "%g", &samples_per_second);
 
     duration_seconds = num_samples / (samples_per_second > 0.0f ? samples_per_second : 1.0f);
@@ -149,11 +151,11 @@ ViStatus osc_init(OscCtx *ctx, const char *resourceName)
            num_samples, samples_per_second, duration_seconds, ctx->acq_delay_us);
 
     /* Frame configuration (kept from your code) */
-    if (-1==viwrite_str(instr, (ViBuf)"WFSU SP,1,NP,7000000,FP,0,SN,0\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"WFSU SP,1,NP,7000000,FP,0,SN,0\n")) goto fail;
     usleep(5000);
 
     /* First ARM */
-    if (-1==viwrite_str(instr, (ViBuf)"ARM\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"ARM\n")) goto fail;
 
     return VI_SUCCESS;
 
@@ -183,22 +185,25 @@ ViStatus osc_step(OscCtx *ctx)
     ViSession instr = ctx->instr;
     ViUInt32 retCount;
 
-    if (-1==viwrite_str(instr, (ViBuf)"C1:WF? DAT2\n")) return VI_ERROR_SYSTEM_ERROR;
-    if (-1==(retCount=viread_str(instr, BUF_CH0(ctx->buffer), __BUFFER_BYTE_LEN__))) return VI_ERROR_SYSTEM_ERROR;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:WF? DAT2\n")) return VI_ERROR_SYSTEM_ERROR;
+    if ((ViUInt32)-1==(retCount=viread_str(instr, BUF_CH0(ctx->buffer), __BUFFER_BYTE_LEN__))) return VI_ERROR_SYSTEM_ERROR;
 
-    if (-1==viwrite_str(instr, (ViBuf)"C2:WF? DAT2\n")) return VI_ERROR_SYSTEM_ERROR;
-    if (-1==(retCount=viread_str(instr, BUF_CH1(ctx->buffer), __BUFFER_BYTE_LEN__))) return VI_ERROR_SYSTEM_ERROR;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:WF? DAT2\n")) return VI_ERROR_SYSTEM_ERROR;
+    if ((ViUInt32)
+-1==(retCount=viread_str(instr, BUF_CH1(ctx->buffer), __BUFFER_BYTE_LEN__))) return VI_ERROR_SYSTEM_ERROR;
 
-    if (-1==viwrite_str(instr, (ViBuf)"C3:WF? DAT2\n")) return VI_ERROR_SYSTEM_ERROR;
-    if (-1==(retCount=viread_str(instr, BUF_CH2(ctx->buffer), __BUFFER_BYTE_LEN__))) return VI_ERROR_SYSTEM_ERROR;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:WF? DAT2\n")) return VI_ERROR_SYSTEM_ERROR;
+    if ((ViUInt32)
+-1==(retCount=viread_str(instr, BUF_CH2(ctx->buffer), __BUFFER_BYTE_LEN__))) return VI_ERROR_SYSTEM_ERROR;
 
-    if (-1==viwrite_str(instr, (ViBuf)"C4:WF? DAT2\n")) return VI_ERROR_SYSTEM_ERROR;
-    if (-1==(retCount=viread_str(instr, BUF_CH3(ctx->buffer), __BUFFER_BYTE_LEN__))) return VI_ERROR_SYSTEM_ERROR;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:WF? DAT2\n")) return VI_ERROR_SYSTEM_ERROR;
+    if ((ViUInt32)
+-1==(retCount=viread_str(instr, BUF_CH3(ctx->buffer), __BUFFER_BYTE_LEN__))) return VI_ERROR_SYSTEM_ERROR;
 
     ctx->last_retCount = retCount;
 
     /* Start next acquisition immediately */
-    if (-1==viwrite_str(instr, (ViBuf)"ARM\n")) return VI_ERROR_SYSTEM_ERROR;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"ARM\n")) return VI_ERROR_SYSTEM_ERROR;
 
     /* Processing window (do work on previously captured data) */
     ctx->processing_start_us = monotonic_us();

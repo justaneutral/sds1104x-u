@@ -7,7 +7,7 @@
 
 void print_waveforms(char *buffer,unsigned int offset, unsigned int length)
 {
-    int i,j;
+    unsigned int i,j;
     char *ch[] = 
     {
         strlen(preambula)+strstr(&buffer[offset+0*length],preambula),

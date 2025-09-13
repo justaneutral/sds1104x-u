@@ -14,7 +14,7 @@ void print_buf(char *buffer,unsigned int offset, unsigned int length,unsigned in
 
     if(length>0)
     {
-        for(int i=offset;i<(offset+length);i++)
+        for(unsigned int i=offset;i<(offset+length);i++)
         {
                 if((body_offset == 0 || body_offset_counter >= body_offset) && indentation_counter == 0)
                 {
