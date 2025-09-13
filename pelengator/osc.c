@@ -89,7 +89,7 @@ ViStatus osc_init(OscCtx *ctx, const char *resourceName)
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:SKEW 0.00E-00S\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:TRA ON\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:UNIT V\n")) goto fail;
-    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:VDIV 5mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:VDIV 2mV\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C1:INVS OFF\n")) goto fail;
 
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:TRCP AC\n")) goto fail;
@@ -102,7 +102,7 @@ ViStatus osc_init(OscCtx *ctx, const char *resourceName)
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:SKEW 0.00E-00S\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:TRA ON\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:UNIT V\n")) goto fail;
-    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:VDIV 5mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:VDIV 2mV\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C2:INVS OFF\n")) goto fail;
 
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:TRCP AC\n")) goto fail;
@@ -115,7 +115,7 @@ ViStatus osc_init(OscCtx *ctx, const char *resourceName)
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:SKEW 0.00E-00S\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:TRA ON\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:UNIT V\n")) goto fail;
-    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:VDIV 5mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:VDIV 2mV\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C3:INVS OFF\n")) goto fail;
 
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:TRCP AC\n")) goto fail;
@@ -128,7 +128,7 @@ ViStatus osc_init(OscCtx *ctx, const char *resourceName)
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:SKEW 0.00E-00S\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:TRA ON\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:UNIT V\n")) goto fail;
-    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:VDIV 5mV\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:VDIV 2mV\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"C4:INVS OFF\n")) goto fail;
 
     /* VISA timeout & sample/time queries */

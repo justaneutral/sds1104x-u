@@ -16,7 +16,10 @@
 
 #define INPUT_SAMPLE_RATE 500000.0
 #define OUTPUT_SAMPLE_RATE (INPUT_SAMPLE_RATE/20)
-#define INPUT_N 1024
+
+#define INPUT_N 32768 //16384 //4096 //1024
+#define INPUT_SHIFT (INPUT_N) //4096 //32
+
 #define OUTPUT_N (INPUT_N)
 
 #define DEFAULT_K 4
@@ -224,7 +227,7 @@ int run_scope_n(int n)
             }
         }
    
-        num_iterations = (ctx.len - INPUT_N)/INPUT_N;
+        num_iterations = (ctx.len - INPUT_N)/INPUT_SHIFT;
         for(int i = 0; i < num_iterations; i++) 
         {
         
@@ -271,14 +274,19 @@ int run_scope_n(int n)
                 goto _prtn1;
             }
             fflush(stdout);
-        }
 
-        for (int ch = 0; ch < DEFAULT_K; ch++) 
-        {
-            buf_before[ch]+=INPUT_N;
-        }
+	    //uodate (shift) through buffer
+	    for (int ch = 0; ch < DEFAULT_K; ch++)
+            {
+                buf_before[ch] += INPUT_SHIFT;
+            }
+
+        //for (int ch = 0; ch < DEFAULT_K; ch++) 
+        //{
+        //    buf_before[ch]+=INPUT_N;
+        //}
+    	}
     }
-
 _prtn1:
     x11_multiplot("close,0");
     x11_multiplot("close,1");
