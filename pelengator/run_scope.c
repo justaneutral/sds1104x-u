@@ -160,17 +160,17 @@ int run_scope_n(int n)
     x11_multiplot("open,0");
     x11_multiplot("open,1");
     x11_multiplot("open,2");
-    x11_multiplot("open,3");
-    x11_multiplot("open,4");
-    x11_multiplot("open,5");
+    //x11_multiplot("open,3");
+    //x11_multiplot("open,4");
+    //x11_multiplot("open,5");
 
-    x11_multiplot("mode,0,0"); // Set mode to Points
-    x11_multiplot("mode,1,0"); // Set mode to Points
-    x11_multiplot("mode,2,0"); // Set mode to Points
+    //x11_multiplot("mode,0,0"); // Set mode to Points
+    //x11_multiplot("mode,1,0"); // Set mode to Points
+    //x11_multiplot("mode,2,0"); // Set mode to Points
     
-    x11_multiplot("mode,3,2"); // Set mode to X-Y
-    x11_multiplot("mode,4,2"); // Set mode to X-Y
-    x11_multiplot("mode,5,2"); // Set mode to X-Y
+    //x11_multiplot("mode,3,2"); // Set mode to X-Y
+    //x11_multiplot("mode,4,2"); // Set mode to X-Y
+    //x11_multiplot("mode,5,2"); // Set mode to X-Y
     
     if (!ctx_before)
     {
@@ -200,7 +200,7 @@ int run_scope_n(int n)
     LMSFilter lmsf[DEFAULT_K];
     complex double desired_signal = 1.0 + 0.0*I;
     int num_iterations;
-    int m = 0;
+    int m;
     int ready[DEFAULT_K];
     int closed_a;
     double angle[3];
@@ -227,6 +227,7 @@ int run_scope_n(int n)
             }
         }
    
+	m = 0;
         num_iterations = (ctx.len - INPUT_N)/INPUT_SHIFT;
         for(int i = 0; i < num_iterations; i++) 
         {
@@ -250,19 +251,19 @@ int run_scope_n(int n)
 		    angle[1] = lms_step(&lmsf[1], filter_output[1], filter_output[2]);
 		    angle[2] = lms_step(&lmsf[2], filter_output[2], filter_output[0]);
 
-		    sprintf(cmd,"plot,0,%f,%f", (double)m, angle[0]);
+		    sprintf(cmd,"plot,0,%f,%f", (double)m, creal(filter_output[0]));
         	    x11_multiplot(cmd);
-		    sprintf(cmd,"plot,1,%f,%f",(double) m,angle[1]);
+		    sprintf(cmd,"plot,1,%f,%f",(double) m, cimag(filter_output[0]));
         	    x11_multiplot(cmd);
-		    sprintf(cmd,"plot,2,%f,%f", (double)m, angle[2]);
+		    sprintf(cmd,"plot,2,%f,%f", (double)m, carg(filter_output[1]));
         	    x11_multiplot(cmd);
 
-		    sprintf(cmd,"plot,3,%f,%f",angle[0],angle[1]);
-        	    x11_multiplot(cmd);
-		    sprintf(cmd,"plot,4,%f,%f",angle[1], angle[2]);
-        	    x11_multiplot(cmd);
-		    sprintf(cmd,"plot,5,%f,%f",angle[2],angle[0]);
-        	    x11_multiplot(cmd);
+		    //sprintf(cmd,"plot,3,%f,%f",angle[0],angle[1]);
+        	    //x11_multiplot(cmd);
+		    //sprintf(cmd,"plot,4,%f,%f",angle[1], angle[2]);
+        	    //x11_multiplot(cmd);
+		    //sprintf(cmd,"plot,5,%f,%f",angle[2],angle[0]);
+        	    //x11_multiplot(cmd);
 
                     m++;
                 }
@@ -291,9 +292,9 @@ _prtn1:
     x11_multiplot("close,0");
     x11_multiplot("close,1");
     x11_multiplot("close,2");
-    x11_multiplot("close,3");
-    x11_multiplot("close,4");
-    x11_multiplot("close,5");
+    //x11_multiplot("close,3");
+    //x11_multiplot("close,4");
+    //x11_multiplot("close,5");
     plot_destroy(ctx_before);
     osc_close(&ctx);
 _prtn0:
