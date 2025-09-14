@@ -11,6 +11,10 @@
 #include "fft_lib.h"
 #include "osc.h"
 
+#include "oscilloscope.h"
+#include <unistd.h>
+#include <X11/keysym.h>
+
 #include "x11_multiplot.h"
 #include "lms_filter.h"
 
@@ -20,7 +24,7 @@
 #define INPUT_N 32768 //16384 //4096 //1024
 #define INPUT_SHIFT (INPUT_N) //4096 //32
 
-#define OUTPUT_N (INPUT_N)
+#define OUTPUT_N (2048)
 
 #define DEFAULT_K 4
 #define WIN_W 1100
@@ -157,9 +161,19 @@ int run_scope_n(int n)
     OscCtx ctx;
     PlotContext *ctx_before = plot_create("Input signal", INPUT_N, DEFAULT_K, WIN_W, WIN_H, INPUT_SAMPLE_RATE);
     
-    x11_multiplot("open,0");
-    x11_multiplot("open,1");
-    x11_multiplot("open,2");
+    
+    
+    
+    Oscilloscope osc_x_y_xy;
+    osc_initialize(&osc_x_y_xy, WIN_W, WIN_H, OUTPUT_N);
+
+    
+    
+    
+    
+    //x11_multiplot("open,0");
+    //x11_multiplot("open,1");
+    //x11_multiplot("open,2");
     //x11_multiplot("open,3");
     //x11_multiplot("open,4");
     //x11_multiplot("open,5");
@@ -245,18 +259,26 @@ int run_scope_n(int n)
 
                 if(ready[0] && ready[1] && ready[2])
                 {
-		    // lms filter step function
+		    // show ellipse
+		    osc_add_sample(&osc_x_y_xy, creal(128.0*filter_output[0]), 128.0*cimag(filter_output[0]));
+        	    if(m >= OUTPUT_N)
+		    {
+			    osc_draw(&osc_x_y_xy);
+			    m = 0;
+		    }
 
+
+		    // lms filter step function
 		    angle[0] = lms_step(&lmsf[0], filter_output[0], filter_output[1]);
 		    angle[1] = lms_step(&lmsf[1], filter_output[1], filter_output[2]);
 		    angle[2] = lms_step(&lmsf[2], filter_output[2], filter_output[0]);
 
-		    sprintf(cmd,"plot,0,%f,%f", (double)m, creal(filter_output[0]));
-        	    x11_multiplot(cmd);
-		    sprintf(cmd,"plot,1,%f,%f",(double) m, cimag(filter_output[0]));
-        	    x11_multiplot(cmd);
-		    sprintf(cmd,"plot,2,%f,%f", (double)m, carg(filter_output[1]));
-        	    x11_multiplot(cmd);
+		    //sprintf(cmd,"plot,0,%f,%f", (double)m, creal(filter_output[0]));
+        	    //x11_multiplot(cmd);
+		    //sprintf(cmd,"plot,1,%f,%f",(double) m, cimag(filter_output[0]));
+        	    //x11_multiplot(cmd);
+		    //sprintf(cmd,"plot,2,%f,%f", (double)m, carg(filter_output[1]));
+        	    //x11_multiplot(cmd);
 
 		    //sprintf(cmd,"plot,3,%f,%f",angle[0],angle[1]);
         	    //x11_multiplot(cmd);
@@ -289,9 +311,22 @@ int run_scope_n(int n)
     	}
     }
 _prtn1:
-    x11_multiplot("close,0");
-    x11_multiplot("close,1");
-    x11_multiplot("close,2");
+    XEvent e;
+    while(XPending(osc_x_y_xy.display))
+    {
+    	XNextEvent(osc_x_y_xy.display, &e);
+        if(e.type==KeyPress)
+	{
+           if(XLookupKeysym(&e.xkey,0)==XK_Escape)
+	   {
+              oscilloscope_close(&osc_x_y_xy);
+           }
+        }
+    }
+    //oscilloscope_close(&osc_x_y_xy);
+    //x11_multiplot("close,0");
+    //x11_multiplot("close,1");
+    //x11_multiplot("close,2");
     //x11_multiplot("close,3");
     //x11_multiplot("close,4");
     //x11_multiplot("close,5");
