@@ -1,12 +1,13 @@
-function byte_array = read_file_helper()
-    % This helper function reads a 1024-byte file
+function byte_array = read_file_helper(N)
+    coder.extrinsic('delete');
     filename = 'temp_output.txt';
     fid = fopen(filename,'rb');
-    if fid ~= -1
-        data = fread(fid, 1024, '*uint8');
-        fclose(fid);
-        byte_array = data;
-    else
-        byte_array = zeros(1024,1,'uint8'); % fallback
+    while fid == -1
+        pause(0.1); % sleep for 100 milliseconds
+        fid = fopen(filename,'rb');
     end
+    data = fread(fid, 4*N, '*uint8');
+    fclose(fid);
+    delete(filename);
+    byte_array = data;
 end
