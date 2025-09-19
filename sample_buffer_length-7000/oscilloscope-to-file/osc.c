@@ -62,12 +62,12 @@ ViStatus osc_init(OscCtx *ctx, const char *resourceName)
 
     printf("Setup\n");
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"CHDR OFF\n")) goto fail;
-    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"MSIZ 7M\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"MSIZ 7k\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"MSIZ?\n")) goto fail;
     if ((ViUInt32)-1==(retCount=viread_str(instr, ctx->buffer, __BUFFER_BYTE_LEN__))) goto fail;
 
-    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TDIV 1S\n")) goto fail;
-    //if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TDIV 100MS\n")) goto fail;
+    //if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TDIV 1S\n")) goto fail;
+    if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TDIV 1MS\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TRMD SINGLE\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TRDL 0\n")) goto fail;
     if ((ViUInt32)-1==viwrite_str(instr, (ViBuf)"TRWI 10V\n")) goto fail;

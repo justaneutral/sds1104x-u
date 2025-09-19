@@ -1,7 +1,7 @@
 % this is for simulink matlab module
 function [ch0,ch1,ch2,ch3] = read_file_from_oscilloscope_receiver()
     persistent buf
-    N = 7000000;
+    N = 7000;
     if isempty(buf)
         buf = zeros(4*N,1,'uint8');
     end
