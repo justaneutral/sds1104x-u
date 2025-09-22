@@ -6,9 +6,9 @@ function byte_array = read_file_helper(N)
         pause(0.1); % sleep for 100 milliseconds
         fid = fopen(filename,'rb');
     end
-    data = fread(fid, 4*N, '*uint8');
+    data = fread(fid, 4*N, '*int8');
     while isempty(data)
-       data = fread(fid, 4*N, '*uint8');
+       data = fread(fid, 4*N, '*int8');
     end
     fclose(fid);
     delete(filename);
