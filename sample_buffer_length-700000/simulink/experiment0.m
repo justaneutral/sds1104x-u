@@ -17,25 +17,29 @@ f_shift = -24000; % NAA
 Fcap = 100; % Hz one side BW
 Frezolution = 1; % Hz fft bin
 
-% f_shift = -9012; % NAA
+% f_shift = -9012; % ???
 % Fcap = 100; % Hz one side BW
 % Frezolution = 0.1; % Hz fft bin
 
-% f_shift = -16068; % JXN
-% Fcap = 1.5; % Hz one side BW
-% Frezolution = 0.125; % Hz fft bin
+f_shift = -16068; % JXN
+Fcap = 1.5; % Hz one side BW
+Frezolution = 0.125; % Hz fft bin
+
+f_shift = -7980; %
+Fcap = 150; % Hz one side BW
+Frezolution = 1; % Hz fft bin
 
 N = 700000;
 Fs = 500000;
 
-Fpass = Fs/10; %Fcap;       % Filter passband Hz
-Fstop = Fpass*1.5;  % Filter stopband Hz
-Astop = 60;         % Stopband attenuation in dB
-filter_coefficients = design_fir_coeffs(Fpass, Fstop, Fs, Astop);
+%Fpass = Fs/10; %Fcap;       % Filter passband Hz
+%Fstop = Fpass*1.5;  % Filter stopband Hz
+%Astop = 60;         % Stopband attenuation in dB
+%filter_coefficients = design_fir_coeffs(Fpass, Fstop, Fs, Astop);
 % Plot responses in figure 3
-plot_fir_response(b, 3);
+%plot_fir_response(b, 3);
 
-NumRepetitions = 200;
+NumRepetitions = 100;
 NumChannels = 3; % max 4
 Nfft = 2^ceil(log2(Fs/Frezolution));
 Ncap = [max(1,Nfft/2 - ceil(Nfft*Fcap/Fs)), min(Nfft,Nfft/2 + ceil(Nfft*Fcap/Fs))];
@@ -74,8 +78,6 @@ for i=1:1:NumRepetitions
     signum(1) = chcut(:,1)'*chcut(:,NumChannels);
     legend('ch1 min at 0/180, max at 90/270 deg.','ch2 min at 60/240, max at 150/330 deg','ch3 min at 120/300, max at 30/210')
     hold off
-    %energy = energy .* (2*(abs(angle(signum)) < pi/2)-1)
-    %energy = sqrt(energy);
     for k=0:2
         a = energy(1+mod(k,3));
         b = energy(1+mod(k+1,3));
@@ -85,19 +87,32 @@ for i=1:1:NumRepetitions
         %alpha_estimated = mod(atan2(sinalpha,cosalpha)-k*2*pi/3,2*pi)
         alpha_estimated(k+1) = 90/pi*(mod(atan2(sinalpha,cosalpha)-2/3*pi*(k-1),2*pi))';
     end
+    [alpha_estimated(1) alpha_estimated(2) alpha_estimated(3)]
     energies(:,i) = energy(:);
     alphas(:,i) = alpha_estimated;
     figure(2)
+    alpha_median = sort(sort(alphas(:,1:i)));
+    alpha_median = alpha_median(ceil(end/2));
     alpha_mean = sum(sum(alphas(:,1:i)))/(i*NumChannels);
     alpha_dispersion = sum(sum(alphas(:,1:i).^2-alpha_mean^2))/(i*NumChannels);
-    %printf("num=%d mean=%5.1f dispersion=%5.2f\n",i,alpha_mean,alpha_dispersion)
+    alpha_deviation = sqrt(alpha_dispersion);
+    fprintf('num=%d median=%5.1f mean=%5.1f(+/-%3.2f) dispersion=%5.2f\n',i,alpha_median,alpha_mean,alpha_deviation,alpha_dispersion)
     for chnum = 1:NumChannels
-        plot([1:NumRepetitions], alphas(chnum,:))
+        %plot([1:NumRepetitions], alphas(chnum,:))
+        plot([1:i], alphas(chnum,1:i))
+        xlim([1 NumRepetitions])
+        ylim([0 180])
         hold all
     end
     hold off
-
 end
+hold all
+u = [];
+for i=1:NumChannels
+    u=sort(alphas(1,:));
+    plot([1:NumRepetitions], u)
+end
+
 
 %hold all
 % 
