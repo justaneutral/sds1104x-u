@@ -1,6 +1,3 @@
-https://www.mwlist.org/vlf.php
-
-
 
 Active VLF Transmitters and Their Azimuths from Newtown, PA
 Station	Location			Frequency (kHz)	Coordinates		Power (kW)	Azimuth from Newtown (°)

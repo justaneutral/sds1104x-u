@@ -1,0 +1,74 @@
+N = 700000;
+Fs = 500000;
+f_shift = -16000;
+NumChannels = 3; % max 4
+Fcap = 640; % to show fft from 0 to 4kHz
+Frezolution = 10; %Hz
+Nfft = 2^ceil(log2(Fs/Frezolution));
+Ncap = [max(1,Nfft/2 - ceil(Nfft*Fcap/Fs)), min(Nfft,Nfft/2 + ceil(Nfft*Fcap/Fs))];
+Nextract = [Ncap(1)+Nfft/2, Nfft, 1, Ncap(2)-Nfft/2];
+Fscale = ([Ncap(1):Ncap(2)]'-Nfft/2)*Frezolution;
+ch = zeros(N,NumChannels);
+energy = zeros(NumChannels,1);
+signum = zeros(NumChannels,1);
+alpha_estimated = zeros(NumChannels,1);
+chcut = zeros(size(Fscale,1),NumChannels);
+chftsum = zeros(size(Fscale,1),NumChannels);
+for i=1:1:200
+    % Call helper function to get latest data
+    buf = read_file_helper(N);
+    %freq. conversion
+    ag = 1.0j.*2.*pi.*double(f_shift)./double(Fs).*(0:1:N-1)';
+    mx = exp(ag);
+    for chnum = 1:NumChannels;
+        ch(:,chnum) = double(int8(buf((chnum-1)*N+1:chnum*N))).*mx;
+        chex = [zeros(Nfft-floor(N/2),1) ; ch(:,chnum); zeros(Nfft-N+floor(N/2),1)];
+        chft = fft(chex,Nfft);
+        chcut(:,chnum) = [chft(Nextract(1):Nextract(2)); chft((Nextract(3):Nextract(4)))];
+        chcut_abs = abs(chcut(:,chnum));
+        chftsum(:,chnum) = chcut_abs;
+        plot(Fscale,chftsum(:,chnum));
+        hold all
+        energy(chnum) = 0.*energy(chnum) + chcut(:,chnum)'*chcut(:,chnum);
+        if chnum>1
+            signum(chnum) = chcut(:,chnum-1)'*chcut(:,chnum);
+        end
+    end
+    signum(1) = chcut(:,1)'*chcut(:,NumChannels);
+    legend('ch1 min at 0/180, max at 90/270 deg.','ch2 min at 60/240, max at 150/330 deg','ch3 min at 120/300, max at 30/210')
+    hold off
+    %energy = energy .* (2*(abs(angle(signum)) < pi/2)-1)
+    energy = energy - min(energy);
+    for k=0:2
+        a = energy(1+)
+        b = energy(1+mod(k-1,3));
+        c = energy(1+mod(k+1,3));
+        sinalpha = (c-b) ./ sqrt(3.0);
+        cosalpha = -1.0 .* (b+c);
+        %alpha_estimated = mod(atan2(sinalpha,cosalpha)-k*2*pi/3,2*pi)
+        alpha_estimated(k+1) = 180/pi*(mod(atan2(sinalpha,cosalpha),2*pi)-pi);
+    end
+    energy'
+    alpha_estimated'
+end
+
+%hold all
+% 
+% %plot(ch1);
+% 
+% plot(ch2);
+% ch3 = double(int8(buf(3*N+1:4*N))).*mx;
+% e0i = e0i + 1.036*sum(real(ch0.*conj(ch0)))./N;
+% e1i = e1i + 1.036/1.024*sum(real(ch1.*conj(ch1)))./N;
+% e2i = e2i + sum(real(ch2.*conj(ch2)))./N;
+% e3i = e3i + sum(real(ch3.*conj(ch3)))./N;
+% a01i = a01i + sum(ch0.*conj(ch1))./N;
+% a12i = a12i + sum(ch1.*conj(ch2))./N;
+% a20i = a20i + sum(ch2.*conj(ch0))./N;
+% e0 = e0i./frame_num_cnt;
+% e1 = e1i./frame_num_cnt;
+% e2 = e2i./frame_num_cnt;
+% e3 = e3i./frame_num_cnt;
+% a01 = abs(angle(a01i./frame_num_cnt))>pi/2;
+% a12 = abs(angle(a12i./frame_num_cnt))>pi/2;
+% a20 = abs(angle(a20i./frame_num_cnt))>pi/2;
