@@ -13,6 +13,9 @@
 % ICV     Tavolara, Italy 20.27           40.9            23°     N, 9.731°   E   800             14.6°
 % JXN     Gildeskål, Norway               16.4            66.983° N, 13.873°  E   800             7.3°
 
+%f_shift = -7980; %
+%Fcap = 150; % Hz one side BW
+%Frezolution = 1; % Hz fft bin
 
 % f_shift = -9012; % ???
 % Fcap = 100; % Hz one side BW
@@ -23,16 +26,12 @@ f_shift = -16068;
 Fcap = 1.5; % Hz one side BW
 Frezolution = 0.125; % Hz fft bin
 
-%f_shift = -7980; %
-%Fcap = 150; % Hz one side BW
-%Frezolution = 1; % Hz fft bin
-
 % NAA
 f_shift = -24000; 
 Fcap = 100; % Hz one side BW
 Frezolution = 1; % Hz fft bin
 
-% ND
+% NML
 % f_shift = -25200;
 % Fcap = 100; % Hz one side BW
 % Frezolution = 1; % Hz fft bin
@@ -55,6 +54,11 @@ Frezolution = 1; % Hz fft bin
 N = 700000;
 Fs = 500000;
 
+Station_ID = ['JXN' 'NAA' 'NML' '#3?' '#4?']
+f_shift = [-16068, -24000, -25200, -29700, -38200]
+Fcap = [1.5 100 100 400 150]
+Fresolution = [0.125 1 1 1 1]
+
 %Fpass = Fs/10; %Fcap;       % Filter passband Hz
 %Fstop = Fpass*1.5;  % Filter stopband Hz
 %Astop = 60;         % Stopband attenuation in dB
@@ -64,19 +68,24 @@ Fs = 500000;
 
 NumRepetitions = 100;
 NumChannels = 3; % max 4
-Nfft = 2^ceil(log2(Fs/Frezolution));
-Ncap = [max(1,Nfft/2 - ceil(Nfft*Fcap/Fs)), min(Nfft,Nfft/2 + ceil(Nfft*Fcap/Fs))];
-Nextract = [Ncap(1)+Nfft/2, Nfft, 1, Ncap(2)-Nfft/2];
-Fscale = ([Ncap(1):Ncap(2)]'-Nfft/2)*Frezolution;
-ch = zeros(N,NumChannels);
-energy = zeros(NumChannels,1);
-energies = zeros(NumChannels,NumRepetitions);
-signum = zeros(NumChannels,1);
-signums = zeros(NumChannels,NumRepetitions);
-alpha_estimated = zeros(NumChannels,1);
-alphas = zeros(NumChannels,NumRepetitions);
-chcut = zeros(size(Fscale,1),NumChannels);
-chftsum = zeros(size(Fscale,1),NumChannels);
+
+%iterate through stations
+for st = 1:5
+    Nfft(st) = 2^ceil(log2(Fs(st)/Frezolution(st)));
+    Ncap(st,:) = [max(1,Nfft(st)/2 - ceil(Nfft(st)*Fcap(st)/Fs)), min(Nfft(st),Nfft(st)/2 + ceil(Nfft(st)*Fcap(st)/Fs))];
+    Nextract(st) = [Ncap(st,1)+Nfft(st)/2, Nfft(st), 1, Ncap(st,2)-Nfft(st)/2];
+    Fscale(st) = ([Ncap(st,1):Ncap(st,2)]'-Nfft(st)/2)*Frezolution(st);
+    ch = zeros(N,NumChannels);
+    energy = zeros(NumChannels,1);
+    energies = zeros(NumChannels,NumRepetitions);
+    signum = zeros(NumChannels,1);
+    signums = zeros(NumChannels,NumRepetitions);
+    alpha_estimated = zeros(NumChannels,1);
+    alphas = zeros(NumChannels,NumRepetitions);
+    chcut = zeros(size(Fscale,1),NumChannels);
+    chftsum = zeros(size(Fscale,1),NumChannels);
+end
+
 for i=1:1:NumRepetitions
     % Call helper function to get latest data
     buf = read_file_helper(N);

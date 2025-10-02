@@ -13,39 +13,42 @@
 % ICV     Tavolara, Italy 20.27           40.9            23°     N, 9.731°   E   800             14.6°
 % JXN     Gildeskål, Norway               16.4            66.983° N, 13.873°  E   800             7.3°
 
-
+%f_shift = -7980; %
+%Fcap = 150; % Hz one side BW
+%Frezolution = 1; % Hz fft bin
 % f_shift = -9012; % ???
 % Fcap = 100; % Hz one side BW
 % Frezolution = 0.1; % Hz fft bin
 
 % JXN
-f_shift = -16068; 
-Fcap = 1.5; % Hz one side BW
-Frezolution = 0.125; % Hz fft bin
-
-%f_shift = -7980; %
-%Fcap = 150; % Hz one side BW
-%Frezolution = 1; % Hz fft bin
+% filename = 'jxn.txt'
+% f_shift = -16068; 
+% Fcap = 1.5; % Hz one side BW
+% Frezolution = 0.125; % Hz fft bin
 
 % NAA
-f_shift = -24000; 
-Fcap = 100; % Hz one side BW
-Frezolution = 1; % Hz fft bin
+% filename = 'naa100.txt'
+% f_shift = -24000; 
+% Fcap = 100; % Hz one side BW
+% Frezolution = 1; % Hz fft bin
 
 % ND
+% filename = 'nlk100.txt'
 % f_shift = -25200;
 % Fcap = 100; % Hz one side BW
 % Frezolution = 1; % Hz fft bin
 
 %test station 3
+% filename = 'station3_100.txt'
 % f_shift = -29700;
 % Fcap = 400; % Hz one side BW
 % Frezolution = 1; % Hz fft bin
 
 % test station 4
-% f_shift = -38200;
-% Fcap = 150; % Hz one side BW
-% Frezolution = 1; % Hz fft bin
+filename = 'station4_100.txt'
+f_shift = -38200;
+Fcap = 150; % Hz one side BW
+Frezolution = 1; % Hz fft bin
 
 % panorama
 % f_shift = -24000;
@@ -55,14 +58,7 @@ Frezolution = 1; % Hz fft bin
 N = 700000;
 Fs = 500000;
 
-%Fpass = Fs/10; %Fcap;       % Filter passband Hz
-%Fstop = Fpass*1.5;  % Filter stopband Hz
-%Astop = 60;         % Stopband attenuation in dB
-%filter_coefficients = design_fir_coeffs(Fpass, Fstop, Fs, Astop);
-% Plot responses in figure 3
-%plot_fir_response(b, 3);
-
-NumRepetitions = 100;
+NumRepetitions = 25;
 NumChannels = 3; % max 4
 Nfft = 2^ceil(log2(Fs/Frezolution));
 Ncap = [max(1,Nfft/2 - ceil(Nfft*Fcap/Fs)), min(Nfft,Nfft/2 + ceil(Nfft*Fcap/Fs))];
@@ -129,31 +125,7 @@ for i=1:1:NumRepetitions
     end
     hold off
 end
-hold all
-u = [];
-for i=1:NumChannels
-    u=sort(alphas(1,:));
-    plot([1:NumRepetitions], u)
-end
 
-
-%hold all
-% 
-% %plot(ch1);
-% 
-% plot(ch2);
-% ch3 = double(int8(buf(3*N+1:4*N))).*mx;
-% e0i = e0i + 1.036*sum(real(ch0.*conj(ch0)))./N;
-% e1i = e1i + 1.036/1.024*sum(real(ch1.*conj(ch1)))./N;
-% e2i = e2i + sum(real(ch2.*conj(ch2)))./N;
-% e3i = e3i + sum(real(ch3.*conj(ch3)))./N;
-% a01i = a01i + sum(ch0.*conj(ch1))./N;
-% a12i = a12i + sum(ch1.*conj(ch2))./N;
-% a20i = a20i + sum(ch2.*conj(ch0))./N;
-% e0 = e0i./frame_num_cnt;
-% e1 = e1i./frame_num_cnt;
-% e2 = e2i./frame_num_cnt;
-% e3 = e3i./frame_num_cnt;
-% a01 = abs(angle(a01i./frame_num_cnt))>pi/2;
-% a12 = abs(angle(a12i./frame_num_cnt))>pi/2;
-% a20 = abs(angle(a20i./frame_num_cnt))>pi/2;
+fid = fopen(filename,'w');
+fprintf(fid,'%f\n',alphas);
+fclose(fid);
