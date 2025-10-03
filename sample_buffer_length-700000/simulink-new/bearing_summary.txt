@@ -1,0 +1,26 @@
+gqd_reference = 54.600000
+measures 0 when needle at 45 (225)
+gqd000mean    = 106.494348
+gqd000dev     = 4.759118
+gqd050mean    = 18.826487
+gqd050dev     = 1.747344
+gqd100mean    = 40.653887
+gqd100dev     = 1.571288
+
+naa_reference = 58.200000
+measures 0 when needle at 350 (170)
+naa000mean    = 6.908839
+naa000dev     = 2.064108
+naa050mean    = 60.393679
+naa050dev     = 2.238118
+naa100mean    = 94.308571
+naa100dev     = 0.691234
+
+nml_reference = 116.400000
+measures 0 when needle at 70 (250)
+nml000mean    = 109.169231
+nml000dev     = 4.499490
+nml050mean    = 8.105215
+nml050dev     = 3.484000
+nml100mean    = 35.394017
+nml100dev     = 1.793821

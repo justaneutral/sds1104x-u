@@ -3,3 +3,5 @@
 *.o
 *temp_output.txt
 *slprj*
+*.bytes
+*.asv
