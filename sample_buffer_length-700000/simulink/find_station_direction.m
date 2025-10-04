@@ -1,4 +1,4 @@
-function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution)
+function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff)
     N = 700000;
     Fs = 500000;
     
@@ -35,7 +35,7 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution)
         for chnum = 1:NumChannels
             ch(:,chnum) = double(int8(buf((chnum-1)*N+1:chnum*N))).*mx;
         end
-        %calculate auto and cross correlations
+        %calculate auto and cross correlation
         for chnum = 1:NumChannels
             chex = [zeros(Nfft-floor(N/2),1) ; ch(:,chnum); zeros(Nfft-N+floor(N/2),1)];
             chft = fft(chex,Nfft);
@@ -43,6 +43,19 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution)
             chcut_abs = abs(chcut(:,chnum));
             chftsum(:,chnum) = chcut_abs;
         end
+        %apply threshold
+        maxfft = max(max(chftsum));
+        minfft = min(min(chftsum));
+        ecutoff = minfft + (maxfft-minfft)*cutoff;
+        for chnum = 1:NumChannels
+            for j = 1:(Nextract(2)-Nextract(1)+Nextract(4)-Nextract(3)+2)
+                if(chftsum(j,chnum)) < ecutoff
+                    chftsum(j,chnum) = 0;
+                end
+            end
+        end
+
+
         %calculate auto and cross correlations
         for chnum = 1:NumChannels
             figure(1);
@@ -61,7 +74,8 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution)
                 hold off
             end
 
-            energy(chnum) = real(chcut(:,chnum)'*chcut(:,chnum));
+            %energy(chnum) = (real(chcut(:,chnum)'*chcut(:,chnum)));
+            energy(chnum) = sqrt(real(chcut(:,chnum)'*chcut(:,chnum))); % added sqrt
             signum(chnum,1) = sign(real(chcut(:,1+mod((chnum+1),NumChannels))'*chcut(:,chnum)));
             signum(chnum,2) = sign(real(chcut(:,1+mod((chnum-1),NumChannels))'*chcut(:,chnum)));
             % chnum>1
@@ -76,27 +90,33 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution)
         %signum(2,1) = sign(real(chcut(:,2)'*chcut(:,NumChannels)));
         %legend('ch1 min at 0/180, max at 90/270 deg.','ch2 min at 60/240, max at 150/330 deg','ch3 min at 120/300, max at 30/210')
         hold off
-        for k=0:2
+        %for k=0:2
+        k = 0;
             anta = 1+mod(k,3);
             antb = 1+mod(k+1,3);
             antc = 1+mod(k+2,3);
             a = energy(anta);
             b = energy(antb);
             c = energy(antc);
+
             B = signum(anta,2);
             C = signum(anta,1);
+
+            % original sin/cos 
+            % sinalpha = (b-c) * sqrt(3.0);
+            % cosalpha = b + c -2*a;
+            %alpha_estimated(k+1) = 90/pi*(mod(atan2(sinalpha,cosalpha)-2/3*pi*(k-1),2*pi))';
+            
             sinalpha = (b-c) * sqrt(3.0);
             cosalpha = b + c -2*a;
-            %alpha_estimated = mod(atan2(sinalpha,cosalpha)-k*2*pi/3,2*pi)
-            alpha_estimated(k+1) = 90/pi*(mod(atan2(sinalpha,cosalpha)-2/3*pi*(k-1),2*pi))';
-            %cosalpha = sqrt(3)*a;
-            %sinalpha = c*C - b*B;
-            %alpha_estimated(k+1) = 180/pi*(mod(atan2(sinalpha,cosalpha)+2/3*pi*(k-1),pi))';
-            %alpha_estimated(k+1) = 180/pi*atan2(sinalpha,cosalpha);
+            %alpha_estimated(k+1) = 180/pi*(mod(atan2(sinalpha,cosalpha)+pi*(2/3*(k)-1/2),pi))';
+            alpha_estimated(k+1) = 180/pi*(atan2(sinalpha,cosalpha));
+            
             signal_power = 0.01*sqrt(sinalpha^2+cosalpha^2);
-            a = a/signal_power;
-            b = b/signal_power;
-            c = c/signal_power;
+            abcmax = 100/max(max(a,b),c);
+            a = a * abcmax;
+            b = b * abcmax;
+            c = c * abcmax;
             cosal=cosalpha/signal_power;
             sinal=sinalpha/signal_power;
             fprintf('ch%1d,',k+1);
@@ -114,7 +134,7 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution)
             %fprintf('ch%1.0fp%3.1fa%3.0fb%3.0fc%3.0fA%+0.0fB%+0.0f\n',k+1,signal_power/1000000,a,b,c,B,C);
             %fprintf('%+3.0f %+3.1 ang=%3.1f\n',cosal,sinal,alpha_estimated(k+1));
           
-        end
+        %end
         %[alpha_estimated(1) alpha_estimated(2) alpha_estimated(3)]
         fprintf('\n');
 

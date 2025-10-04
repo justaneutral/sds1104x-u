@@ -35,8 +35,9 @@
 % Distance: ~2,000 km (1,240 mi)
 % Heading from Newtown, PA: 296.4° true (west-northwest)
 
-%[b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution)
-%find_station_direction(-29700,400,1) % points to 0 at needle 45
-find_station_direction(-24000,100,1) % points to 0 at needle 350
+%[b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,)
+find_station_direction(-29700,400,1,0.2) % points to 0 at needle 45
+%find_station_direction(-29760,20,1) % points to 0 at needle 45
+%find_station_direction(-24000,100,1) % points to 0 at needle 350
 %find_station_direction(-25200,100,1) % points to 0 at needle 350
 
