@@ -48,6 +48,7 @@ int run_scope_n(int n)
     while (ctx.loop_counter) 
     {
         st = osc_step(&ctx);
+	ctx.loop_counter = n;
         if (st < VI_SUCCESS) break;
 
         for (int ch = 0; ch < DEFAULT_K; ch++) 
