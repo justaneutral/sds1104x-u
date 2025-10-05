@@ -1,7 +1,7 @@
 function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff)
     N = 700000;
     Fs = 500000;
-    alphas = [];
+    
     NumRepetitions = 1000000;
     NumChannels = 3; % max 4
     Nfft = 2^ceil(log2(Fs/Frezolution));
@@ -54,75 +54,89 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
                 end
             end
         end
-        
-        figure(1);
-        plot(Fscale,chftsum(:,1),'color','red');
-        hold all
-        plot(Fscale,chftsum(:,2),'color','green');
-        plot(Fscale,chftsum(:,3),'color','blue');
-        title('Received spectrum');
-        hold off
-        al = chcut(:,1);
-        bl = chcut(:,2);
-        cl = chcut(:,3);
-        energy(1) = sqrt(al'*al);
-        energy(2) = sqrt(bl'*bl);
-        energy(3) = sqrt(cl'*cl);
 
-        for k=0:2
+
+        %calculate auto and cross correlations
+        for chnum = 1:NumChannels
+            figure(1);
+            if chnum == 1 
+                %subplot(3,1,1); 
+                plot(Fscale,chftsum(:,chnum),'color','red'); title('Ch1');
+                hold all
+            end
+            if chnum == 2
+                %subplot(3,1,2); 
+                plot(Fscale,chftsum(:,chnum),'color','green'); title('Ch2');
+            end
+            if chnum == 3
+                %subplot(3,1,3); 
+                plot(Fscale,chftsum(:,chnum),'color','blue'); title('Ch3');
+                hold off
+            end
+
+            energy(chnum) = (real(chcut(:,chnum)'*chcut(:,chnum)));
+            %energy(chnum) = sqrt(real(chcut(:,chnum)'*chcut(:,chnum))); % added sqrt
+            signum(chnum,1) = sign(real(chcut(:,1+mod((chnum+1),NumChannels))'*chcut(:,chnum)));
+            signum(chnum,2) = sign(real(chcut(:,1+mod((chnum-1),NumChannels))'*chcut(:,chnum)));
+            % chnum>1
+            %    signum(chnum,2) = sign(real(chcut(:,chnum-1)'*chcut(:,chnum)));
+            %end
+            %if chnum>2
+            %    signum(chnum,1) = sign(real(chcut(:,chnum-2)'*chcut(:,chnum)));
+            %end
+        end
+        %signum(1,2) = sign(real(chcut(:,1)'*chcut(:,NumChannels)));
+        %signum(1,1) = sign(real(chcut(:,1)'*chcut(:,NumChannels-1)));
+        %signum(2,1) = sign(real(chcut(:,2)'*chcut(:,NumChannels)));
+        %legend('ch1 min at 0/180, max at 90/270 deg.','ch2 min at 60/240, max at 150/330 deg','ch3 min at 120/300, max at 30/210')
+        hold off
+        %for k=0:2
+        k = 0;
             anta = 1+mod(k,3);
             antb = 1+mod(k+1,3);
             antc = 1+mod(k+2,3);
             a = energy(anta);
             b = energy(antb);
             c = energy(antc);
-            I = chcut(:,anta)-chcut(:,antb)-chcut(:,antc);
-            Q = sqrt(3)*(chcut(:,antb)-chcut(:,antc));
-            
-            cosalpha = (I'*I);
-            sinalpha = (Q'*Q);
-            % cosalpha = sqrt(cosalpha);
-            % sinalpha = sqrt(sinalpha);
-            IQangle = real(I'*Q);
-            IQangle = sign(IQangle); %/abs(IQangle);
-            sinalpha = sinalpha * IQangle;
 
-            systemangle = 180/pi*atan2(sinalpha,cosalpha);
-            % range from -90 to 90 degree
-            %at needle 60 shows 90, must show around 0
-            correctedangle = mod(15 + 180 - systemangle - k*120, 180) - 90;
-            alpha_estimated(k+1) = correctedangle;
+            B = signum(anta,2);
+            C = signum(anta,1);
+
+            % original sin/cos 
+            % sinalpha = (b-c) * sqrt(3.0);
+            % cosalpha = b + c -2*a;
+            %alpha_estimated(k+1) = 90/pi*(mod(atan2(sinalpha,cosalpha)-2/3*pi*(k-1),2*pi))';
+            
+            sinalpha = (b-c) * sqrt(3.0);
+            cosalpha = b + c - a;
+            %alpha_estimated(k+1) = 180/pi*(mod(atan2(sinalpha,cosalpha)+pi*(2/3*(k)-1/2),pi))';
+            alpha_estimated(k+1) = 180/pi*(atan2(sinalpha,cosalpha));
+            
             signal_power = 0.01*sqrt(sinalpha^2+cosalpha^2);
+            abcmax = 100/max(max(a,b),c);
+            a = a * abcmax;
+            b = b * abcmax;
+            c = c * abcmax;
             cosal=cosalpha/signal_power;
             sinal=sinalpha/signal_power;
             fprintf('ch%1d,',k+1);
             fprintf('p%03.0f,',10*log(signal_power));
-            fprintf('a%03.0f,',a/signal_power);
-            fprintf('b%03.0f,',b/signal_power);
-            fprintf('c%03.0f,',c/signal_power);
-            %fprintf('B%+01.0f,',B);
-            %fprintf('C%+01.0f,',C);
+            fprintf('a%03.0f,',a);
+            fprintf('b%03.0f,',b);
+            fprintf('c%03.0f,',c);
+            fprintf('B%+01.0f,',B);
+            fprintf('C%+01.0f,',C);
             fprintf('I%+03.0f,',cosal);
             fprintf('Q%+03.0f,',sinal);
-            fprintf('IQang%+03.0f,',IQangle);
             fprintf('ang=%+03.0f\n',alpha_estimated(k+1));
 
             %fprintf('ch=%1.0f p=%5.1f (a,b,c,B,C)=(%5.0f,%5.0f,%5.0f,%+1.0f,%+1.0f), %+5.0fI %+5.1Q ang=%5.1f\n\n',k+1,signal_power/1000000,a,b,c,B,C,cosal,sinal,alpha_estimated(k+1));
             %fprintf('ch%1.0fp%3.1fa%3.0fb%3.0fc%3.0fA%+0.0fB%+0.0f\n',k+1,signal_power/1000000,a,b,c,B,C);
             %fprintf('%+3.0f %+3.1 ang=%3.1f\n',cosal,sinal,alpha_estimated(k+1));
           
-        end
+        %end
         %[alpha_estimated(1) alpha_estimated(2) alpha_estimated(3)]
         fprintf('\n');
-        
-        alphas = [alphas, alpha_estimated(1)];
-        [counts, edges] = arrayHistogram(alphas, 100);
-        figure(2);
-        bar(edges(1:end-1), counts, 1);
-        title('Streaming Histogram with Auto-binning');
-        xlabel('Value');
-        ylabel('Count');
-        hold off
 
     end
 end
