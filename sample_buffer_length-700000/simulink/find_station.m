@@ -50,7 +50,7 @@
 %find_station_direction(-20900,1400,1,0.001)
 %find_station_direction(-23400,1400,1,0.001)
 %find_station_direction(-38000,200,1,0.01,'bearing_abc_values_38khz.txt');
-find_station_direction(-29725,460,1,0.2) % negev ? ISL +54.7, GQD +54.6
+%find_station_direction(-29725,460,1,0.2) % negev ? ISL +54.7, GQD +54.6
 %find_station_direction(-29725,560,1,0.2)
 %find_station_direction(-24000,200,1,0.2)
 %find_station_direction(-29760,20,1) % points to 0 at needle 45
@@ -75,4 +75,7 @@ find_station_direction(-29725,460,1,0.2) % negev ? ISL +54.7, GQD +54.6
 %find_station_direction_noncoherent(-86000,3,0.1,0.000,'bearing_abc_values_86khz.txt') % time,frequency?
 %find_station_direction(-100000,150,0.1,0.3);
 %find_station_direction_noncoherent(-76020,200,1,0.1);
-
+%find_station_direction(-136750,1050,0.1,0.002) % amat 135.7–137.8
+%find_station_direction(-139250,9250,0.1,0.002) % maritime location 130.0–148.5
+find_station_direction(-139997,5,0.1,0.002) % maritime location 130.0–148.5
+%find_station_direction(-140001.5,2,0.1,0.002) % maritime location 130.0–148.5

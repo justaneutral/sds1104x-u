@@ -90,14 +90,15 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
             sinalpha = sinalpha * IQangle;
 
         figure(k+1);
-        plot(Fscale,sqrt(I.*I),'color','red');
+        plot(Fscale,sqrt(I.*conj(I)),'color','red');
         hold all
         if(IQangle > 0)
-            plot(Fscale,sqrt(Q.*Q),'color','green');
+            plot(Fscale,sqrt(Q.*conj(Q)),'color','green');
         else
-            plot(Fscale,sqrt(Q.*Q),'color','blue');
+            plot(Fscale,sqrt(Q.*conj(Q)),'color','blue');
         end
         title('Received spectrum');
+        hold off
 
             systemangle = 180/pi*atan2(sinalpha,cosalpha);
             % range from -90 to 90 degree
