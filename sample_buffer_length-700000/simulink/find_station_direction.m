@@ -55,19 +55,21 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
             end
         end
         
-        figure(1);
-        plot(Fscale,chftsum(:,1),'color','red');
-        hold all
-        plot(Fscale,chftsum(:,2),'color','green');
-        plot(Fscale,chftsum(:,3),'color','blue');
-        title('Received spectrum');
-        hold off
+        % figure(1);
+        % plot(Fscale,chftsum(:,1),'color','red');
+        % hold all
+        % plot(Fscale,chftsum(:,2),'color','green');
+        % plot(Fscale,chftsum(:,3),'color','blue');
+        % title('Received spectrum');
+        % hold off
         al = chcut(:,1);
         bl = chcut(:,2);
         cl = chcut(:,3);
         energy(1) = sqrt(al'*al);
         energy(2) = sqrt(bl'*bl);
         energy(3) = sqrt(cl'*cl);
+        %signum(1,1) = sign(real(chcut(:,1+mod((chnum+1),NumChannels))'*chcut(:,chnum)));
+        %signum(chnum,2) = sign(real(chcut(:,1+mod((chnum-1),NumChannels))'*chcut(:,chnum)));
 
         for k=0:2
             anta = 1+mod(k,3);
@@ -87,6 +89,16 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
             IQangle = sign(IQangle); %/abs(IQangle);
             sinalpha = sinalpha * IQangle;
 
+        figure(k+1);
+        plot(Fscale,sqrt(I.*I),'color','red');
+        hold all
+        if(IQangle > 0)
+            plot(Fscale,sqrt(Q.*Q),'color','green');
+        else
+            plot(Fscale,sqrt(Q.*Q),'color','blue');
+        end
+        title('Received spectrum');
+
             systemangle = 180/pi*atan2(sinalpha,cosalpha);
             % range from -90 to 90 degree
             %at needle 60 shows 90, must show around 0
@@ -97,9 +109,9 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
             sinal=sinalpha/signal_power;
             fprintf('ch%1d,',k+1);
             fprintf('p%03.0f,',10*log(signal_power));
-            fprintf('a%03.0f,',a/signal_power);
-            fprintf('b%03.0f,',b/signal_power);
-            fprintf('c%03.0f,',c/signal_power);
+            %fprintf('a%03.0f,',a/signal_power);
+            %fprintf('b%03.0f,',b/signal_power);
+            %fprintf('c%03.0f,',c/signal_power);
             %fprintf('B%+01.0f,',B);
             %fprintf('C%+01.0f,',C);
             fprintf('I%+03.0f,',cosal);
@@ -117,7 +129,7 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
         
         alphas = [alphas, alpha_estimated(1)];
         [counts, edges] = arrayHistogram(alphas, 100);
-        figure(2);
+        figure(4);
         bar(edges(1:end-1), counts, 1);
         title('Streaming Histogram with Auto-binning');
         xlabel('Value');

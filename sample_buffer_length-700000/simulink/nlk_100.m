@@ -33,10 +33,10 @@
 % Frezolution = 1; % Hz fft bin
 
 % ND
-filename = 'nlk100.txt'
-f_shift = -25200;
-Fcap = 100; % Hz one side BW
-Frezolution = 1; % Hz fft bin
+% filename = 'nlk100.txt'
+% f_shift = -25200;
+% Fcap = 100; % Hz one side BW
+% Frezolution = 1; % Hz fft bin
 
 %test station 3
 % filename = 'station3.txt'
@@ -51,9 +51,9 @@ Frezolution = 1; % Hz fft bin
 % Frezolution = 1; % Hz fft bin
 
 % panorama
-% f_shift = -24000;
-% Fcap = 12000; % Hz one side BW
-% Frezolution = 10; % Hz fft bin
+f_shift = -59997.5;
+Fcap = 10; % Hz one side BW
+Frezolution = 0.1; % Hz fft bin
 
 N = 700000;
 Fs = 500000;
