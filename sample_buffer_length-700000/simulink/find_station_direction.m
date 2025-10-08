@@ -91,8 +91,9 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
                     Q = sqrt(3)*(chcut(:,antb)-chcut(:,antc));
                     cosalpha = (I'*I);
                     sinalpha = (Q'*Q);
-                    cosalpha = sqrt(cosalpha);
-                    sinalpha = sqrt(sinalpha);
+                    s2c2 = cosalpha+sinalpha;
+                    cosalpha = sqrt(cosalpha/s2c2);
+                    sinalpha = sqrt(sinalpha/s2c2);
                     IQangle = real(I'*Q);
                     IQangle = sign(IQangle); %/abs(IQangle);
                     sinalpha = sinalpha * IQangle;
@@ -118,6 +119,9 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
                     % c = c*C;
                     I1 = 2*a-b-c; % was 2
                     Q1 = sqrt(3)*(b*B-c*C);
+                    s2c2_1 = 0.01*sqrt(I1^2+Q1^2);
+                    I1 = (I1/s2c2_1);
+                    Q1 = (Q1/s2c2_1);
                     fprintf("Non-Coherent I/Q ch%d I=%f,Q=%f", k+1, I1, Q1);
                     cosalpha1 = I1;
                     sinalpha1 = Q1;
@@ -186,7 +190,7 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
         hold all
         plot([0:10:dial_angle],[collected_coherent],'color', 'red');
         hold off
-        title('dial angle vs measured');
+        title('dial angle (x) vs measured (y) red -coherent, green - non-coherent');
 
         pause
         systemangle = [];

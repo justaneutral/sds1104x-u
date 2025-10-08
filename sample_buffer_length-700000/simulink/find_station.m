@@ -77,5 +77,5 @@ find_station_direction(-24000,200,1,0.2)
 %find_station_direction_noncoherent(-76020,200,1,0.1);
 %find_station_direction(-136750,1050,0.1,0.002) % amat 135.7–137.8
 %find_station_direction(-139250,9250,0.1,0.002) % maritime location 130.0–148.5
-find_station_direction(-139997,5,0.1,0.002) % maritime location 130.0–148.5
+%find_station_direction(-139997,5,0.1,0.002) % maritime location 130.0–148.5
 %find_station_direction(-140001.5,2,0.1,0.002) % maritime location 130.0–148.5
