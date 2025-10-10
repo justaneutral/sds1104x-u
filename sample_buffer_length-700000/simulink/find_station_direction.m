@@ -178,7 +178,7 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
         collected_noncoherent = [collected_noncoherent mean(systemangle)];
         collected_coherent = [collected_coherent mean(systemangle1)];
 
-        fhndl = fopen('dial_vs_measured_angles.txt','a');
+        fhndl = fopen('dial_vs_measured_angles_29700hz.txt','a');
         fprintf(fhndl,stroutp);
         fclose(fhndl);
         
