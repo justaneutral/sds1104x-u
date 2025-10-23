@@ -4,7 +4,7 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
     alphas = [];
     collected_noncoherent = [];
     collected_coherent = [];
-    NumRepetitions = 1000;
+    NumRepetitions = 5;
     NumChannels = 3; % max 4
     Nfft = 2^ceil(log2(Fs/Frezolution));
     Ncap = [max(1,Nfft/2 - ceil(Nfft*Fcap/Fs)), min(Nfft,Nfft/2 + ceil(Nfft*Fcap/Fs))];
@@ -16,6 +16,7 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
     alpha_estimated = zeros(NumChannels,1);
     chcut = zeros(size(Fscale,1),NumChannels);
     chftsum = zeros(size(Fscale,1),NumChannels);
+    for dial_angle = 0:10:350
         systemangle = [];
         systemangle1 = [];
         [~] = read_file_helper(N);
@@ -93,7 +94,7 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
                     s2c2 = cosalpha+sinalpha;
                     cosalpha = sqrt(cosalpha/s2c2);
                     sinalpha = sqrt(sinalpha/s2c2);
-                    IQangle = -1*real(I'*Q);
+                    IQangle = real(I'*Q);
                     IQangle = sign(IQangle); %/abs(IQangle);
                     sinalpha = sinalpha * IQangle;
                     figure(k+1);
@@ -117,7 +118,7 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
                     % b = b*B;
                     % c = c*C;
                     I1 = 2*a-b-c; % was 2
-                    Q1 = sqrt(3)*(b-c);
+                    Q1 = sqrt(3)*(b*B-c*C);
                     s2c2_1 = 0.01*sqrt(I1^2+Q1^2);
                     I1 = (I1/s2c2_1);
                     Q1 = (Q1/s2c2_1);
@@ -155,19 +156,43 @@ function [b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,cutoff
             %[alpha_estimated(1) alpha_estimated(2) alpha_estimated(3)]
             fprintf('\n');
             
-        collected_noncoherent = [collected_noncoherent systemangle1];
-        collected_coherent = [collected_coherent systemangle];
+            alphas = [alphas, alpha_estimated(1)];
+            [counts, edges] = arrayHistogram(alphas, 100);
+            figure(4);
+            bar(edges(1:end-1), counts, 1);
+            title('Streaming Histogram with Auto-binning');
+            xlabel('Value');
+            ylabel('Count');
+            hold off
+        end
 
+        stroutp = "";
+        %stroutp = sprintf("dial:%3d,gp:%1d,ant1:%+05.0f,ant2:%+05.0f,ant3:%+05.0f,I:%+05.0f,Q:%+5.0f,I1:%+5.0f,Q1:%+5.0f,nca=%+3.1f(%2.1f),ca=%+3.1f(%2.1f)\n", ...
+        %stroutp = sprintf("dial:%3d,gp:%1d,I:%+05.0f,Q:%+5.0f,I1:%+5.0f,Q1:%+5.0f,nca=%+3.1f(%2.1f),ca=%+3.1f(%2.1f)\n",dial_angle,k+1,I,Q,I1,Q1,mean(systemangle),std(systemangle),mean(systemangle1),std(systemangle1));
+        stroutp = sprintf(...
+        "dial:%7.0f,gp:%3.0f,I:%+7.0f,Q:%+7.0f,I1:%+7.0f,Q1:%+7.0f,nca=%+9.1f(%+9.1f),ca=%+9.1f(%+9.1f)\n", ...
+        dial_angle, k+1, I'*I, (Q'*Q)*IQangle, I1, Q1, ...
+        mean(systemangle), std(systemangle), ...
+        mean(systemangle1), std(systemangle1));
+
+        collected_noncoherent = [collected_noncoherent mean(systemangle)];
+        collected_coherent = [collected_coherent mean(systemangle1)];
+
+        fhndl = fopen('dial_vs_measured_angles_29700hz.txt','a');
+        fprintf(fhndl,stroutp);
+        fclose(fhndl);
         
+        fprintf(stroutp)
+        fprintf("paused at %d - rotate to %d\n", dial_angle, dial_angle + 10)
 
         figure(5)
-        plot([1:i],[collected_noncoherent],'color','green');
+        plot([0:10:dial_angle],[collected_noncoherent],'color','green');
         hold all
-        plot([1:i],[collected_coherent],'color', 'red');
+        plot([0:10:dial_angle],[collected_coherent],'color', 'red');
         hold off
-        title('angle red -coherent, green - non-coherent');
+        title('dial angle (x) vs measured (y) red -coherent, green - non-coherent');
 
-        %pause
+        pause
         systemangle = [];
         systemangle1 = [];
     end
