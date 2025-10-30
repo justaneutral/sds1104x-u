@@ -44,7 +44,8 @@
 % Heading from Newtown, PA: 297.4° true (west-northwest)
 
 %[b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,threshild)
-find_station_direction(-33700,300,1,0.01) % Sitka, Ak
+%find_station_direction(-33700,300,1,0.01) % Sitka, Ak
+find_direction(-33700,300,1,0.0) % Sitka, Ak
 %find_station_direction(-24000,200,0.1,0.001) % NAA 24.0 kHz 200 Hz
 %find_station_direction(-25200,150,0.1,0.001) % NML 25.2 kHz 100 Hz
 %find_station_direction(-29700,6000,0.1,0.002) % Hawaii, USA

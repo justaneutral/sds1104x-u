@@ -1,5 +1,5 @@
 N = 70000;
-noise_magnitude = 0.1;
+noise_magnitude = 0.2;
 for noise_phase = 0:10:360
     W = zeros(361,7);
     i = 1;
@@ -36,6 +36,9 @@ for noise_phase = 0:10:360
     plot(W(1:i,1),W(1:i,4),'color','green')
     plot(W(1:i,1),W(1:i,5),'color','blue')
     title(j,sprintf('noise_angle = %d, noise_phase = %d',noise_angle, noise_phase))
+    figure(8)
+    plot(plot(W(1:i,1),W(1:i,2)-W(1:i,1),'color','black'))
+    title(8,'Measurement Error')
 end
 
 
@@ -146,28 +149,74 @@ function [direction, directiona, directionb, directionc] = measurement_coherent(
     end
 end
 
-function [direction] = measurement_noncoherent(ant_a,ant_b,ant_c)
+
+
+
+function [direction, directiona, directionb, directionc] = measurement_noncoherent(ant_a,ant_b,ant_c,fignum,reference_angle)
     u_a = sqrt(ant_a*ant_a');
     u_b = sqrt(ant_b*ant_b');
     u_c = sqrt(ant_c*ant_c');
     s_ab = sign(real(ant_a*ant_b'));
     s_ac = sign(real(ant_a*ant_c'));
-    Q = 2*u_a - u_b*s_ab - u_c*s_ac;
-    I = sqrt(3)*(u_b*s_ab - u_c*s_ac);
-    S = sign(Q*I);
-    R = sqrt(Q^2+I^2);
-    I = I/R;
-    Q = Q/R;
-    direction = 180/pi*atan2(Q,I);
-    if direction>90
-        fprintf('noncoher:I=%f,Q=%f,atan2(I,Q)=%fdeg.\n', I,Q,direction);
-        direction = direction - 90;
-    end
-    if direction<-90
-        fprintf('noncoher:I=%f,Q=%f,atan2(I,Q)=%fdeg.\n', I,Q,direction);
-        direction = direction + 90;
-    end
+    s_bc = sign(real(ant_b*ant_c'));
 
+    I = 2*u_a - u_b*s_ab - u_c*s_ac;
+    Q = sqrt(3)*(u_c - u_b);
+    S = sign(real(Q*I'));
+    Q = S*sqrt(Q*Q');
+    I = sqrt(I*I');
+    R = sqrt(Q^2+I^2);
+    Ia = I/R;
+    Qa = Q/R;
+
+    I = 2*ant_b - ant_c - ant_a;
+    Q = sqrt(3)*(ant_a - ant_c);
+    S = sign(real(Q*I'));
+    Q = S*sqrt(Q*Q');
+    I = sqrt(I*I');
+    R = sqrt(Q^2+I^2);
+    V=complex(I/R,Q/R)*exp(sqrt(-1)*pi*(60)/180);
+    Ib = abs(real(V));
+    Qb = sign(real(V))*imag(V); 
+
+    I = 2*ant_c - ant_a - ant_b;
+    Q = sqrt(3)*(ant_b - ant_a);
+    S = sign(real(Q*I'));
+    Q = S*sqrt(Q*Q');
+    I = sqrt(I*I');
+    R = sqrt(Q^2+I^2);
+    V=complex(I/R,Q/R)*exp(sqrt(-1)*pi*(120)/180);
+    Ic = abs(real(V));
+    Qc = sign(real(V))*imag(V);   
+
+    directiona = 180/pi*atan2(Qa,Ia);
+    directionb = 180/pi*atan2(Qb,Ib);
+    directionc = 180/pi*atan2(Qc,Ic);
+    direction = sort([directiona,directionb,directionc]);
+    direction = direction(2);
+
+    if fignum > 0
+        figure(fignum)
+        hold off
+        x=(0:1:190)*cos(pi/180*reference_angle);
+        y=(0:1:190)*sin(pi/180*reference_angle);
+        plot(x,y,'color','black');
+        hold all
+        x=(0:1:180)*cos(pi/180*direction);
+        y=(0:1:180)*sin(pi/180*direction);
+        plot(x,y,'color','yellow');
+        x=(0:1:150)*cos(pi/180*directiona);
+        y=(0:1:150)*sin(pi/180*directiona);
+        plot(x,y,'color','red');
+        x=(0:1:130)*cos(pi/180*directionb);
+        y=(0:1:130)*sin(pi/180*directionb);
+        plot(x,y,'color','green');
+        x=(0:1:100)*cos(pi/180*directionc);
+        y=(0:1:100)*sin(pi/180*directionc);
+        plot(x,y,'color','blue');          
+        axis([-200 200 -200 200])
+        hold off
+    end
 end
 
 function [ant_a,ant_b,ant_c] = signal_generator(angle,noise_magnitude,noise_angle,noise_phase,fignum)
