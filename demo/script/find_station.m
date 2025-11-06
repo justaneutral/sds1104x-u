@@ -43,14 +43,45 @@
 % Distance: ~2,000 km (1,240 mi)
 % Heading from Newtown, PA: 297.4° true (west-northwest)
 
-%[b_mean,b_dev] = find_station_direction(f_shift,Fcap,Frezolution,threshild)
-%find_station_direction(-33700,300,1,0.01) % Sitka, Ak
-find_direction(-33700,300,1,0.0) % Sitka, Ak
-%find_station_direction(-24000,200,0.1,0.001) % NAA 24.0 kHz 200 Hz
-%find_direction(-24000,200,0.1,0.00) % NAA 24.0 kHz 200 Hz
+%[b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,threshild, expected_bearing_angle)
+
+%panorama
+for pancnt = 1:1000
+    find_direction(-11000,1000,1,0.0,0) % 10-12 kHz
+    find_direction(-13000,1000,1,0.0,1) % 12-14 kHz
+    find_direction(-15000,1000,1,0.0,2) % 14-16 kHz
+    find_direction(-17000,1000,1,0.0,3) % 16-18 kHz
+    find_direction(-19000,1000,1,0.0,4) % 18-20 kHz
+    find_direction(-21000,1000,1,0.0,5) % 20-22 kHz
+    find_direction(-23000,1000,1,0.0,6) % 22-24 kHz
+    find_direction(-25000,1000,1,0.0,7) % 24-26 kHz
+    find_direction(-27000,1000,1,0.0,8) % 26-28 kHz
+    find_direction(-29000,1000,1,0.0,9) % 28-30 kHz
+    find_direction(-31000,1000,1,0.0,10) % 30-32 kHz
+    find_direction(-33000,1000,1,0.0,11) % 32-34 kHz
+    find_direction(-35000,1000,1,0.0,12) % 34-36 kHz
+    find_direction(-37000,1000,1,0.0,13) % 36-38 kHz
+    find_direction(-39000,1000,1,0.0,14) % 38-40 kHz
+    find_direction(-41000,1000,1,0.0,15) % 40-42 kHz
+    find_direction(-43000,1000,1,0.0,16) % 42-44 kHz
+    find_direction(-45000,1000,1,0.0,17) % 44-46 kHz
+    find_direction(-47000,1000,1,0.0,18) % 46-48 kHz
+    find_direction(-49000,1000,1,0.0,19) % 48-50 kHz
+    find_direction(-51000,1000,1,0.0,20) % 50-52 kHz
+end
+%found stations
+
+%find_direction(-38250,200,1,0.0,64)
+%find_direction(-33700,300,1,0.0,-50) % Sitka, Ak
+%find_direction(-24000,2,0.1,0.0,-6) % NAA? 24.0 kHz 2 Hz
+%find_direction(-24000,100,0.1,0.0,-34.8) % NAA? 24.0 kHz 100 Hz
+
+
+%find_direction(-24000,200,0.1,0.00,58.2) % NAA 24.0 kHz 200 Hz
+%find_direction(-24000,5,0.1,0.00,58.2) % NAA 24.0 kHz 200 Hz
 %find_station_direction(-25200,150,0.1,0.001) % NML 25.2 kHz 100 Hz
-%find_direction(-25200,150,0.1,0.001) % NML 25.2 kHz 100 Hz
-%find_station_direction(-29700,6000,0.1,0.002) % Hawaii, USA
+%find_direction(-25200,150,0.1,0.0,-57) % NML 25.2 kHz 100 Hz
+%find_direction(-29700,600,0.1,0.0, 54.6) % Hawaii, USA
 %find_direction(-36000,6000,1,0.002) % North Dakota, USA
 %find_direction(-60000,10,0.1,0.00) % WWVB, Colorado
 

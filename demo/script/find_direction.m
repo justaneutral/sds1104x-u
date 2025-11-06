@@ -1,4 +1,4 @@
-function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff)
+function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff,reference_angle)
     % persistent mp ma mb mc aa ab ac
     % if isempty(mp)
     %     mp = 0;
@@ -25,7 +25,9 @@ function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff)
     N = 700000;
     Fs = 500000;
     collected_coherent = [];
-    NumRepetitions = 1000;
+    Pxys = [];
+    Ans = [];
+    NumRepetitions = 1;
     NumChannels = 3; % max 4
     Nfft = 2^ceil(log2(Fs/Frezolution));
     Ncap = [max(1,Nfft/2 - ceil(Nfft*Fcap/Fs)), min(Nfft,Nfft/2 + ceil(Nfft*Fcap/Fs))];
@@ -85,49 +87,25 @@ function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff)
         title(titstr);
         hold off
         
-        ma = 1; mb = 1; mc = 1; aa = 0; ab = 0; ac = 0; mp = 0;
-        dd = 100;
-        [systemangle,dd] = measurement_coherent(ant_a,ant_b,ant_c,mp,ma,mb,mc,aa,ab,ac,2);
-        while dd > 360
-            [systemangle,dd] = measurement_coherent(ant_a,ant_b,ant_c,mp,ma,mb,mc,aa,ab,ac,2);
-            [~,dmp] = measurement_coherent(ant_a,ant_b,ant_c,mp+0.01,ma,mb,mc,aa,ab,ac,0);
-            % [~,dma] = measurement_coherent(ant_a,ant_b,ant_c,mp,ma*1.01,mb,mc,aa,ab,ac,0);
-            [~,dmb] = measurement_coherent(ant_a,ant_b,ant_c,mp,ma,mb*1.01,mc,aa,ab,ac,0);
-            [~,dmc] = measurement_coherent(ant_a,ant_b,ant_c,mp,ma,mb,mc*1.01,aa,ab,ac,0);
-            % [~,daa] = measurement_coherent(ant_a,ant_b,ant_c,mp,ma,mb,mc,aa+0.01,ab,ac,0);
-            % [~,dab] = measurement_coherent(ant_a,ant_b,ant_c,mp,ma,mb,mc,aa,ab+0.01,ac,0);
-            % [~,dac] = measurement_coherent(ant_a,ant_b,ant_c,mp,ma,mb,mc,aa,ab,ac+0.01,0);
-            mp = mp + 0.1*(dd-dmp);
-            % ma = ma * (1.0 + 0.1*(dd-dma));
-            mb = mb * (1.0 + 0.1*(dd-dmb));
-            mc = mc * (1.0 + 0.1*(dd-dmc));
-            % aa = aa + 0.01*(dd-daa);
-            % ab = ab + 0.01*(dd-dab);
-            % ac = ac + 0.01*(dd-dac);
-            % if dmb>dmc && dmb>dab && dmb>dac
-            %     mb = mb * (1.0 + 0.01*(dd-dmb));
-            % else
-            %     if dmc>dmb && dmc>dab && dmc>dac
-            %         mc = mc * (1.0 + 0.01*(dd-dmc));
-            %     else 
-            %         if dab>dmb && dab>dmc && dab>dac
-            %             ab = ab + 0.01*(dd-dab);
-            %         else 
-            %             if dac>dmb && dac>dmc && dac>dab
-            %                 ac = ab + 0.01*(dd-dab);
-            %             end
-            %         end
-            %     end
-            % end
-        end
+        ma = 1; mb = 1; mc = 1; mp = 0;
+        [systemangle,Pxy,An] = measurement_correlational(ant_a,ant_b,ant_c,mp,ma,mb,mc,reference_angle,2);
         
         collected_coherent = [collected_coherent systemangle];
+        Pxys = [Pxys Pxy];
+        Ans = [Ans An];
 
-        figure(4)
-        hold off
-        plot([1:i],[collected_coherent],'color', 'black');
-        axis([1 NumRepetitions -200 200]);
-        title('measured angle of arrival');
+        if NumRepetitions>1
+            figure(4)
+            hold off
+            plot([1:i],[collected_coherent],'color', 'black');
+            hold all
+            plot([1:i],[Pxys],'color', 'magenta');
+            plot([1:i],[Ans],'color', 'cyan');
+    
+            axis([1 NumRepetitions -200 200]);
+            title('measured angle of arrival');
+            legend('AoA','Pxy','An');
+        end
     end
 end
 

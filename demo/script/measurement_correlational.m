@@ -1,4 +1,4 @@
-function [direction,directiona,directionb,directionc] = measurement_correlational(ant_s_a,ant_s_b,ant_s_c,noise_level,gain_a,gain_b,gain_c,reference_angle,fignum)
+function [direction,Pxy,An] = measurement_correlational(ant_s_a,ant_s_b,ant_s_c,noise_level,gain_a,gain_b,gain_c,reference_angle,fignum)
     epsilon = 0.1;
     voltage_offset = noise_level*sqrt(ant_s_a*ant_s_a' + ant_s_b*ant_s_b' + ant_s_c*ant_s_c')/3.0;    
    
@@ -48,34 +48,24 @@ function [direction,directiona,directionb,directionc] = measurement_correlationa
         Pc = min(abs(Ic),abs(Qc))/max(abs(Ic),abs(Qc));
     end
 
-    if Pa > Pb && Pa > Pc
+    if (Pa > Pb && Pa > Pc) || (Pa == Pc && Pc > Pb) || (Pa == Pb && Pb > Pc)
        direction =  180/pi*atan2(Qa,Ia);
+       Pxy=Pa;
+       An = 1;
     else
-        if Pb > Pa && Pb > Pc
+        if (Pb > Pa && Pb > Pc) || (Pb == Pc && Pc > Pa)
             direction =  mod(90+180/pi*atan2(Qb,Ib)+60,180)-90;
+            Pxy=Pb;
+            An = 2;
         else
             if Pc > Pa && Pc > Pb
                 direction =  mod(90+180/pi*atan2(Qc,Ic)-60,180)-90;
+                Pxy=Pc;
+                An = 3;
             else
-                if Pa == Pb && Pb > Pc
-                    direction_a =  180/pi*atan2(Qa,Ia);
-                    direction_b =  mod(90+180/pi*atan2(Qb,Ib)+60,180)-90;
-                    direction = (direction_a + direction_b)/2;
-                else
-                    if Pb == Pc && Pc > Pa
-                        direction_b =  mod(90+180/pi*atan2(Qb,Ib)+60,180)-90;
-                        direction_c =  mod(90+180/pi*atan2(Qc,Ic)-60,180)-90;
-                        direction = (direction_b + direction_c)/2;
-                    else
-                        if Pa == Pc && Pc > Pb
-                            direction_a =  180/pi*atan2(Qa,Ia);
-                            direction_c =  mod(90+180/pi*atan2(Qc,Ic)-60,180)-90;
-                            direction = (direction_a + direction_c)/2;
-                        else
-                            direction = 0;
-                        end
-                    end
-                end
+                direction = 0;
+                Pxy = 0;
+                An = 0;
             end
         end
     end
@@ -91,8 +81,9 @@ function [direction,directiona,directionb,directionc] = measurement_correlationa
         y=(0:1:160)*sin(pi/180*reference_angle);
         plot(x,y,'color','yellow');
         axis([-200 200 -200 200])
-        titstr = sprintf('Ref.A = %+03.2f, AoA = %+03.2f deg.\na=%+03.2f, b=%+03.2f, c=%+03.2f,\nnp=%f, ga=%f, gb=%f, gc=%f', ...
+        titstr = sprintf('Ref.A = %+03.2f, AoA = %+03.2f deg.\nPxy=%f, An=%d\na=%+03.2f, b=%+03.2f, c=%+03.2f,\nnp=%f, ga=%f, gb=%f, gc=%f', ...
             reference_angle,direction, ...
+            Pxy,An, ...
             sqrt(real(ant_s_a*ant_s_a')), sqrt(real(ant_s_b*ant_s_b')), sqrt(real(ant_s_c*ant_s_c')), ...
             noise_level, gain_a,gain_b,gain_c);
         title(titstr);
