@@ -45,68 +45,164 @@
 
 %[b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,threshild, expected_bearing_angle)
 
-%panorama
+%control parameters
+antenna_direction_angle_start =0;
+antenna_direction_angle_stop = 350;
+antenna_direction_angle_step = 10;
+files_bunch_amount = 10;
+take_new_files = 0;
+new_file_prefix = 'day20251107';
+
+%panorama parameters
+create_panorama = 0;
 f_shift = -50000;
 Fcap = 40000;
-Frezolution = 20;
-fignum = 8;
+Frezolution = 0.1;
+fignum_panorama = 8;
+show_panorama = 0;
+show_life_panorama = 1;
+
+%common parameters
+find_directions = 0;
 N = 700000;
-%save to files
-[~] = read_file_helper(N);
-for flcnt = 0:35
-    buf = read_file_helper(N);
-    fname = sprintf('signal_%03d_degree_no16',flcnt*10);
-    save(fname,"buf");
-    request = sprintf('change from %d to %d, hit a key\n',flcnt*10,(flcnt+1)*10);
-    display(request);
-    pause
+Fs = 500000;
+
+if take_new_files > 0
+    %save to files
+    for antenna_direction_angle = antenna_direction_angle_start:antenna_direction_angle_step:antenna_direction_angle_stop
+        [~] = read_file_helper(N); % make sure no wrong angle penetrated
+        [~] = read_file_helper(N);
+        for file_index = 0:files_bunch_amount-1
+            buf = read_file_helper(N);
+            disp('buffer received');
+            fname = sprintf('%s_signal_%01d_%03d_degree',new_file_prefix,file_index,antenna_direction_angle);
+            save(fname,"buf");
+            fprintf('written to file: %s\n',fname);
+        end
+        if (antenna_direction_angle+antenna_direction_angle_step) <= antenna_direction_angle_stop
+            request = sprintf('change from %d to %d, hit a key\n>',antenna_direction_angle,(antenna_direction_angle+antenna_direction_angle_step));
+            display(request);
+            pause
+        else
+            disp('All signal files collected');
+        end
+    end
 end
 
-fbuf = accumulate_panorama(f_shift,Fcap,Frezolution,-1,buf); %reset persistents
-for pancnt = 1:1000
-    buf = read_file_helper(N);
-    fbuf = accumulate_panorama(f_shift,Fcap,Frezolution,fignum,buf);
+
+if create_panorama > 0
+    [~] = accumulate_panorama(f_shift,Fcap,Frezolution,-1,0);
+    for antenna_direction_angle = antenna_direction_angle_start:antenna_direction_angle_step:antenna_direction_angle_stop
+        for file_index = 0:files_bunch_amount-1
+            fname = sprintf('%s_signal_%01d_%03d_degree',new_file_prefix,file_index,antenna_direction_angle);
+            load(fname,"buf");
+            fprintf('read file: %s\n',fname);
+            fbuf = accumulate_panorama(f_shift,Fcap,Frezolution,fignum_panorama,buf);
+        end
+    end
+    panorama_name = sprintf('%s_panorama_f_shift_%d_Fcap_%d_Fresolution_%f.mat',new_file_prefix,f_shift,Fcap,Frezolution);
+    save(panorama_name,"fbuf");
+    fprintf('saved panorama file: %d\n',panorama_name);
 end
-for pancnt = 1:2
-    buf = read_file_helper(N);
-    find_direction(-11000,1000,1,0.0,0,buf) % 10-12 kHz
-    find_direction(-13000,1000,1,0.0,10,buf) % 12-14 kHz
-    find_direction(-15000,1000,1,0.0,20,buf) % 14-16 kHz
-    find_direction(-17000,1000,1,0.0,30,buf) % 16-18 kHz
-    find_direction(-19000,1000,1,0.0,40,buf) % 18-20 kHz
-    find_direction(-21000,1000,1,0.0,50,buf) % 20-22 kHz
-    find_direction(-23000,1000,1,0.0,60,buf) % 22-24 kHz
-    find_direction(-25000,1000,1,0.0,70,buf) % 24-26 kHz
-    find_direction(-27000,1000,1,0.0,80,buf) % 26-28 kHz
-    find_direction(-29000,1000,1,0.0,90,buf) % 28-30 kHz
-    find_direction(-31000,1000,1,0.0,100,buf) % 30-32 kHz
-    find_direction(-33000,1000,1,0.0,110,buf) % 32-34 kHz
-    find_direction(-35000,1000,1,0.0,120,buf) % 34-36 kHz
-    find_direction(-37000,1000,1,0.0,130,buf) % 36-38 kHz
-    find_direction(-39000,1000,1,0.0,140,buf) % 38-40 kHz
-    find_direction(-41000,1000,1,0.0,150,buf) % 40-42 kHz
-    find_direction(-43000,1000,1,0.0,160,buf) % 42-44 kHz
-    find_direction(-45000,1000,1,0.0,170,buf) % 44-46 kHz
-    find_direction(-47000,1000,1,0.0,180,buf) % 46-48 kHz
-    find_direction(-49000,1000,1,0.0,190,buf) % 48-50 kHz
-    find_direction(-51000,1000,1,0.0,200,buf) % 50-52 kHz
-    find_direction(-53000,1000,1,0.0,210,buf) % 52-54 kHz
-    find_direction(-55000,1000,1,0.0,220,buf) % 54-56 kHz
-    find_direction(-57000,1000,1,0.0,230,buf) % 56-58 kHz
-    find_direction(-59000,1000,1,0.0,240,buf) % 58-60 kHz
-    find_direction(-61000,1000,1,0.0,250,buf) % 60-62 kHz
-    find_direction(-63000,1000,1,0.0,260,buf) % 62-64 kHz
-    find_direction(-65000,1000,1,0.0,270,buf) % 64-66 kHz
-    find_direction(-67000,1000,1,0.0,280,buf) % 66-68 kHz
-    find_direction(-69000,1000,1,0.0,290,buf) % 68-70 kHz
+
+if show_panorama > 0 && fignum_panorama > 0
+    panorama_name = sprintf('%s_panorama_f_shift_%d_Fcap_%d_Fresolution_%f.mat',new_file_prefix,f_shift,Fcap,Frezolution);
+    load(panorama_name,"fbuf");
+    fprintf('loaded panorama file: %s\n',panorama_name);
+    Ns = size(fbuf,2);
+    Np = 2*Fcap/Frezolution;
+
+    NumChannels = 3; % max 4
+    Nfft = 2^ceil(log2(Fs/Frezolution));
+    Ncap = [max(1,Nfft/2 - ceil(Nfft*Fcap/Fs)), min(Nfft,Nfft/2 + ceil(Nfft*Fcap/Fs))];
+    Nextract = [Ncap(1)+Nfft/2, Nfft, 1, Ncap(2)-Nfft/2];
+    Fscale = ([Ncap(1):Ncap(2)]'-Nfft/2)*Frezolution;
+    FscaleTrue = Fscale - f_shift;
+
+    fprintf('Fmin=%d,Fmax=%d\n', FscaleTrue(1), FscaleTrue(end))
+
+    figure(fignum_panorama);
+    hold off
+    plot(FscaleTrue,fbuf,'color','black');
+    titstr = sprintf('Avg.|FFT| Ncap(1)=%d Ncap(2)=%d Nfft/2=%d Frezolution=%f',Ncap(1),Ncap(2),Nfft/2,Frezolution);
+    title(titstr);
 end
+
+if show_life_panorama > 0 && fignum_panorama > 0
+    Ns = size(fbuf,2);
+    Np = 2*Fcap/Frezolution;
+
+    NumChannels = 3; % max 4
+    Nfft = 2^ceil(log2(Fs/Frezolution));
+    Ncap = [max(1,Nfft/2 - ceil(Nfft*Fcap/Fs)), min(Nfft,Nfft/2 + ceil(Nfft*Fcap/Fs))];
+    Nextract = [Ncap(1)+Nfft/2, Nfft, 1, Ncap(2)-Nfft/2];
+    Fscale = ([Ncap(1):Ncap(2)]'-Nfft/2)*Frezolution;
+    FscaleTrue = Fscale - f_shift;
+
+    fprintf('Fmin=%d,Fmax=%d\n', FscaleTrue(1), FscaleTrue(end))
+
+    figure(fignum_panorama);
+    hold off
+    buf = read_file_helper(N);
+    disp('buffer received');
+    [fbuf, Na] = accumulate_panorama(f_shift,Fcap,Frezolution,-1,buf)
+    buf = read_file_helper(N);
+    [fbuf, Na] = accumulate_panorama(f_shift,Fcap,Frezolution,fignum_panorama,buf);
+end
+
+
+
+
+
+if find_directions > 0
+    for antenna_direction_angle = antenna_direction_angle_start:antenna_direction_angle_step:antenna_direction_angle_stop
+        for file_index = 0:files_bunch_amount-1
+            fname = sprintf('%s_signal_%01d_%03d_degree',new_file_prefix,file_index,antenna_direction_angle);
+            load(fname,"buf");
+            fprintf('read file: %s\n',fname);
+            find_direction(-11000,1000,1,0.0,0,buf) % 10-12 kHz
+            find_direction(-13000,1000,1,0.0,10,buf) % 12-14 kHz
+            find_direction(-15000,1000,1,0.0,20,buf) % 14-16 kHz
+            find_direction(-17000,1000,1,0.0,30,buf) % 16-18 kHz
+            find_direction(-19000,1000,1,0.0,40,buf) % 18-20 kHz
+            find_direction(-21000,1000,1,0.0,50,buf) % 20-22 kHz
+            find_direction(-23000,1000,1,0.0,60,buf) % 22-24 kHz
+            find_direction(-25000,1000,1,0.0,70,buf) % 24-26 kHz
+            find_direction(-27000,1000,1,0.0,80,buf) % 26-28 kHz
+            find_direction(-29000,1000,1,0.0,90,buf) % 28-30 kHz
+            find_direction(-31000,1000,1,0.0,100,buf) % 30-32 kHz
+            find_direction(-33000,1000,1,0.0,110,buf) % 32-34 kHz
+            find_direction(-35000,1000,1,0.0,120,buf) % 34-36 kHz
+            find_direction(-37000,1000,1,0.0,130,buf) % 36-38 kHz
+            find_direction(-39000,1000,1,0.0,140,buf) % 38-40 kHz
+            find_direction(-41000,1000,1,0.0,150,buf) % 40-42 kHz
+            find_direction(-43000,1000,1,0.0,160,buf) % 42-44 kHz
+            find_direction(-45000,1000,1,0.0,170,buf) % 44-46 kHz
+            find_direction(-47000,1000,1,0.0,180,buf) % 46-48 kHz
+            find_direction(-49000,1000,1,0.0,190,buf) % 48-50 kHz
+            find_direction(-51000,1000,1,0.0,200,buf) % 50-52 kHz
+            find_direction(-53000,1000,1,0.0,210,buf) % 52-54 kHz
+            find_direction(-55000,1000,1,0.0,220,buf) % 54-56 kHz
+            find_direction(-57000,1000,1,0.0,230,buf) % 56-58 kHz
+            find_direction(-59000,1000,1,0.0,240,buf) % 58-60 kHz
+            find_direction(-61000,1000,1,0.0,250,buf) % 60-62 kHz
+            find_direction(-63000,1000,1,0.0,260,buf) % 62-64 kHz
+            find_direction(-65000,1000,1,0.0,270,buf) % 64-66 kHz
+            find_direction(-67000,1000,1,0.0,280,buf) % 66-68 kHz
+            find_direction(-69000,1000,1,0.0,290,buf) % 68-70 kHz
+        end
+    end
+end
+
 %found stations
-
-%find_direction(-38250,200,1,0.0,64)
-%find_direction(-33700,300,1,0.0,-50) % Sitka, Ak
-%find_direction(-24000,2,0.1,0.0,-6) % NAA? 24.0 kHz 2 Hz
-%find_direction(-24000,100,0.1,0.0,-34.8) % NAA? 24.0 kHz 100 Hz
-
+for iterind = 1:200
+    fig_num = 100;
+    buf = read_file_helper(N);
+    find_direction(-38250,200,1,0.0,64,buf,fig_num); fig_num = fig_num+1;
+    find_direction(-33700,300,1,0.0,-50,buf,fig_num); fig_num = fig_num+1; % Sitka, Ak
+    find_direction(-24000,2,0.1,0.0,-6,buf,fig_num); fig_num = fig_num+1; % NAA? 24.0 kHz 2 Hz
+    find_direction(-24000,100,0.1,0.0,-34.8,buf,fig_num); fig_num = fig_num+1; % NAA? 24.0 kHz 100 Hz
+end
 
 %find_direction(-24000,200,0.1,0.00,58.2) % NAA 24.0 kHz 200 Hz
 %find_direction(-24000,5,0.1,0.00,58.2) % NAA 24.0 kHz 200 Hz

@@ -1,3 +1,5 @@
+*.mat
+*.fig
 *.swp
 *.exe
 *.o

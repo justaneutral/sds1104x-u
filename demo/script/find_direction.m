@@ -1,4 +1,4 @@
-function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff,reference_angle,buf)
+function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff,reference_angle,buf,fig_num)
     % persistent mp ma mb mc aa ab ac
     % if isempty(mp)
     %     mp = 0;
@@ -78,7 +78,8 @@ function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff,referen
         ant_b = chcut(:,2)';
         ant_c = chcut(:,3)';
 
-        figure(1);
+        figure(fig_num);
+        subplot(2,1,1);
         hold off
         plot(Fscale,imag(ant_a),'color','magenta');
         hold all
@@ -99,7 +100,7 @@ function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff,referen
         Ans = [Ans An];
 
         if NumRepetitions>1
-            figure(4)
+            subplot(2,1,2);
             hold off
             plot([1:i],[collected_coherent],'color', 'black');
             hold all
