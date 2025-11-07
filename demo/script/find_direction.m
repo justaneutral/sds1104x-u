@@ -1,4 +1,4 @@
-function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff,reference_angle)
+function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff,reference_angle,buf)
     % persistent mp ma mb mc aa ab ac
     % if isempty(mp)
     %     mp = 0;
@@ -37,9 +37,13 @@ function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff,referen
     chcut = zeros(size(Fscale,1),NumChannels);
     chftsum = zeros(size(Fscale,1),NumChannels);
     systemangle = [];
-    [~] = read_file_helper(N);
+    if NumRepetitions > 1
+        [~] = read_file_helper(N);
+    end
     for i=1:1:NumRepetitions
-        buf = read_file_helper(N);
+        if NumRepetitions > 1
+            buf = read_file_helper(N);
+        end
         ag = 1.0j.*2.*pi.*double(f_shift)./double(Fs).*(0:1:N-1)';
         mx = exp(ag);
         %extract the antenna signals
