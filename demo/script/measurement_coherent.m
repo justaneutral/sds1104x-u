@@ -69,8 +69,9 @@ function [direction,dd] = measurement_coherent(ant_s_a,ant_s_b,ant_s_c,noise_lev
     dd = directions(3)-directions(1);
     %direction = direction(2);
 
-    if fignum > 0
-        figure(fignum)
+    if fig_num > 0
+        figure(fig_num);
+        subplot(subplot_x,subplot_y,subplot_p);
         hold off
         x=(0:1:180)*cos(pi/180*direction);
         y=(0:1:180)*sin(pi/180*direction);

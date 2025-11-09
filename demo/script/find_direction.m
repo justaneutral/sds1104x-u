@@ -1,4 +1,4 @@
-function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff,reference_angle,buf,fig_num)
+function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff,reference_angle,buf,fig_num,subplot_x,subplot_y,subplot_p)
     % persistent mp ma mb mc aa ab ac
     % if isempty(mp)
     %     mp = 0;
@@ -79,7 +79,7 @@ function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff,referen
         ant_c = chcut(:,3)';
 
         figure(fig_num);
-        subplot(2,1,1);
+        subplot(subplot_x,subplot_y,subplot_p);
         hold off
         plot(Fscale,imag(ant_a),'color','magenta');
         hold all
@@ -93,14 +93,15 @@ function [b_mean,b_dev] = find_direction(f_shift,Fcap,Frezolution,cutoff,referen
         hold off
         
         ma = 1; mb = 1; mc = 1; mp = 0;
-        [systemangle,Pxy,An] = measurement_correlational(ant_a,ant_b,ant_c,mp,ma,mb,mc,reference_angle,2);
+        [systemangle,Pxy,An] = measurement_correlational(ant_a,ant_b,ant_c,mp,ma,mb,mc,reference_angle,fig_num+1,subplot_x,subplot_y,subplot_p);
         
         collected_coherent = [collected_coherent systemangle];
         Pxys = [Pxys Pxy];
         Ans = [Ans An];
 
         if NumRepetitions>1
-            subplot(2,1,2);
+            figure(fig_num+1);
+            subplot(subplot_x,subplot_y,subplot_p);
             hold off
             plot([1:i],[collected_coherent],'color', 'black');
             hold all

@@ -54,13 +54,14 @@ take_new_files = 0;
 new_file_prefix = 'day20251107';
 
 %panorama parameters
-create_panorama = 0;
-f_shift = -50000;
-Fcap = 40000;
-Frezolution = 0.1;
 fignum_panorama = 8;
+create_panorama = 0;
 show_panorama = 0;
-show_life_panorama = 1;
+show_life_panorama = 0;
+f_shift = -50000;
+Fcap = 20000;
+Frezolution = 0.1;
+
 
 %common parameters
 find_directions = 0;
@@ -129,9 +130,6 @@ if show_panorama > 0 && fignum_panorama > 0
 end
 
 if show_life_panorama > 0 && fignum_panorama > 0
-    Ns = size(fbuf,2);
-    Np = 2*Fcap/Frezolution;
-
     NumChannels = 3; % max 4
     Nfft = 2^ceil(log2(Fs/Frezolution));
     Ncap = [max(1,Nfft/2 - ceil(Nfft*Fcap/Fs)), min(Nfft,Nfft/2 + ceil(Nfft*Fcap/Fs))];
@@ -195,13 +193,21 @@ if find_directions > 0
 end
 
 %found stations
+fig_num = fignum_panorama + 10;
+subplot_x = 2;
+subplot_y = 2;
+close all
 for iterind = 1:200
-    fig_num = 100;
-    buf = read_file_helper(N);
-    find_direction(-38250,200,1,0.0,64,buf,fig_num); fig_num = fig_num+1;
-    find_direction(-33700,300,1,0.0,-50,buf,fig_num); fig_num = fig_num+1; % Sitka, Ak
-    find_direction(-24000,2,0.1,0.0,-6,buf,fig_num); fig_num = fig_num+1; % NAA? 24.0 kHz 2 Hz
-    find_direction(-24000,100,0.1,0.0,-34.8,buf,fig_num); fig_num = fig_num+1; % NAA? 24.0 kHz 100 Hz
+    %buf = read_file_helper(N);
+    accumulate_panorama(-30000,20000,1,-1,buf);
+    accumulate_panorama(-30000,20000,1,fignum_panorama+1,buf);
+    accumulate_panorama(-40000,20000,1,-1,buf);
+    accumulate_panorama(-40000,20000,1,fignum_panorama+2,buf);
+    % find_direction(-24050,400,1,0.0,0,buf,fig_num,subplot_x,subplot_y,1);
+    % find_direction(-38250,200,1,0.0,64,buf,fig_num,subplot_x,subplot_y,2);
+    % find_direction(-33700,300,1,0.0,-50,buf,fig_num,subplot_x,subplot_y,3); % Sitka, Ak
+    % %find_direction(-24000,2,0.1,0.0,-6,buf,fig_num,subplot_x,subplot_y,3); % NAA? 24.0 kHz 2 Hz
+    % find_direction(-24000,100,0.1,0.0,-34.8,buf,fig_num,subplot_x,subplot_y,4); % NAA? 24.0 kHz 100 Hz
 end
 
 %find_direction(-24000,200,0.1,0.00,58.2) % NAA 24.0 kHz 200 Hz

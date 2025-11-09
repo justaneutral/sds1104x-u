@@ -6,8 +6,10 @@ function [fbuf, Na] = accumulate_panorama(f_shift,Fcap,Frezolution,fignum,buf)
     Nfft = 2^ceil(log2(Fs/Frezolution));
     Ncap = [max(1,Nfft/2 - ceil(Nfft*Fcap/Fs)), min(Nfft,Nfft/2 + ceil(Nfft*Fcap/Fs))];
     Nextract = [Ncap(1)+Nfft/2, Nfft, 1, Ncap(2)-Nfft/2];
-    Fscale = ([Ncap(1):Ncap(2)]'-Nfft/2)*Frezolution;
-    FscaleTrue = Fscale - f_shift;
+    Fscale = ([Ncap(1):Ncap(2)]'-Nfft/2)*Frezolution;%*(1-2^-5);
+    fcorrection = Fcap./Fscale(end);
+    Fscale = Fscale * fcorrection;
+    FscaleTrue = Fscale;% - f_shift;
     if isempty(num_accumulated) || fignum < 0
          num_accumulated = 0;
     end
@@ -24,6 +26,9 @@ function [fbuf, Na] = accumulate_panorama(f_shift,Fcap,Frezolution,fignum,buf)
         for chnum = 1:NumChannels
             ch(:,chnum) = double(int8(buf((chnum-1)*N+1:chnum*N))).*mx;
         end
+        ch(:,1) = exp(1.0j.*2.*pi.*double(5000-f_shift)./double(Fs).*(0:1:N-1)').*mx;
+        ch(:,2) = exp(1.0j.*2.*pi.*double(10000-f_shift)./double(Fs).*(0:1:N-1)').*mx;
+        ch(:,3) = exp(1.0j.*2.*pi.*double(15000-f_shift)./double(Fs).*(0:1:N-1)').*mx;
         %calculate ffts
         chcut_abs = zeros(size(Fscale,1),1);
         for chnum = 1:NumChannels
