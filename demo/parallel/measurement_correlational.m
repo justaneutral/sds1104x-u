@@ -81,7 +81,10 @@ if sum(squelsh_latch) > 0.47*size(squelsh_latch,1);
         y=(0:1:160)*cos(pi/180*reference_angle);
         x=(0:1:160)*sin(pi/180*reference_angle);
         plot(x,y,'color','yellow');
-        axis([-200 200 -200 200])
+        axis([-200 200 -200 200]);
+        %angle_text = sprintf('%d',cast(direction,'int32'));
+        angle_text = sprintf('%3.1f',direction);
+        text(-120,0,angle_text,'color','red');
         % titstr = sprintf('Ref.A = %+03.2f, AoA = %+03.2f deg.\nPxy=%f, An=%d\na=%+03.2f, b=%+03.2f, c=%+03.2f,\nnp=%f, ga=%f, gb=%f, gc=%f', ...
         %     reference_angle,direction, ...
         %     Pxy,An, ...
@@ -99,15 +102,16 @@ else %signal not present
         figure(fig_num);
         subplot(subplot_x,subplot_y,subplot_p);
         hold off
-        x=(-180:1:180)*cos(pi/180*45);
-        y=(-180:1:180)*sin(pi/180*45);
+        y=(-180:1:180)*cos(pi/180*45);
+        x=(-180:1:180)*sin(pi/180*45);
         plot(x,y,'color','black');
         hold all
-        x=(-180:1:180)*cos(pi/180*135);
-        y=(-180:1:180)*sin(pi/180*135);
+        y=(-180:1:180)*cos(pi/180*135);
+        x=(-180:1:180)*sin(pi/180*135);
         plot(x,y,'color','black');
         hold all
-        axis([-200 200 -200 200])
+        axis([-200 200 -200 200]);
+        text(-120,0,'No signal','color','black');
         hold off
     end
 end

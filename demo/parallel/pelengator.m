@@ -1,8 +1,8 @@
 close all
 %%%%==========parameters==========%%%%
-station_center_frequency = [10720; 24000; 24000; 24000; 24800; 25200; 40700; 59999];
-station_bandwidth =        [    8;   500;    50;     5;   400;   200;   800;     2];
-station_mask_number =      [    1;     1;     2;     3;     1;     1;     1;     1];
+station_center_frequency = [24000; 25200; 16000; 40750];
+station_bandwidth =        [  300;   200;   300;   300];
+station_mask_number =      [    1;     1;     1;     1];
 Fs = 500000;
 N = 700000;
 N_start=1;
@@ -13,11 +13,13 @@ panorama_mask_file_name = ['panorama_mask_' date '.mat'];
 panorama_floor_file_name  = ['panorama_floor_' date '.mat'];
 panorama_ceil_file_name  = ['panorama_ceil_' date '.mat'];
 squelsh_line_file_name = ['squelsh_line_' date '.mat'];
-squelsh_threshold = 4.0;
-squalsh_separation_gain = 1.1;
-squelsh_band_width = 200;
-squelsh_band_width_step = 6;
+relaxation_gain = 0.63;
+squelsh_threshold = 2.0;
+squalsh_separation_gain = 1.07;
+squelsh_band_width = 150;
+squelsh_band_width_step = 1;
 Num_iterations = 1000000;
+num_keep = 100;
 trigtreshold = Num_iterations;
 %%%%==========averages============%%%%
 M = 2^(ceil(log2(N))-1)-1;
@@ -41,24 +43,30 @@ panorama_floor = 100000000000*ones(1,N_panorama); %wrightstown_panorama_mask_tru
 panorama_ceil = zeros(1,N_panorama);
 squelsh_line = zeros(1,N_panorama);
 squelsh_base_line = zeros(1,N_panorama);
+num_stations = size(station_center_frequency,1);
+directions = zeros(num_stations,num_keep);
+Pxys = zeros(num_stations,num_keep);
+Ans = zeros(num_stations,num_keep);
 %%%===============screen===================%%%%
 % Get the screen size
 screenSize = get(0, 'ScreenSize');
 screenWidth = screenSize(3);
 screenHeight = screenSize(4);
 topOffset = 50;
-figWidth = (screenWidth-2*topOffset)/4;
-figHeight = (screenHeight-2*topOffset)/3;
+figWidth = (screenWidth-2*topOffset)/5;
+figHeight = (screenHeight-2*topOffset)/4;
 figWidth1 = screenWidth-2*topOffset;
 figHeight1 = (screenHeight-2*topOffset)/2;
-fig1position = [screenWidth-4*figWidth-topOffset, screenHeight-figHeight-2*topOffset, figWidth, figHeight];
-fig3position = [screenWidth-3*figWidth, screenHeight-figHeight-2*topOffset, figWidth, figHeight];
-fig4position = [screenWidth-2*figWidth+1*topOffset, screenHeight-figHeight-2*topOffset, figWidth, figHeight];
+fig1position = [screenWidth-5*figWidth-topOffset, screenHeight-figHeight-2*topOffset, figWidth, figHeight];
+fig3position = [screenWidth-4*figWidth, screenHeight-figHeight-2*topOffset, figWidth, figHeight];
+fig4position = [screenWidth-3*figWidth+1*topOffset, screenHeight-figHeight-2*topOffset, figWidth, figHeight];
+fig5position = [screenWidth-2*figWidth+2*topOffset, screenHeight-figHeight-2*topOffset, figWidth, figHeight];
 fig2position = [screenWidth-1*figWidth1-topOffset, screenHeight-figHeight-figHeight1-4*topOffset, figWidth1, figHeight1];
 %%%%========plotting angles=============%%%%
 fig_num = 4;
-subplot_x = ceil(sqrt(size(station_center_frequency,1)));
+subplot_x = ceil(sqrt(num_stations));
 subplot_y = subplot_x;
+
 %%%%======loop========%%%%
 trigcounter = 0;
 for i=1:Num_iterations
@@ -102,10 +110,17 @@ end
 
 panorama = abs(fft_buffer(:,panorama_spawn));
 panorama_max = max(max(panorama));
-panorama_mask_n = panorama_mask_n + max(panorama(1:3,:));
-panorama_mask = panorama_mask_n/i;
+if relaxation_gain == 0 
+    panorama_mask_n = panorama_mask_n + max(panorama(1:3,:));
+    panorama_mask = panorama_mask_n/i;
+    panorama_ceil = max(panorama_ceil,max(panorama(1:3,:)));
+else
+    panorama_mask_n = panorama_mask_n*relaxation_gain + max(panorama(1:3,:))*(1-relaxation_gain);
+    panorama_mask = panorama_mask_n;
+    panorama_ceil = max(panorama_ceil*relaxation_gain,max(panorama(1:3,:)));
+end
 panorama_floor = min(panorama_floor,min(panorama(1:3,:)));
-panorama_ceil = max(panorama_ceil,max(panorama(1:3,:)));
+
 squelsh_line = zeros(1,N_panorama);
 for so = -1*squelsh_offset:squelsh_step:squelsh_offset
     squelsh_line(1+squelsh_offset:end-squelsh_offset) = squelsh_line(1+squelsh_offset:end-squelsh_offset) + panorama_mask(1+squelsh_offset+so:end-squelsh_offset+so);
@@ -154,7 +169,6 @@ if trigcounter >= trigtreshold
 end
 
 %%%%=================================================%%%%
-
 for j=1:size(station_center_frequency,1)
     station_start_frequency = station_center_frequency(j)-station_bandwidth(j)/2;
     station_stop_frequency = station_center_frequency(j)+station_bandwidth(j)/2;
@@ -177,13 +191,30 @@ for j=1:size(station_center_frequency,1)
     subplot_p = j;
     subplot(subplot_y,subplot_x,subplot_p);
     hold off
-    plot(s_fscale,s_abs,'color','yellow');
+    plot(s_fscale,s_abs,'color','red');
     hold all
-    plot(s_fscale,s_current,'color','red');
+    plot(s_fscale,s_current,'color','green');
     plot(s_fscale,0.63*s_max*s_latch,'color','black');
     axis([s_fscale(1) s_fscale(end) 0 s_max]);
     reference_angle = 0;
-    [direction,Pxy,An] = measurement_correlational(s_sig,s_latch,m_mask,reference_angle,fig_num,fig4position,subplot_x,subplot_y,subplot_p);
+    [directions(j,i),Pxys(j,i),Ans(j,i)] = measurement_correlational(s_sig,s_latch,m_mask,reference_angle,fig_num,fig4position,subplot_x,subplot_y,subplot_p);
+    if i>1 && Pxys(j,i) == 0
+        %directions(j,i) = directions(j,i-1);
+        directions(j,i) = 361;
+    end
+end
+set(0, 'DefaultFigurePosition', fig5position);
+figure(5);
+hold off
+for j=1:num_stations
+    if i > num_keep
+        plot(i-num_keep:i,directions(j,i-num_keep:i),'color',colors(j,:));
+        axis([i-num_keep i -90.5 90.5]);
+    else
+        plot(1:i,directions(j,1:i),'color',colors(j,:));
+        axis([1 num_keep -90.5 90.5]);
+    end
+    hold all;
 end
 
 end
