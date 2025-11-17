@@ -1,5 +1,9 @@
+*.gzip
+*.zip
+*.gz
 *.mat
 *.fig
+*.png
 *.swp
 *.exe
 *.o
@@ -7,3 +11,4 @@
 *slprj*
 *.bytes
 *.asv
+*tosave*

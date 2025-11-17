@@ -1,10 +1,9 @@
-function [direction,Pxy,An] = measurement_correlational(ant_s_a,ant_s_b,ant_s_c,noise_level,gain_a,gain_b,gain_c,reference_angle,fig_num,subplot_x,subplot_y,subplot_p)
-    epsilon = 0.1;
-    voltage_offset = noise_level*sqrt(ant_s_a*ant_s_a' + ant_s_b*ant_s_b' + ant_s_c*ant_s_c')/3.0;    
-   
-    ant_a = ant_s_a * gain_a - voltage_offset;    
-    ant_b = ant_s_b * gain_b - voltage_offset;
-    ant_c = ant_s_c * gain_c - voltage_offset;
+function [direction,Pxy,An] = measurement_correlational(ant,squelsh_latch,modulation_mask,reference_angle,fig_num,fig_position,subplot_x,subplot_y,subplot_p)
+if sum(squelsh_latch) > 0.47*size(squelsh_latch,1);
+    epsilon = 0.01;
+    ant_a = ant(1,:);
+    ant_b = ant(2,:);
+    ant_c = ant(3,:);
 
     I = (2*ant_a - ant_b - ant_c);%.*exp(sqrt(-1)*pi*(angle_offset_a)/180);
     Q = sqrt(3)*(ant_c - ant_b);%.*exp(sqrt(-1)*pi*(angle_offset_a)/180);
@@ -71,15 +70,16 @@ function [direction,Pxy,An] = measurement_correlational(ant_s_a,ant_s_b,ant_s_c,
     end
 
     if fig_num > 0
+        set(0, 'DefaultFigurePosition', fig_position);
         figure(fig_num);
         subplot(subplot_x,subplot_y,subplot_p);
         hold off
-        x=(0:1:180)*cos(pi/180*direction);
-        y=(0:1:180)*sin(pi/180*direction);
+        y=(0:1:180)*cos(pi/180*direction);
+        x=(0:1:180)*sin(pi/180*direction);
         plot(x,y,'color','black');
         hold all
-        x=(0:1:160)*cos(pi/180*reference_angle);
-        y=(0:1:160)*sin(pi/180*reference_angle);
+        y=(0:1:160)*cos(pi/180*reference_angle);
+        x=(0:1:160)*sin(pi/180*reference_angle);
         plot(x,y,'color','yellow');
         axis([-200 200 -200 200])
         % titstr = sprintf('Ref.A = %+03.2f, AoA = %+03.2f deg.\nPxy=%f, An=%d\na=%+03.2f, b=%+03.2f, c=%+03.2f,\nnp=%f, ga=%f, gb=%f, gc=%f', ...
@@ -90,4 +90,25 @@ function [direction,Pxy,An] = measurement_correlational(ant_s_a,ant_s_b,ant_s_c,
         % title(titstr);
         hold off
     end
+else %signal not present
+    direction = 0;
+    Pxy = 0;
+    An = 0;
+    if fig_num > 0
+        set(0, 'DefaultFigurePosition', fig_position);
+        figure(fig_num);
+        subplot(subplot_x,subplot_y,subplot_p);
+        hold off
+        x=(-180:1:180)*cos(pi/180*45);
+        y=(-180:1:180)*sin(pi/180*45);
+        plot(x,y,'color','black');
+        hold all
+        x=(-180:1:180)*cos(pi/180*135);
+        y=(-180:1:180)*sin(pi/180*135);
+        plot(x,y,'color','black');
+        hold all
+        axis([-200 200 -200 200])
+        hold off
+    end
+end
 end

@@ -6,7 +6,7 @@ VISA_LIB_PATH = /cygdrive/c/Program\ Files/IVI\ Foundation/VISA/Win64/Lib_x64/ms
 # Compiler and flags
 CC = gcc
 CFLAGS = -Wall -Wextra  -pedantic -std=gnu99 -O2 -g -I$(VISA_INC_PATH)
-LDFLAGS = -L$(VISA_LIB_PATH) -lvisa64 -lm -lX11
+LDFLAGS = -L$(VISA_LIB_PATH) -lvisa64 -lm #-lX11
 
 # Executable name
 TARGET = scope-reader-to-file-writer.exe
