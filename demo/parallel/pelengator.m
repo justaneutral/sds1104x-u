@@ -1,7 +1,7 @@
 close all
 %%%%==========parameters==========%%%%
 station_center_frequency = [24000; 25200; 16000; 40750];
-station_bandwidth =        [  300;   200;   300;   300];
+station_bandwidth =        [  300;   200;    20;   300];
 station_mask_number =      [    1;     1;     1;     1];
 Fs = 500000;
 N = 700000;
@@ -13,9 +13,10 @@ panorama_mask_file_name = ['panorama_mask_' date '.mat'];
 panorama_floor_file_name  = ['panorama_floor_' date '.mat'];
 panorama_ceil_file_name  = ['panorama_ceil_' date '.mat'];
 squelsh_line_file_name = ['squelsh_line_' date '.mat'];
-relaxation_gain = 0.63;
+iq_relaxation_gain = 0.37;
+relaxation_gain = 0.37;
 squelsh_threshold = 2.0;
-squalsh_separation_gain = 1.07;
+squalsh_separation_gain = 1.05;
 squelsh_band_width = 150;
 squelsh_band_width_step = 1;
 Num_iterations = 1000000;
@@ -47,6 +48,7 @@ num_stations = size(station_center_frequency,1);
 directions = zeros(num_stations,num_keep);
 Pxys = zeros(num_stations,num_keep);
 Ans = zeros(num_stations,num_keep);
+IQs = zeros(num_stations,9);
 %%%===============screen===================%%%%
 % Get the screen size
 screenSize = get(0, 'ScreenSize');
@@ -110,14 +112,14 @@ end
 
 panorama = abs(fft_buffer(:,panorama_spawn));
 panorama_max = max(max(panorama));
-if relaxation_gain == 0 
+if relaxation_gain > 1 
     panorama_mask_n = panorama_mask_n + max(panorama(1:3,:));
     panorama_mask = panorama_mask_n/i;
     panorama_ceil = max(panorama_ceil,max(panorama(1:3,:)));
 else
-    panorama_mask_n = panorama_mask_n*relaxation_gain + max(panorama(1:3,:))*(1-relaxation_gain);
+    panorama_mask_n = panorama_mask_n*(1-relaxation_gain) + max(panorama(1:3,:))*relaxation_gain;
     panorama_mask = panorama_mask_n;
-    panorama_ceil = max(panorama_ceil*relaxation_gain,max(panorama(1:3,:)));
+    panorama_ceil = max(panorama_ceil*(1-relaxation_gain),max(panorama(1:3,:)));
 end
 panorama_floor = min(panorama_floor,min(panorama(1:3,:)));
 
@@ -185,36 +187,34 @@ for j=1:size(station_center_frequency,1)
     s_abs = modulation_mask(s_mask,s_spawn);
     s_max = max(s_abs);
     s_current = s_current*s_max/max(s_current);
-     
+    reference_angle = 0;
+    subplot_p = j;
+    [directions(j,i),Pxys(j,i),Ans(j,i),IQs(j,:),ant_color] = measurement_correlational(IQs(j,:),iq_relaxation_gain,s_sig,s_latch,m_mask,reference_angle,fig_num,fig4position,subplot_x,subplot_y,subplot_p);
+    if i>1 && Pxys(j,i) == 0
+        directions(j,i) = directions(j,i-1);
+        %directions(j,i) = 361;
+    end
     set(0, 'DefaultFigurePosition', fig3position);
     figure(3);
-    subplot_p = j;
     subplot(subplot_y,subplot_x,subplot_p);
     hold off
-    plot(s_fscale,s_abs,'color','red');
+    plot(s_fscale,s_abs,'color','yellow');
     hold all
-    plot(s_fscale,s_current,'color','green');
+    plot(s_fscale,s_current,'color',ant_color);
     plot(s_fscale,0.63*s_max*s_latch,'color','black');
     axis([s_fscale(1) s_fscale(end) 0 s_max]);
-    reference_angle = 0;
-    [directions(j,i),Pxys(j,i),Ans(j,i)] = measurement_correlational(s_sig,s_latch,m_mask,reference_angle,fig_num,fig4position,subplot_x,subplot_y,subplot_p);
-    if i>1 && Pxys(j,i) == 0
-        %directions(j,i) = directions(j,i-1);
-        directions(j,i) = 361;
+    if Ans(j,i) > 0
+        set(0, 'DefaultFigurePosition', fig5position);
+        figure(5);
+        if i > num_keep
+            plot(i-num_keep:i,directions(j,i-num_keep:i),'color',ant_color);
+            axis([i-num_keep i -90.5 90.5]);
+        else
+            plot(1:i,directions(j,1:i),'color',ant_color);
+            axis([1 num_keep -90.5 90.5]);
+        end
+        hold all;
     end
-end
-set(0, 'DefaultFigurePosition', fig5position);
-figure(5);
-hold off
-for j=1:num_stations
-    if i > num_keep
-        plot(i-num_keep:i,directions(j,i-num_keep:i),'color',colors(j,:));
-        axis([i-num_keep i -90.5 90.5]);
-    else
-        plot(1:i,directions(j,1:i),'color',colors(j,:));
-        axis([1 num_keep -90.5 90.5]);
-    end
-    hold all;
 end
 
 end
