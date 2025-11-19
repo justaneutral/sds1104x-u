@@ -1,28 +1,31 @@
 close all
 %%%%==========parameters==========%%%%
-station_center_frequency = [24000; 25200; 16000; 40750; 29350; 31900];
-station_bandwidth =        [  300;   200;    20;   300;   500;   400];
-station_mask_number =      [    1;     1;     1;     1;     1;     1];
+station_center_frequency    = [16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900];
+station_bandwidth           = [   20;   300;   300;   400;   200;   300;   500;   400];
+station_max_peak_to_average = [    80;     40;    500;     80;     40;     30;    200;    200];
+station_min_peak_to_average = [    2;     1;    11;     4;     2;     2;     2;     2];
+station_mask_number         = [    1;     1;     2;     1;     1;     1;     1;     1];
 Fs = 500000;
 N = 700000;
 N_start=1;
 N_end=N;
-panorama_start_frequency = 20000;
-panorama_stop_frequency = 30000;
+panorama_start_frequency = 15000;
+panorama_stop_frequency =  45000;
 panorama_mask_file_name = ['panorama_mask_' date '.mat'];
 panorama_floor_file_name  = ['panorama_floor_' date '.mat'];
 panorama_ceil_file_name  = ['panorama_ceil_' date '.mat'];
 squelsh_line_file_name = ['squelsh_line_' date '.mat'];
-iq_relaxation_gain = 0.37;
-relaxation_gain = 0.37;
+modulation_mask_gain = 0.07;
+station_relaxation_gain = 0.37;
+squelsh_relaxation_gain = 0.17;
 squelsh_threshold = 2.0;
-squalsh_separation_gain = 0.1;%1.05;
+squalsh_separation_gain = 1.01;
 squelsh_band_width = 150;
-squelsh_band_width_step = 1;
+squelsh_band_width_step = 3;
 Num_iterations = 1000000;
 num_keep = 100;
-trigtreshold = 5;
-panorama_gain = 5;
+trigtreshold = 15;
+panorama_gain = 4;
 %%%%==========averages============%%%%
 M = 2^(ceil(log2(N))-1)-1;
 colors = ['#ff0000'; '#00ff00'; '#0000ff'; '#000000'];
@@ -39,7 +42,7 @@ N_panorama = panorama_end - panorama_start + 1;
 panorama_spawn = panorama_start:panorama_end;
 panorama_fscale = panorama_spawn*Fs/(2*(M+1));
 panorama_history = zeros(num_keep,N_panorama,3);
-modulation_mask = zeros(3,N_panorama);
+modulation_mask = ones(3,N_panorama);
 panorama_mask_n = zeros(1,N_panorama);
 %load('wrightstown_panorama_mask_true_energy.mat',"wrightstown_panorama_mask_true_energy");
 panorama_floor = 100000000000*ones(1,N_panorama); %wrightstown_panorama_mask_true_energy;
@@ -136,14 +139,14 @@ panorama_history(1+mod(i-1,num_keep),:,1) = r;
 panorama_history(1+mod(i-1,num_keep),:,2) = g;
 panorama_history(1+mod(i-1,num_keep),:,3) = b;
 
-if relaxation_gain > 1 
+if squelsh_relaxation_gain > 1 
     panorama_mask_n = panorama_mask_n + max(panorama(1:3,:));
     panorama_mask = panorama_mask_n/i;
     panorama_ceil = max(panorama_ceil,max(panorama(1:3,:)));
 else
-    panorama_mask_n = panorama_mask_n*(1-relaxation_gain) + max(panorama(1:3,:))*relaxation_gain;
+    panorama_mask_n = panorama_mask_n*(1-squelsh_relaxation_gain) + max(panorama(1:3,:))*squelsh_relaxation_gain;
     panorama_mask = panorama_mask_n;
-    panorama_ceil = max(panorama_ceil*(1-relaxation_gain),max(panorama(1:3,:)));
+    panorama_ceil = max(panorama_ceil*(1-squelsh_relaxation_gain),max(panorama(1:3,:)));
 end
 panorama_floor = min(panorama_floor,min(panorama(1:3,:)));
 
@@ -207,15 +210,17 @@ for j=1:size(station_center_frequency,1)
         s_fscale = s_spawn*Fs/(2*(M+1));
         s_sig = fft_buffer(:,s_spawn);
         s_latch = squelsh_latch(:,s_spawn);
-        s_current = max(abs(s_sig));
-        modulation_mask(s_mask,s_spawn-panorama_start+1) = modulation_mask(s_mask,s_spawn-panorama_start+1) + s_current;
-        m_mask = modulation_mask(s_spawn-panorama_start+1);
-        s_abs = modulation_mask(s_mask,s_spawn-panorama_start+1);
-        s_max = max(s_abs);
-        s_current = s_current*s_max/max(s_current);
+        s_current = sqrt(sum(s_sig(1:3,:).*conj(s_sig(1:3,:))));
+        s_current = s_current/max(s_current);
+        s_modulation_mask = modulation_mask(s_mask,s_spawn-panorama_start+1);
+        %s_max = max(s_modulation_mask);
+        %s_current = s_current*s_max/max(s_current);
         reference_angle = 0;
         subplot_p = j;
-        [directions(j,i),Pxys(j,i),Ans(j,i),IQs(j,:),ant_color] = measurement_correlational(IQs(j,:),iq_relaxation_gain,s_sig,s_latch,m_mask,reference_angle,fig_num,fig4position,subplot_x,subplot_y,subplot_p);
+        [directions(j,i),Pxys(j,i),Ans(j,i),IQs(j,:),ant_color] = measurement_correlational( ...
+            station_max_peak_to_average(j), ...
+            station_min_peak_to_average(j), ...
+            IQs(j,:),station_relaxation_gain,s_sig,s_latch,s_modulation_mask,reference_angle,fig_num,fig4position,subplot_x,subplot_y,subplot_p);
         if i>1 && Pxys(j,i) == 0
             directions(j,i) = directions(j,i-1);
             %directions(j,i) = 361;
@@ -224,12 +229,14 @@ for j=1:size(station_center_frequency,1)
         figure(3);
         subplot(subplot_y,subplot_x,subplot_p);
         hold off
-        plot(s_fscale,s_abs,'color','yellow');
+        plot(s_fscale,0.63*s_max*s_latch,'color','black');
         hold all
         plot(s_fscale,s_current,'color',ant_color);
-        plot(s_fscale,0.63*s_max*s_latch,'color','black');
+        plot(s_fscale,s_modulation_mask,'color','yellow');
         axis([s_fscale(1) s_fscale(end) 0 s_max]);
         if Ans(j,i) > 0
+            %only update if signal was present
+            modulation_mask(s_mask,s_spawn-panorama_start+1) = modulation_mask(s_mask,s_spawn-panorama_start+1)*(1-modulation_mask_gain) + s_current*modulation_mask_gain;
             set(0, 'DefaultFigurePosition', fig5position);
             figure(5);
             if i > num_keep

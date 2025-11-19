@@ -1,11 +1,21 @@
-function [direction,Pxy,An,iq_accumulator,ant_color] = measurement_correlational(iq_accumulator,iq_relaxation_gain,ant,squelsh_latch,modulation_mask,reference_angle,fig_num,fig_position,subplot_x,subplot_y,subplot_p)
+function [direction,Pxy,An,iq_accumulator,ant_color] = measurement_correlational( ...
+    max_peak_to_average, ...
+    min_peak_to_average, ...
+    iq_accumulator,iq_relaxation_gain,ant,squelsh_latch,modulation_mask,reference_angle,fig_num,fig_position,subplot_x,subplot_y,subplot_p)
 direction = 0;
 Pxy = 0;
 An = 0;
+Power_level = 10*log10(1);
+spawn_end = size(squelsh_latch,2);
+r = real(ant(1,:).*conj(ant(1,:)));
+g = real(ant(2,:).*conj(ant(2,:)));
+b = real(ant(3,:).*conj(ant(3,:)));
+e = r+g+b;
+Peak_to_average = spawn_end*max(e)/sum(e);
 
-r = 1/real(ant(1,:)*ant(1,:)');
-g = 1/real(ant(2,:)*ant(2,:)');
-b = 1/real(ant(3,:)*ant(3,:)');
+r = spawn_end/sum(r);
+g = spawn_end/sum(g);
+b = spawn_end/sum(b);
 rn = min(min(r,g),b);
 r = r - rn;
 g = g - rn;
@@ -17,12 +27,14 @@ b = b/X;
 X = 1.2;
 ant_color = floatsToHexColor(r, g, b, X);
 
-if sum(squelsh_latch) > 0.47*size(squelsh_latch,1)
+if min_peak_to_average < Peak_to_average && Peak_to_average < max_peak_to_average && sum(squelsh_latch)*max_peak_to_average > size(squelsh_latch,2)
     epsilon = 0.01;
+    % ant_a = ant(1,:) .* modulation_mask;
+    % ant_b = ant(2,:) .* modulation_mask;
+    % ant_c = ant(3,:) .* modulation_mask;
     ant_a = ant(1,:);
     ant_b = ant(2,:);
     ant_c = ant(3,:);
-
     I = (2*ant_a - ant_b - ant_c);
     Q = sqrt(3)*(ant_c - ant_b);
     qq = real(Q*Q');
@@ -81,16 +93,19 @@ if sum(squelsh_latch) > 0.47*size(squelsh_latch,1)
        direction =  180/pi*atan2(Qa,Ia);
        Pxy=Pa;
        An = 1;
+       Power_level = floor(10*log(abs(Ia)+abs(Qa)) - Power_level);
     else
         if (Pb > Pa && Pb > Pc) || (Pb == Pc && Pc > Pa)
             direction =  mod(90+180/pi*atan2(Qb,Ib)+60,180)-90;
             Pxy=Pb;
             An = 2;
+            Power_level = floor(10*log(abs(Ib)+abs(Qb)) - Power_level);
         else
             if Pc > Pa && Pc > Pb
                 direction =  mod(90+180/pi*atan2(Qc,Ic)-60,180)-90;
                 Pxy=Pc;
                 An = 3;
+                Power_level = floor(10*log(abs(Ic)+abs(Qc)) - Power_level);
             else
                 direction = 0;
                 Pxy = 0;
@@ -124,14 +139,18 @@ if sum(squelsh_latch) > 0.47*size(squelsh_latch,1)
         y = (-90:90);
         plot(0*y,y,'color','yellow');
         plot(y,0*y,'color','yellow');
-        angle_text = sprintf('%1.2f',r);
-        text(-170,-150,angle_text,'color','red');
-        angle_text = sprintf('%1.2f',g);
-        text(-50,-150,angle_text,'color','green');
-        angle_text = sprintf('%1.2f',b);
-        text(70,-150,angle_text,'color','blue');
+        r_text = sprintf('%1.2f',r);
+        text(-170,-150,r_text,'color','red');
+        g_text = sprintf('%1.2f',g);
+        text(-50,-150,g_text,'color','green');
+        b_text = sprintf('%1.2f',b);
+        text(70,-150,b_text,'color','blue');
         angle_text = sprintf('%3.1f',direction);
         text(-160,160,angle_text,'color',ant_color);
+        power_level_text = sprintf('%d',Power_level);
+        text(-50,160,power_level_text,'color','black');
+        Peak_to_average_text = sprintf('%.1f',Peak_to_average);
+        text(70,160,Peak_to_average_text,'color','magenta');
         axis([-200 200 -200 200]);
         % titstr = sprintf('Ref.A = %+03.2f, AoA = %+03.2f deg.\nPxy=%f, An=%d\na=%+03.2f, b=%+03.2f, c=%+03.2f,\nnp=%f, ga=%f, gb=%f, gc=%f', ...
         %     reference_angle,direction, ...
