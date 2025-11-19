@@ -2,8 +2,10 @@ close all
 %%%%==========parameters==========%%%%
 station_center_frequency    = [16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900];
 station_bandwidth           = [   20;   300;   300;   400;   200;   300;   500;   400];
-station_max_peak_to_average = [    80;   40;   500;    80;    40;    30;   200;   200];
-station_min_peak_to_average = [    2;     1;    11;     4;     2;     2;     2;     2];
+station_max_power_level     = [    15;   17;    50;    16;    18;    12;     4;     5];
+station_min_power_level     = [    5;     7;    25;     6;     8;     3;    -5;    -4];
+station_max_peak_to_average = [    28;   20;   500;    30;    20;    30;   200;   200];
+station_min_peak_to_average = [    8;     1;    50;    10;     1;    20;    16;    23];
 station_mask_number         = [    1;     1;     2;     1;     1;     1;     1;     1];
 Fs = 500000;
 N = 700000;
@@ -276,6 +278,8 @@ for j=1:size(station_center_frequency,1)
         [directions(j,iteration_number),Pxys(j,iteration_number),Ans(j,iteration_number),IQs(j,:),ant_color] = measurement_correlational( ...
             station_max_peak_to_average(j), ...
             station_min_peak_to_average(j), ...
+            station_max_power_level(j), ...
+            station_min_power_level(j), ...
             IQs(j,:),station_relaxation_gain,s_sig,s_latch,s_modulation_mask,reference_angle,fig_num,fig4position,subplot_x,subplot_y,subplot_p);
         if iteration_number>1 && Pxys(j,iteration_number) == 0
             directions(j,iteration_number) = directions(j,iteration_number-1);

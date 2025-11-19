@@ -1,11 +1,13 @@
 function [direction,Pxy,An,iq_accumulator,ant_color] = measurement_correlational( ...
     max_peak_to_average, ...
     min_peak_to_average, ...
+    max_power_level, ...
+    min_power_level, ...
     iq_accumulator,iq_relaxation_gain,ant,squelsh_latch,modulation_mask,reference_angle,fig_num,fig_position,subplot_x,subplot_y,subplot_p)
 direction = 0;
 Pxy = 0;
 An = 0;
-Power_level = 10*log10(1);
+Power_level = -1000;
 spawn_end = size(squelsh_latch,2);
 r = real(ant(1,:).*conj(ant(1,:)));
 g = real(ant(2,:).*conj(ant(2,:)));
@@ -93,25 +95,32 @@ if min_peak_to_average < Peak_to_average && Peak_to_average < max_peak_to_averag
        direction =  180/pi*atan2(Qa,Ia);
        Pxy=Pa;
        An = 1;
-       Power_level = floor(10*log(abs(Ia)+abs(Qa)) - Power_level);
+       Power_level = floor(20*log(abs(Ia)+abs(Qa)));
     else
         if (Pb > Pa && Pb > Pc) || (Pb == Pc && Pc > Pa)
             direction =  mod(90+180/pi*atan2(Qb,Ib)+60,180)-90;
             Pxy=Pb;
             An = 2;
-            Power_level = floor(10*log(abs(Ib)+abs(Qb)) - Power_level);
+            Power_level = floor(20*log(abs(Ib)+abs(Qb)));
         else
             if Pc > Pa && Pc > Pb
                 direction =  mod(90+180/pi*atan2(Qc,Ic)-60,180)-90;
                 Pxy=Pc;
                 An = 3;
-                Power_level = floor(10*log(abs(Ic)+abs(Qc)) - Power_level);
+                Power_level = floor(20*log(abs(Ic)+abs(Qc)));
             else
                 direction = 0;
                 Pxy = 0;
                 An = 0;
             end
         end
+    end
+
+    if Power_level < min_power_level || Power_level > max_power_level
+        An = 0;
+        power_level_color = 'red';
+    else
+        power_level_color = 'green';
     end
 
     if fig_num > 0
@@ -148,7 +157,7 @@ if min_peak_to_average < Peak_to_average && Peak_to_average < max_peak_to_averag
         angle_text = sprintf('%3.1f',direction);
         text(-160,160,angle_text,'color',ant_color);
         power_level_text = sprintf('%d',Power_level);
-        text(-50,160,power_level_text,'color','black');
+        text(-50,160,power_level_text,'color',power_level_color);
         Peak_to_average_text = sprintf('%.1f',Peak_to_average);
         text(70,160,Peak_to_average_text,'color','magenta');
         axis([-200 200 -200 200]);
