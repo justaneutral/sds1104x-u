@@ -1,12 +1,15 @@
 close all
 %%%%==========parameters==========%%%%
-station_center_frequency    = [16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900];
-station_bandwidth           = [   20;   300;   300;   400;   200;   300;   500;   400];
-station_max_power_level     = [    15;   17;    50;    16;    18;    12;     4;     5];
-station_min_power_level     = [    5;     7;    25;     6;     8;     3;    -5;    -4];
-station_max_peak_to_average = [    28;   20;   500;    30;    20;    30;   200;   200];
-station_min_peak_to_average = [    8;     1;    50;    10;     1;    20;    16;    23];
-station_mask_number         = [    1;     1;     2;     1;     1;     1;     1;     1];
+station_center_frequency     = [16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900];
+station_bandwidth            = [   20;   300;   300;   400;   200;   300;   500;   400];
+station_max_power_level      = [    15;   17;    50;    16;    18;    12;     4;     5];
+station_min_power_level      = [    5;     7;    25;     6;     8;     3;    -5;    -4];
+station_max_peak_to_average  = [    28;   20;   500;    30;    20;    30;   200;   200];
+station_min_peak_to_average  = [    8;     1;    50;    10;     1;    20;    16;    23];
+station_mask_number          = [    1;     1;     2;     1;     1;     1;     1;     1];
+station_allow_mask_save_flag = [    1;     0;     1;     0;     1;     1;     1;     1];
+station_active_flag          = [    0;     1;     0;     0;     1;     1;     0;     0];
+
 Fs = 500000;
 N = 700000;
 N_start=1;
@@ -29,9 +32,9 @@ squalsh_separation_gain = 1.01;
 squelsh_band_width = 150;
 squelsh_band_width_step = 3;
 Num_iterations = 1000000;
-num_keep = 100;
-trigtreshold = 15;
-panorama_gain = 4;
+num_keep       = 16;
+trigtreshold   = 1;
+panorama_gain  = 5;
 
 %%%%==========averages============%%%%
 M = 2^(ceil(log2(N))-1)-1;
@@ -91,9 +94,12 @@ fig2position = [screenWidth-1*figWidth1-topOffset, screenHeight-figHeight-figHei
 controls_pos = [screenWidth-5*figWidth-topOffset, screenHeight-figHeight-figHeight1-4*topOffset, 0.9*figWidth, figHeight*1.8];
 %%%%========plotting angles=============%%%%
 fig_num = 4;
-subplot_x = ceil(sqrt(num_stations));
-subplot_y = subplot_x;
-
+num_active_stations = 0;
+for j=1:size(station_active_flag,1)
+    num_active_stations = num_active_stations + ((station_active_flag(j) ~=0) && ((station_center_frequency(j)-station_bandwidth(j)) > panorama_fscale(1)) && ((station_center_frequency(j)+station_bandwidth(j)) < panorama_fscale(end)));
+end
+[subplot_y, subplot_x] = bestTableShape(num_active_stations);
+bgcolor = '#999999';
 %%%%==========controls============%%%%
 % Shared variable to store button pressed status
 % Create a UI figures
@@ -203,6 +209,7 @@ squelsh_detected = squelsh_base_line*squalsh_separation_gain<squelsh_line;
 squelsh_latch = [zeros(1,panorama_start-1) squelsh_detected zeros(1,M-panorama_end)];
 set(0, 'DefaultFigurePosition', fig1position);
 figure(1)
+set(gcf,'color',bgcolor);
 for j=1:4
     subplot(4,2,1+2*(j-1));
     hold off
@@ -212,6 +219,7 @@ end
 
 set(0, 'DefaultFigurePosition', fig2position);
 figure(2);
+set(gcf,'color',bgcolor);
 subplot(2,1,1);
 hold off
 axis([panorama_fscale(1) panorama_fscale(end) 0 panorama_max]);
@@ -238,10 +246,13 @@ if trigcounter >= trigtreshold
 end
 
 %%%%=================================================%%%%
-for j=1:size(station_center_frequency,1)
+active_station_num = 0;
+for j=1:num_stations
     station_start_frequency = station_center_frequency(j)-station_bandwidth(j)/2;
     station_stop_frequency = station_center_frequency(j)+station_bandwidth(j)/2;
-    if(station_start_frequency > panorama_fscale(1) && station_start_frequency < panorama_fscale(end))
+    s_active = (station_active_flag(j) ~=0) && station_start_frequency > panorama_fscale(1) && station_start_frequency < panorama_fscale(end);
+    if(s_active)
+        active_station_num = active_station_num + 1;
         s_start = ceil(station_start_frequency/dF);
         s_end = floor(station_stop_frequency/dF);
         s_mask = station_mask_number(j);
@@ -254,19 +265,26 @@ for j=1:size(station_center_frequency,1)
         sfmm = modulation_mask(s_mask,:);
         s_modulation_mask = sfmm(s_spawn-panorama_start+1);
         s_max = max(s_modulation_mask);
+        s_allow_mask_save_flag = station_allow_mask_save_flag(j);
 
         %reset mask if swith on
         if (toggleswitch_mask_reset_1.Value(2)=='n' && s_mask==1) || (toggleswitch_mask_reset_2.Value(2)=='n' && s_mask==2) ||(toggleswitch_mask_reset_3.Value(2)=='n' && s_mask==3)
             if (toggleswitch_mask_update_1.Value(2)=='f' && s_mask==1)
-                save(modulation_mask_1_file_name,"sfmm");
+                if s_allow_mask_save_flag > 0
+                    save(modulation_mask_1_file_name,"sfmm");
+                end
                 toggleswitch_mask_reset_1.Value = 'Off mask 1 reset';
             end
             if (toggleswitch_mask_update_2.Value(2)=='f' && s_mask==2)
-                save(modulation_mask_2_file_name,"sfmm");
+                if s_allow_mask_save_flag > 0
+                    save(modulation_mask_2_file_name,"sfmm");
+                end
                 toggleswitch_mask_reset_2.Value = 'Off mask 2 reset';
             end
             if (toggleswitch_mask_update_3.Value(2)=='f' && s_mask==3)
-                save(modulation_mask_3_file_name,"sfmm");
+                if s_allow_mask_save_flag > 0
+                    save(modulation_mask_3_file_name,"sfmm");
+                end
                 toggleswitch_mask_reset_3.Value = 'Off mask 3 reset';
             end
 
@@ -274,7 +292,7 @@ for j=1:size(station_center_frequency,1)
         end
 
         reference_angle = 0;
-        subplot_p = j;
+        subplot_p = active_station_num;
         [directions(j,iteration_number),Pxys(j,iteration_number),Ans(j,iteration_number),IQs(j,:),ant_color] = measurement_correlational( ...
             station_max_peak_to_average(j), ...
             station_min_peak_to_average(j), ...
@@ -287,6 +305,7 @@ for j=1:size(station_center_frequency,1)
         end
         set(0, 'DefaultFigurePosition', fig3position);
         figure(3);
+        set(gcf,'color',bgcolor);
         subplot(subplot_y,subplot_x,subplot_p);
         hold off
         plot(s_fscale,0.63*s_max*s_latch,'color','black');
@@ -301,12 +320,15 @@ for j=1:size(station_center_frequency,1)
             end
             set(0, 'DefaultFigurePosition', fig5position);
             figure(5);
+            set(gcf,'color',bgcolor);
             if iteration_number > num_keep
-                plot(iteration_number-num_keep:iteration_number,directions(j,iteration_number-num_keep:iteration_number),'color',ant_color);
-                axis([iteration_number-num_keep iteration_number -90.5 90.5]);
+                unwrapped_directions = unwrap_aoa(directions(j,iteration_number-num_keep:iteration_number));
+                plot(iteration_number-num_keep:iteration_number,unwrapped_directions,'color',ant_color);
+                axis([iteration_number-num_keep iteration_number -180 180]);
             else
-                plot(1:iteration_number,directions(j,1:iteration_number),'color',ant_color);
-                axis([1 num_keep -90.5 90.5]);
+                unwrapped_directions = unwrap_aoa(directions(j,1:iteration_number));
+                plot(1:iteration_number,unwrapped_directions,'color',ant_color);
+                axis([1 num_keep -180 180]);
             end
             hold all;
         end
