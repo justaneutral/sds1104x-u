@@ -1,4 +1,5 @@
 function [direction,Pxy,An,iq_accumulator,ant_color] = measurement_correlational( ...
+    min_correlation, ...
     max_peak_to_average, ...
     min_peak_to_average, ...
     max_power_level, ...
@@ -12,6 +13,7 @@ spawn_end = size(squelsh_latch,2);
 r = real(ant(1,:).*conj(ant(1,:)));
 g = real(ant(2,:).*conj(ant(2,:)));
 b = real(ant(3,:).*conj(ant(3,:)));
+
 e = r+g+b;
 Peak_to_average = spawn_end*max(e)/sum(e);
 
@@ -26,8 +28,16 @@ X = max(max(r,g),b);
 r = r/X;
 g = g/X;
 b = b/X;
-X = 1.2;
+X = 2;
 ant_color = floatsToHexColor(r, g, b, X);
+
+cc_channel = [1 2 3]*[floor([r g b])'];
+cc_sig = real(ant(cc_channel,:).*conj(ant(cc_channel,:)));
+cc_sig = cc_sig - mean(cc_sig);
+cc_msk = modulation_mask - mean(modulation_mask);
+cc_nrm = (cc_sig*cc_msk')/sqrt((cc_sig*cc_sig')*(cc_msk*cc_msk'));
+
+
 
 epsilon = 0.01;
 bgcolor = '#999999';
@@ -116,18 +126,26 @@ else
     end
 end
 
+
+if cc_nrm < min_correlation
+    An = 0;
+    cc_color = 'magenta';
+else
+    cc_color = 'black';
+end
+
 if Power_level < min_power_level || Power_level > max_power_level
     An = 0;
     power_level_color = 'magenta';
 else
-    power_level_color = 'blue';
+    power_level_color = 'black';
 end
 
 if Peak_to_average < min_peak_to_average || Peak_to_average > max_peak_to_average
     An = 0;
     Peak_to_average_color = 'magenta';
 else
-    Peak_to_average_color = 'blue';
+    Peak_to_average_color = 'black';
 end
 
 if fig_num > 0
@@ -157,17 +175,19 @@ if fig_num > 0
     plot(0*y,y,'color','yellow');
     plot(y,0*y,'color','yellow');
     r_text = sprintf('%1.2f',r);
-    text(-170,-150,r_text,'color','red');
+    text(-175,-150,r_text,'color','red');
     g_text = sprintf('%1.2f',g);
     text(-50,-150,g_text,'color','green');
     b_text = sprintf('%1.2f',b);
-    text(70,-150,b_text,'color','blue');
+    text(65,-150,b_text,'color','blue');
     angle_text = sprintf('%3.1f',direction);
-    text(-160,160,angle_text,'color',ant_color);
+    text(-175,160,angle_text,'color',ant_color);
     power_level_text = sprintf('%d',Power_level);
     text(-50,160,power_level_text,'color',power_level_color);
     Peak_to_average_text = sprintf('%.1f',Peak_to_average);
-    text(70,160,Peak_to_average_text,'color',Peak_to_average_color);
+    text(65,160,Peak_to_average_text,'color',Peak_to_average_color);
+    cc_text = sprintf('%1.2f',cc_nrm);
+    text(-197,99,cc_text,'color',cc_color);
     axis([-200 200 -200 200]);
     % titstr = sprintf('Ref.A = %+03.2f, AoA = %+03.2f deg.\nPxy=%f, An=%d\na=%+03.2f, b=%+03.2f, c=%+03.2f,\nnp=%f, ga=%f, gb=%f, gc=%f', ...
     %     reference_angle,direction, ...

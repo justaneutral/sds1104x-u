@@ -2,12 +2,14 @@ close all
 %%%%==========parameters==========%%%%
 station_center_frequency     = [16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900];
 station_bandwidth            = [   20;   300;   300;   400;   200;   300;   500;   400];
-station_max_power_level      = [    15;   17;    50;    16;    18;    12;     4;     5];
+station_min_correlation      = [  0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1];
+station_max_power_level      = [   15;    17;    50;    16;    18;    12;     4;     5];
 station_min_power_level      = [    5;     7;    25;     6;     8;     3;    -5;    -4];
-station_max_peak_to_average  = [    28;   20;   500;    30;    20;    30;   200;   200];
-station_min_peak_to_average  = [    8;     1;    50;    10;     1;    20;    16;    23];
+station_max_peak_to_average  = [   28;    20;   500;    30;    20;    30;   200;   200];
+station_min_peak_to_average  = [    8;     1;    50;    10;     1;     1;    16;    23];
 station_mask_number          = [    1;     1;     2;     1;     1;     1;     1;     1];
 station_allow_mask_save_flag = [    1;     0;     1;     0;     1;     1;     1;     1];
+station_forse_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1];
 station_active_flag          = [    0;     1;     0;     0;     1;     1;     0;     0];
 
 Fs = 500000;
@@ -23,6 +25,9 @@ squelsh_line_file_name = ['squelsh_line_' date '.mat'];
 modulation_mask_1_file_name = ['modulation_mask_1_' date '.mat'];
 modulation_mask_2_file_name = ['modulation_mask_2_' date '.mat'];
 modulation_mask_3_file_name = ['modulation_mask_3_' date '.mat'];
+modulation_mask_1_in_file_name = 'modulation_mask_in_1.mat';
+modulation_mask_2_in_file_name = 'modulation_mask_in_2.mat';
+modulation_mask_3_in_file_name = 'modulation_mask_in_3.mat';
 preload_modulation_mask_file = [1,1,0];
 modulation_mask_gain = 0.07;
 station_relaxation_gain = 0.37;
@@ -54,15 +59,15 @@ panorama_fscale = panorama_spawn*Fs/(2*(M+1));
 panorama_history = zeros(num_keep,N_panorama,3);
 modulation_mask = ones(3,N_panorama);
 if preload_modulation_mask_file(1) > 0
-        load(modulation_mask_1_file_name,"sfmm");
+        load(modulation_mask_1_in_file_name,"sfmm");
         modulation_mask(1,:) = sfmm;
 end
 if preload_modulation_mask_file(2) > 0
-        load(modulation_mask_2_file_name,"sfmm");
+        load(modulation_mask_2_in_file_name,"sfmm");
         modulation_mask(2,:) = sfmm;
 end
 if preload_modulation_mask_file(3) > 0
-        load(modulation_mask_3_file_name,"sfmm");
+        load(modulation_mask_3_in_file_name,"sfmm");
         modulation_mask(3,:) = sfmm;
 end
 panorama_mask_n = zeros(1,N_panorama);
@@ -222,16 +227,16 @@ figure(2);
 set(gcf,'color',bgcolor);
 subplot(2,1,1);
 hold off
-axis([panorama_fscale(1) panorama_fscale(end) 0 panorama_max]);
+axis([panorama_fscale(1) panorama_fscale(end) 0 panorama_max*1.2]);
 plot(panorama_fscale,panorama_ceil,'color','red');
 hold all
 plot(panorama_fscale,panorama,'color','green');
 plot(panorama_fscale,panorama_mask,'color','blue');
 plot(panorama_fscale,panorama_floor,'color','black');
 
-plot(panorama_fscale,10+panorama_max-squelsh_line,'color','yellow');
-plot(panorama_fscale,10+panorama_max-squelsh_base_line,'color','cyan');
-plot(panorama_fscale,panorama_max*(1.1-0.2*squelsh_detected),'color','black');
+plot(panorama_fscale,1.05*panorama_max+0.15*squelsh_line,'color','yellow');
+plot(panorama_fscale,1.05*panorama_max+0.15*squelsh_base_line,'color','green');
+plot(panorama_fscale,1.05*panorama_max*(1+0.05*squelsh_detected),'color','black');
 
 trigcounter = trigcounter + 1;
 if trigcounter >= trigtreshold
@@ -294,6 +299,7 @@ for j=1:num_stations
         reference_angle = 0;
         subplot_p = active_station_num;
         [directions(j,iteration_number),Pxys(j,iteration_number),Ans(j,iteration_number),IQs(j,:),ant_color] = measurement_correlational( ...
+            station_min_correlation(j), ...
             station_max_peak_to_average(j), ...
             station_min_peak_to_average(j), ...
             station_max_power_level(j), ...
@@ -313,7 +319,7 @@ for j=1:num_stations
         plot(s_fscale,s_current,'color',ant_color);
         plot(s_fscale,s_modulation_mask,'color','yellow');
         axis([s_fscale(1) s_fscale(end) 0 s_max]);
-        if Ans(j,iteration_number) > 0
+        if (Ans(j,iteration_number) > 0) || (station_forse_mask_update(j) > 0)
             %update if signal was present and ipdate swith on
             if (toggleswitch_mask_update_1.Value(2)=='n' && s_mask==1) || (toggleswitch_mask_update_2.Value(2)=='n' && s_mask==2) ||(toggleswitch_mask_update_3.Value(2)=='n' && s_mask==3)  
                 modulation_mask(s_mask,s_spawn-panorama_start+1) = modulation_mask(s_mask,s_spawn-panorama_start+1)*(1-modulation_mask_gain) + s_current*modulation_mask_gain;
