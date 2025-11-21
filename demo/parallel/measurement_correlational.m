@@ -4,6 +4,7 @@ function [direction,Pxy,An,iq_accumulator,ant_color] = measurement_correlational
     min_peak_to_average, ...
     max_power_level, ...
     min_power_level, ...
+    insist_AoA_return, ...
     iq_accumulator,iq_relaxation_gain,ant,squelsh_latch,modulation_mask,reference_angle,fig_num,fig_position,subplot_x,subplot_y,subplot_p)
 direction = 0;
 Pxy = 0;
@@ -55,7 +56,7 @@ iq = real(I*Q');
 iq_accumulator(1) = iq_accumulator(1)*(1-iq_relaxation_gain)+ii*iq_relaxation_gain;
 iq_accumulator(2) = iq_accumulator(2)*(1-iq_relaxation_gain)+qq*iq_relaxation_gain;
 iq_accumulator(3) = iq_accumulator(3)*(1-iq_relaxation_gain)+iq*iq_relaxation_gain;
-if min(abs(qq),abs(ii))/max(abs(qq),abs(ii)) < epsilon
+if (min(abs(qq),abs(ii))/max(abs(qq),abs(ii)) < epsilon) && (insist_AoA_return == 0)
     Ia = 0;
     Qa = 0;
     Pa = 0;
@@ -73,7 +74,7 @@ iq = real(I*Q');
 iq_accumulator(4) = iq_accumulator(4)*(1-iq_relaxation_gain)+ii*iq_relaxation_gain;
 iq_accumulator(5) = iq_accumulator(5)*(1-iq_relaxation_gain)+qq*iq_relaxation_gain;
 iq_accumulator(6) = iq_accumulator(6)*(1-iq_relaxation_gain)+iq*iq_relaxation_gain;
-if min(abs(qq),abs(ii))/max(abs(qq),abs(ii)) < epsilon
+if (min(abs(qq),abs(ii))/max(abs(qq),abs(ii)) < epsilon) && (insist_AoA_return == 0)
     Ib = 0;
     Qb = 0;
     Pb = 0;
@@ -91,7 +92,7 @@ iq = real(I*Q');
 iq_accumulator(7) = iq_accumulator(7)*(1-iq_relaxation_gain)+ii*iq_relaxation_gain;
 iq_accumulator(8) = iq_accumulator(8)*(1-iq_relaxation_gain)+qq*iq_relaxation_gain;
 iq_accumulator(9) = iq_accumulator(9)*(1-iq_relaxation_gain)+iq*iq_relaxation_gain;
-if min(abs(qq),abs(ii))/max(abs(qq),abs(ii)) < epsilon
+if (min(abs(qq),abs(ii))/max(abs(qq),abs(ii)) < epsilon)  && (insist_AoA_return == 0)
     Ic = 0;
     Qc = 0;
     Pc = 0;
@@ -128,21 +129,27 @@ end
 
 
 if cc_nrm < min_correlation
-    An = 0;
+    if insist_AoA_return == 0
+        An = 0;
+    end
     cc_color = 'magenta';
 else
     cc_color = 'black';
 end
 
 if Power_level < min_power_level || Power_level > max_power_level
-    An = 0;
+    if insist_AoA_return == 0
+        An = 0;
+    end
     power_level_color = 'magenta';
 else
     power_level_color = 'black';
 end
 
 if Peak_to_average < min_peak_to_average || Peak_to_average > max_peak_to_average
-    An = 0;
+    if insist_AoA_return == 0
+        An = 0;
+    end
     Peak_to_average_color = 'magenta';
 else
     Peak_to_average_color = 'black';

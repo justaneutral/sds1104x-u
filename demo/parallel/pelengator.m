@@ -8,9 +8,10 @@ station_min_power_level      = [    5;     7;    25;     6;     8;     3;    -5;
 station_max_peak_to_average  = [   28;    20;   500;    30;    20;    30;   200;   200];
 station_min_peak_to_average  = [    8;     1;    50;    10;     1;     1;    16;    23];
 station_mask_number          = [    1;     1;     2;     1;     1;     1;     1;     1];
+station_insist_AoA_return    = [    1;     1;     1;     1;     1;     1;     1;     1];
 station_allow_mask_save_flag = [    1;     0;     1;     0;     1;     1;     1;     1];
-station_forse_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1];
-station_active_flag          = [    0;     1;     0;     0;     1;     1;     0;     0];
+station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1];
+station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1];
 
 Fs = 500000;
 N = 700000;
@@ -36,10 +37,15 @@ squelsh_threshold = 2.0;
 squalsh_separation_gain = 1.01;
 squelsh_band_width = 150;
 squelsh_band_width_step = 3;
-Num_iterations = 1000000;
-num_keep       = 16;
-trigtreshold   = 1;
-panorama_gain  = 5;
+
+record_signal_flag        = 1;
+playback_signal_flag      = 0;
+signal_record_file_name_prefix = 'recorded_signal';
+Starting_Iteration_Number = 1;
+Num_iterations            = 1000;
+num_keep                  = 16;
+trigtreshold              = 1;
+panorama_gain             = 5;
 
 %%%%==========averages============%%%%
 M = 2^(ceil(log2(N))-1)-1;
@@ -120,14 +126,27 @@ toggleswitch_run_stop = uiswitch(userinterfacefigure,'toggle','Items',{'STOP','R
 
 %%%%======loop========%%%%
 trigcounter = 0;
-iteration_number = 0;
+iteration_number = Starting_Iteration_Number-1;
 while iteration_number < Num_iterations && isvalid(userinterfacefigure) ...
          && isvalid(toggleswitch_run_stop) && toggleswitch_run_stop.Value(1)=='R' ...
          && isvalid(toggleswitch_mask_update_1) && isvalid(toggleswitch_mask_reset_1) ...
          && isvalid(toggleswitch_mask_update_2) && isvalid(toggleswitch_mask_reset_2) ...
          && isvalid(toggleswitch_mask_update_3) && isvalid(toggleswitch_mask_reset_3)
 iteration_number = iteration_number+1;
-raw_buffer = read_file_helper(N)';
+
+%%%%======get/read/save signal====%%%%%
+if (playback_signal_flag > 0) || (record_signal_flag > 0) 
+    signal_record_file_name = [signal_record_file_name_prefix '_' sprintf('%d',iteration_number) '.mat'];
+end
+if playback_signal_flag > 0
+    load(signal_record_file_name,"raw_buffer");
+else
+    raw_buffer = read_file_helper(N)';
+    if record_signal_flag > 0
+        save(signal_record_file_name,"raw_buffer");
+    end
+end
+
 signal_buffer = [ ...
     [raw_buffer(1:N), zeros(1,2*(M+1)-N)]; ...
     [raw_buffer(N+1:2*N), zeros(1,2*(M+1)-N)]; ...
@@ -304,6 +323,7 @@ for j=1:num_stations
             station_min_peak_to_average(j), ...
             station_max_power_level(j), ...
             station_min_power_level(j), ...
+            station_insist_AoA_return(j), ...
             IQs(j,:),station_relaxation_gain,s_sig,s_latch,s_modulation_mask,reference_angle,fig_num,fig4position,subplot_x,subplot_y,subplot_p);
         if iteration_number>1 && Pxys(j,iteration_number) == 0
             directions(j,iteration_number) = directions(j,iteration_number-1);
@@ -319,7 +339,7 @@ for j=1:num_stations
         plot(s_fscale,s_current,'color',ant_color);
         plot(s_fscale,s_modulation_mask,'color','yellow');
         axis([s_fscale(1) s_fscale(end) 0 s_max]);
-        if (Ans(j,iteration_number) > 0) || (station_forse_mask_update(j) > 0)
+        if (Ans(j,iteration_number) > 0) || (station_force_mask_update(j) > 0)
             %update if signal was present and ipdate swith on
             if (toggleswitch_mask_update_1.Value(2)=='n' && s_mask==1) || (toggleswitch_mask_update_2.Value(2)=='n' && s_mask==2) ||(toggleswitch_mask_update_3.Value(2)=='n' && s_mask==3)  
                 modulation_mask(s_mask,s_spawn-panorama_start+1) = modulation_mask(s_mask,s_spawn-panorama_start+1)*(1-modulation_mask_gain) + s_current*modulation_mask_gain;
