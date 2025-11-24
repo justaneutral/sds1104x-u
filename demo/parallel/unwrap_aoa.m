@@ -23,6 +23,6 @@ else
             end
         end
     end
-    ua = a - sign(sa)*sg;
+    ua = mod(180 + a - sign(sa)*sg, 360) - 180;
 end
 end

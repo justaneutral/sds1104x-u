@@ -1,7 +1,7 @@
 close all
 %%%%==========parameters==========%%%%
 station_center_frequency     = [16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900];
-station_bandwidth            = [   20;   300;   300;   400;   200;   300;   500;   400];
+station_bandwidth            = [   20;   300;    10;   400;   200;   300;   500;   400];
 station_min_correlation      = [  0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1];
 station_max_power_level      = [   15;    17;    50;    16;    18;    12;     4;     5];
 station_min_power_level      = [    5;     7;    25;     6;     8;     3;    -5;    -4];
@@ -9,7 +9,7 @@ station_max_peak_to_average  = [   28;    20;   500;    30;    20;    30;   200;
 station_min_peak_to_average  = [    8;     1;    50;    10;     1;     1;    16;    23];
 station_mask_number          = [    1;     1;     2;     1;     1;     1;     1;     1];
 station_insist_AoA_return    = [    1;     1;     1;     1;     1;     1;     1;     1];
-station_allow_mask_save_flag = [    1;     0;     1;     0;     1;     1;     1;     1];
+station_allow_mask_save_flag = [    1;     1;     1;     1;     1;     1;     1;     1];
 station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1];
 station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1];
 
@@ -347,6 +347,7 @@ for j=1:num_stations
             set(0, 'DefaultFigurePosition', fig5position);
             figure(5);
             set(gcf,'color',bgcolor);
+            subplot(subplot_y,subplot_x,subplot_p);
             if iteration_number > num_keep
                 unwrapped_directions = unwrap_aoa(directions(j,iteration_number-num_keep:iteration_number));
                 plot(iteration_number-num_keep:iteration_number,unwrapped_directions,'color',ant_color);
