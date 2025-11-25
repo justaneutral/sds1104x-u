@@ -1,24 +1,24 @@
 close all
 %%%%==========parameters==========%%%%
-station_center_frequency     = [16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900];
-station_bandwidth            = [   20;   300;    10;   400;   200;   300;   500;   400];
-station_min_correlation      = [  0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1];
-station_max_power_level      = [   15;    17;    50;    16;    18;    12;     4;     5];
-station_min_power_level      = [    5;     7;    25;     6;     8;     3;    -5;    -4];
-station_max_peak_to_average  = [   28;    20;   500;    30;    20;    30;   200;   200];
-station_min_peak_to_average  = [    8;     1;    50;    10;     1;     1;    16;    23];
-station_mask_number          = [    1;     1;     2;     1;     1;     1;     1;     1];
-station_insist_AoA_return    = [    1;     1;     1;     1;     1;     1;     1;     1];
-station_allow_mask_save_flag = [    1;     1;     1;     1;     1;     1;     1;     1];
-station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1];
-station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1];
+station_center_frequency     = [16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900; 33700];
+station_bandwidth            = [   20;   300;    10;   400;   200;   300;   500;   400;   600];
+station_min_correlation      = [  0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1];
+station_max_power_level      = [   15;    17;    50;    16;    18;    12;     4;     5;     5];
+station_min_power_level      = [    5;     7;    25;     6;     8;     3;    -5;    -4;    -4];
+station_max_peak_to_average  = [   28;    20;   500;    30;    20;    30;   200;   200;   200];
+station_min_peak_to_average  = [    8;     1;    50;    10;     1;     1;    16;    23;    23];
+station_mask_number          = [    1;     1;     2;     1;     1;     1;     1;     1;     1];
+station_insist_AoA_return    = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
+station_allow_mask_save_flag = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
+station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
+station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
 
 Fs = 500000;
 N = 700000;
 N_start=1;
 N_end=N;
 panorama_start_frequency = 23000;
-panorama_stop_frequency =  26000;
+panorama_stop_frequency =  42000;
 panorama_mask_file_name = ['panorama_mask_' date '.mat'];
 panorama_floor_file_name  = ['panorama_floor_' date '.mat'];
 panorama_ceil_file_name  = ['panorama_ceil_' date '.mat'];
@@ -246,16 +246,16 @@ figure(2);
 set(gcf,'color',bgcolor);
 subplot(2,1,1);
 hold off
-axis([panorama_fscale(1) panorama_fscale(end) 0 panorama_max*1.2]);
 plot(panorama_fscale,panorama_ceil,'color','red');
 hold all
-plot(panorama_fscale,panorama,'color','green');
-plot(panorama_fscale,panorama_mask,'color','blue');
-plot(panorama_fscale,panorama_floor,'color','black');
+plot(panorama_fscale,(panorama(1,:)+panorama(2,:)+panorama(3,:))/3,'color','black');
+plot(panorama_fscale,panorama_mask,'color','yellow');
+plot(panorama_fscale,panorama_floor,'color','white');
 
 plot(panorama_fscale,1.05*panorama_max+0.15*squelsh_line,'color','yellow');
 plot(panorama_fscale,1.05*panorama_max+0.15*squelsh_base_line,'color','green');
 plot(panorama_fscale,1.05*panorama_max*(1+0.05*squelsh_detected),'color','black');
+axis([panorama_fscale(1) panorama_fscale(end) 0 panorama_max*1.2]);
 
 trigcounter = trigcounter + 1;
 if trigcounter >= trigtreshold
