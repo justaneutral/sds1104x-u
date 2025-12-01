@@ -1,24 +1,38 @@
 close all
 %%%%==========parameters==========%%%%
-station_center_frequency     = [16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900; 33700];
-station_bandwidth            = [   20;   300;    10;   400;   200;   300;   500;   400;   600];
-station_min_correlation      = [  0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1];
-station_max_power_level      = [   15;    17;    50;    16;    18;    12;     4;     5;     5];
-station_min_power_level      = [    5;     7;    25;     6;     8;     3;    -5;    -4;    -4];
-station_max_peak_to_average  = [   28;    20;   500;    30;    20;    30;   200;   200;   200];
-station_min_peak_to_average  = [    8;     1;    50;    10;     1;     1;    16;    23;    23];
-station_mask_number          = [    1;     1;     2;     1;     1;     1;     1;     1;     1];
-station_insist_AoA_return    = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
-station_allow_mask_save_flag = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
-station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
-station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
+% station_center_frequency     = [16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900; 33700];
+% station_bandwidth            = [   20;   300;    10;   400;   200;   300;   500;   400;   600];
+% station_min_correlation      = [  0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1];
+% station_max_power_level      = [   15;    17;    50;    16;    18;    12;     4;     5;     5];
+% station_min_power_level      = [    5;     7;    25;     6;     8;     3;    -5;    -4;    -4];
+% station_max_peak_to_average  = [   28;    20;   500;    30;    20;    30;   200;   200;   200];
+% station_min_peak_to_average  = [    8;     1;    50;    10;     1;     1;    16;    23;    23];
+% station_mask_number          = [    1;     1;     2;     1;     1;     1;     1;     1;     1];
+% station_insist_AoA_return    = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
+% station_allow_mask_save_flag = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
+% station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
+% station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
+
+station_center_frequency     = [16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900; 33700; 47750];
+station_bandwidth            = [  190;   300;   200;   400;   200;   300;   500;   400;   600;   200];
+station_min_correlation      = [  0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1];
+station_max_power_level      = [   15;    17;    50;    16;    18;    12;     4;     5;     5;     5];
+station_min_power_level      = [    5;     7;    25;     6;     8;     3;    -5;    -4;    -4;   -4;];
+station_max_peak_to_average  = [   28;    20;   500;    30;    20;    30;   200;   200;   200;   200];
+station_min_peak_to_average  = [    8;     1;    50;    10;     1;     1;    16;    23;    23;    23];
+station_mask_number          = [    1;     1;     2;     1;     1;     1;     1;     1;     1;     1];
+station_insist_AoA_return    = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
+station_allow_mask_save_flag = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
+station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
+station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
+
 
 Fs = 500000;
 N = 700000;
 N_start=1;
 N_end=N;
-panorama_start_frequency = 23000;
-panorama_stop_frequency =  42000;
+panorama_start_frequency = 23000; %23000; %47000;
+panorama_stop_frequency =  42000; %26000; %49000;
 panorama_mask_file_name = ['panorama_mask_' date '.mat'];
 panorama_floor_file_name  = ['panorama_floor_' date '.mat'];
 panorama_ceil_file_name  = ['panorama_ceil_' date '.mat'];
@@ -38,9 +52,9 @@ squalsh_separation_gain = 1.01;
 squelsh_band_width = 150;
 squelsh_band_width_step = 3;
 
-record_signal_flag        = 1;
+record_signal_flag        = 0;
 playback_signal_flag      = 0;
-signal_record_file_name_prefix = 'recorded_signal';
+signal_record_file_name_prefix = 'recorded_signal_va_112625';
 Starting_Iteration_Number = 1;
 Num_iterations            = 1000;
 num_keep                  = 16;
@@ -124,6 +138,12 @@ toggleswitch_mask_update_1 = uiswitch(userinterfacefigure,'toggle','Items',{'Off
 toggleswitch_mask_reset_1 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 1 reset','On mask 1 reset'},'Position',[200 300 45 20],'Value','Off mask 1 reset');
 toggleswitch_run_stop = uiswitch(userinterfacefigure,'toggle','Items',{'STOP','RUN'},'Position',[150 400 45 20],'Value','RUN');
 
+%%%%%=====CREATE THEODOLITE CONNECTION================%%%%%%
+theodolite = serialport("COM4", 115200);
+%configureTerminator(theodolite, "CR/LF");
+configureTerminator(theodolite, "CR");
+
+
 %%%%======loop========%%%%
 trigcounter = 0;
 iteration_number = Starting_Iteration_Number-1;
@@ -141,6 +161,13 @@ end
 if playback_signal_flag > 0
     load(signal_record_file_name,"raw_buffer");
 else
+    if theodolite.NumBytesAvailable > 0
+        theodolite_angle = readline(theodolite);
+        disp('theodolite_angle: ' + theodolite_angle);
+    else
+        theodolite_angle = -1;
+    end
+    writeline(theodolite, "A");
     raw_buffer = read_file_helper(N)';
     if record_signal_flag > 0
         save(signal_record_file_name,"raw_buffer");
@@ -362,9 +389,9 @@ for j=1:num_stations
     end
 end
 drawnow; % Allow UI updates
-pause(0.1);
+%pause(57.1);
 end
-
+clear theodolite;
 delete(userinterfacefigure)
 
 
