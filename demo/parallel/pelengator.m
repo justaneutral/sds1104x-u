@@ -14,17 +14,17 @@ close all
 % station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
 
 station_center_frequency     = [16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900; 33700; 47750];
-station_bandwidth            = [  190;   300;   200;   400;   200;   300;   500;   400;   600;   200];
+station_bandwidth            = [  190;   220;   220;   400;   200;   300;   500;   400;   600;   200];
 station_min_correlation      = [  0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1];
-station_max_power_level      = [   15;    17;    50;    16;    18;    12;     4;     5;     5;     5];
-station_min_power_level      = [    5;     7;    25;     6;     8;     3;    -5;    -4;    -4;   -4;];
+station_max_power_level      = [   15;    27;    70;    16;    18;    12;    24;    24;    24;    24];
+station_min_power_level      = [    5;     4;     4;     6;     8;     3;     4;     4;     4;    4;];
 station_max_peak_to_average  = [   28;    20;   500;    30;    20;    30;   200;   200;   200;   200];
 station_min_peak_to_average  = [    8;     1;    50;    10;     1;     1;    16;    23;    23;    23];
 station_mask_number          = [    1;     1;     2;     1;     1;     1;     1;     1;     1;     1];
-station_insist_AoA_return    = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
+station_insist_AoA_return    = [    0;     0;     0;     0;     0;     0;     0;     0;     0;     0];
 station_allow_mask_save_flag = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
 station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
-station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
+station_active_flag          = [    0;     1;     1;     1;     1;     1;     0;     0;     1;     0];
 
 
 Fs = 500000;
@@ -101,6 +101,11 @@ directions = zeros(num_stations,num_keep);
 Pxys = zeros(num_stations,num_keep);
 Ans = zeros(num_stations,num_keep);
 IQs = zeros(num_stations,9);
+reference_angle_offsets = zeros(1,num_stations);
+reference_angles = zeros(1,num_stations);
+reference_angle_valids = zeros(1,num_stations);
+reference_angle_valids_num = 0;
+reference_angle_main = 0;
 %%%===============screen===================%%%%
 % Get the screen size
 screenSize = get(0, 'ScreenSize');
@@ -128,27 +133,33 @@ bgcolor = '#999999';
 %%%%==========controls============%%%%
 % Shared variable to store button pressed status
 % Create a UI figures
+delete(userinterfacefigure);
 userinterfacefigure = uifigure('Name', 'Button Press Monitor', 'Position', controls_pos);
 % Create a toggle switches
 toggleswitch_mask_update_3 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 3 update','On mask 3 update'},'Position',[100 100 45 20],'Value','Off mask 3 update');
 toggleswitch_mask_reset_3 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 3 reset','On mask 3 reset'},'Position',[200 100 45 20],'Value','Off mask 3 reset');
-toggleswitch_mask_update_2 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 2 update','On mask 2 update'},'Position',[100 200 45 20],'Value','Off mask 2 update');
+toggleswitch_mask_update_2 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 2 update','On mask 2 update'},'Position',[100 200 45 20],'Value','On mask 2 update');
 toggleswitch_mask_reset_2 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 2 reset','On mask 2 reset'},'Position',[200 200 45 20],'Value','Off mask 2 reset');
-toggleswitch_mask_update_1 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 1 update','On mask 1 update'},'Position',[100 300 45 20],'Value','Off mask 1 update');
+toggleswitch_mask_update_1 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 1 update','On mask 1 update'},'Position',[100 300 45 20],'Value','On mask 1 update');
 toggleswitch_mask_reset_1 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 1 reset','On mask 1 reset'},'Position',[200 300 45 20],'Value','Off mask 1 reset');
-toggleswitch_run_stop = uiswitch(userinterfacefigure,'toggle','Items',{'STOP','RUN'},'Position',[150 400 45 20],'Value','RUN');
+toggleswitch_reference = uiswitch(userinterfacefigure,'toggle','Items',{'Ref Keep','Ref Set'},'Position',[100 400 45 20],'Value','Ref Set');
+toggleswitch_run_stop = uiswitch(userinterfacefigure,'toggle','Items',{'STOP','RUN'},'Position',[200 400 45 20],'Value','RUN');
 
 %%%%%=====CREATE THEODOLITE CONNECTION================%%%%%%
+try
+clear theodolite;
 theodolite = serialport("COM4", 115200);
 %configureTerminator(theodolite, "CR/LF");
 configureTerminator(theodolite, "CR");
-
-
+catch
+    disp('theodolite not connected');
+end
 %%%%======loop========%%%%
 trigcounter = 0;
 iteration_number = Starting_Iteration_Number-1;
 while iteration_number < Num_iterations && isvalid(userinterfacefigure) ...
          && isvalid(toggleswitch_run_stop) && toggleswitch_run_stop.Value(1)=='R' ...
+         && isvalid(toggleswitch_reference) ...
          && isvalid(toggleswitch_mask_update_1) && isvalid(toggleswitch_mask_reset_1) ...
          && isvalid(toggleswitch_mask_update_2) && isvalid(toggleswitch_mask_reset_2) ...
          && isvalid(toggleswitch_mask_update_3) && isvalid(toggleswitch_mask_reset_3)
@@ -161,13 +172,26 @@ end
 if playback_signal_flag > 0
     load(signal_record_file_name,"raw_buffer");
 else
+    try
     if theodolite.NumBytesAvailable > 0
         theodolite_angle = readline(theodolite);
         disp('theodolite_angle: ' + theodolite_angle);
     else
-        theodolite_angle = -1;
+        disp('theodolite data not received');
     end
     writeline(theodolite, "A");
+    catch
+        disp('theodolite unavailable');
+        try
+            clear theodolite;
+            theodolite = serialport("COM4", 115200);
+            %configureTerminator(theodolite, "CR/LF");
+            configureTerminator(theodolite, "CR");
+            writeline(theodolite, "A");
+        catch
+            disp('theodolite not connected');
+        end
+    end
     raw_buffer = read_file_helper(N)';
     if record_signal_flag > 0
         save(signal_record_file_name,"raw_buffer");
@@ -298,6 +322,8 @@ end
 
 %%%%=================================================%%%%
 active_station_num = 0;
+reference_angle_valids_num = 0;
+reference_angle_main = 0;
 for j=1:num_stations
     station_start_frequency = station_center_frequency(j)-station_bandwidth(j)/2;
     station_stop_frequency = station_center_frequency(j)+station_bandwidth(j)/2;
@@ -342,7 +368,7 @@ for j=1:num_stations
             modulation_mask(s_mask,s_spawn-panorama_start+1) = ones(1,s_end-s_start+1);
         end
 
-        reference_angle = 0;
+        %reference_angle = 0;
         subplot_p = active_station_num;
         [directions(j,iteration_number),Pxys(j,iteration_number),Ans(j,iteration_number),IQs(j,:),ant_color] = measurement_correlational( ...
             station_min_correlation(j), ...
@@ -351,10 +377,31 @@ for j=1:num_stations
             station_max_power_level(j), ...
             station_min_power_level(j), ...
             station_insist_AoA_return(j), ...
-            IQs(j,:),station_relaxation_gain,s_sig,s_latch,s_modulation_mask,reference_angle,fig_num,fig4position,subplot_x,subplot_y,subplot_p);
+            IQs(j,:),station_relaxation_gain,s_sig,s_latch,s_modulation_mask,reference_angles(j),fig_num,fig4position,subplot_x,subplot_y,subplot_p);
         if iteration_number>1 && Pxys(j,iteration_number) == 0
             directions(j,iteration_number) = directions(j,iteration_number-1);
             %directions(j,i) = 361;
+        end
+        if Pxys(j,iteration_number) > 0 % got a good measurenent
+            reference_angle_valids_num = reference_angle_valids_num + 1;
+            reference_angle_valids(j) = 1;
+            if toggleswitch_reference.Value(5) == 'S' % 'Ref Keep','Ref Set'
+                reference_angle_offsets(j) = -1*directions(j,iteration_number);
+                reference_angles(j) = 0;
+                reference_angle_main = 0;
+            else
+                reference_angles(j) = directions(j,iteration_number) + reference_angle_offsets(j);
+                if reference_angles(j) > 100
+                    reference_angles(j) = reference_angles(j) - 180;
+                else
+                    if reference_angles(j) < -100
+                        reference_angles(j) = reference_angles(j) + 180;
+                    end
+                end
+                reference_angle_main = reference_angle_main + reference_angles(j);
+            end
+        else
+            reference_angle_valids(j) = 0;
         end
         set(0, 'DefaultFigurePosition', fig3position);
         figure(3);
@@ -388,11 +435,37 @@ for j=1:num_stations
         end
     end
 end
+if toggleswitch_reference.Value(5) == 'S' % 'Ref Keep','Ref Set'
+    toggleswitch_reference.Value = 'Ref Keep';
+    reference_angle_main = 0;
+else
+    reference_angle_main = reference_angle_main / reference_angle_valids_num;
+end
+if(reference_angle_valids_num > 0)
+    fprintf('\nreference_angle_main: %f\n', mod(reference_angle_main,360));
+    fprintf('reference_angle_valids_num: %d\n', reference_angle_valids_num);
+    for j=1:num_stations
+        if reference_angle_valids(j)
+            fprintf('st: %d, ref ang: %f\n', j, mod(reference_angles(j),360));
+        end
+    end
+else
+    disp('signals unavailable');
+end
 drawnow; % Allow UI updates
 %pause(57.1);
 end
-clear theodolite;
-delete(userinterfacefigure)
+try
+    clear theodolite;
+catch
+    disp('theodolite was not present');
+end
+try
+    delete(userinterfacefigure)
+catch
+    disp('userinterfacefigure was not present');
+end
+
 
 
 
