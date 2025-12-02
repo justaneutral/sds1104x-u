@@ -24,7 +24,7 @@ station_mask_number          = [    1;     1;     2;     1;     1;     1;     1;
 station_insist_AoA_return    = [    0;     0;     0;     0;     0;     0;     0;     0;     0;     0];
 station_allow_mask_save_flag = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
 station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
-station_active_flag          = [    0;     1;     1;     0;     1;     1;     0;     0;     1;     0];
+station_active_flag          = [    0;     1;     1;     0;     1;     1;     0;     0;     0;     0];
 %station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
 
 
@@ -34,7 +34,7 @@ N_start=1;
 N_end=N;
 
 panorama_start_frequency = 15000; %23000; %47000;
-panorama_stop_frequency =  28000; %26000; %49000;
+panorama_stop_frequency =  49000; %26000; %49000;
 
 panorama_mask_file_name = ['panorama_mask_' date '.mat'];
 panorama_floor_file_name  = ['panorama_floor_' date '.mat'];
@@ -136,7 +136,11 @@ bgcolor = '#999999';
 %%%%==========controls============%%%%
 % Shared variable to store button pressed status
 % Create a UI figures
-delete(userinterfacefigure);
+try
+    delete(userinterfacefigure);
+catch
+    disp('userinterfacefigure will be createrd');
+end
 userinterfacefigure = uifigure('Name', 'Button Press Monitor', 'Position', controls_pos);
 % Create a toggle switches
 toggleswitch_mask_update_3 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 3 update','On mask 3 update'},'Position',[100 100 45 20],'Value','Off mask 3 update');
