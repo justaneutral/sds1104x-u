@@ -15,24 +15,27 @@ close all
 
 station_center_frequency     = [16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900; 33700; 47750];
 station_bandwidth            = [  190;   220;   220;   400;   200;   300;   500;   400;   600;   200];
-station_min_correlation      = [  0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1];
+station_min_correlation      = [ -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2; -0.2;];
 station_max_power_level      = [   15;    27;    70;    16;    18;    12;    24;    24;    24;    24];
 station_min_power_level      = [    5;     4;     4;     6;     8;     3;     4;     4;     4;    4;];
 station_max_peak_to_average  = [   28;    20;   500;    30;    20;    30;   200;   200;   200;   200];
-station_min_peak_to_average  = [    8;     1;    50;    10;     1;     1;    16;    23;    23;    23];
+station_min_peak_to_average  = [    8;     1;   130;    10;     1;     1;    16;    23;    23;    23];
 station_mask_number          = [    1;     1;     2;     1;     1;     1;     1;     1;     1;     1];
 station_insist_AoA_return    = [    0;     0;     0;     0;     0;     0;     0;     0;     0;     0];
 station_allow_mask_save_flag = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
 station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
-station_active_flag          = [    0;     1;     1;     1;     1;     1;     0;     0;     1;     0];
+station_active_flag          = [    0;     1;     1;     0;     1;     1;     0;     0;     1;     0];
+%station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
 
 
 Fs = 500000;
 N = 700000;
 N_start=1;
 N_end=N;
-panorama_start_frequency = 23000; %23000; %47000;
-panorama_stop_frequency =  42000; %26000; %49000;
+
+panorama_start_frequency = 15000; %23000; %47000;
+panorama_stop_frequency =  28000; %26000; %49000;
+
 panorama_mask_file_name = ['panorama_mask_' date '.mat'];
 panorama_floor_file_name  = ['panorama_floor_' date '.mat'];
 panorama_ceil_file_name  = ['panorama_ceil_' date '.mat'];
@@ -104,8 +107,8 @@ IQs = zeros(num_stations,9);
 reference_angle_offsets = zeros(1,num_stations);
 reference_angles = zeros(1,num_stations);
 reference_angle_valids = zeros(1,num_stations);
-reference_angle_valids_num = 0;
-reference_angle_main = 0;
+%reference_angle_valids_num = zeros(1,3);
+%reference_angle_main = zeros(1,3);
 %%%===============screen===================%%%%
 % Get the screen size
 screenSize = get(0, 'ScreenSize');
@@ -137,13 +140,15 @@ delete(userinterfacefigure);
 userinterfacefigure = uifigure('Name', 'Button Press Monitor', 'Position', controls_pos);
 % Create a toggle switches
 toggleswitch_mask_update_3 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 3 update','On mask 3 update'},'Position',[100 100 45 20],'Value','Off mask 3 update');
-toggleswitch_mask_reset_3 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 3 reset','On mask 3 reset'},'Position',[200 100 45 20],'Value','Off mask 3 reset');
+toggleswitch_mask_reset_3 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 3 reset','On mask 3 reset'},'Position',[300 100 45 20],'Value','Off mask 3 reset');
 toggleswitch_mask_update_2 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 2 update','On mask 2 update'},'Position',[100 200 45 20],'Value','On mask 2 update');
-toggleswitch_mask_reset_2 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 2 reset','On mask 2 reset'},'Position',[200 200 45 20],'Value','Off mask 2 reset');
+toggleswitch_mask_reset_2 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 2 reset','On mask 2 reset'},'Position',[300 200 45 20],'Value','Off mask 2 reset');
 toggleswitch_mask_update_1 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 1 update','On mask 1 update'},'Position',[100 300 45 20],'Value','On mask 1 update');
-toggleswitch_mask_reset_1 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 1 reset','On mask 1 reset'},'Position',[200 300 45 20],'Value','Off mask 1 reset');
-toggleswitch_reference = uiswitch(userinterfacefigure,'toggle','Items',{'Ref Keep','Ref Set'},'Position',[100 400 45 20],'Value','Ref Set');
-toggleswitch_run_stop = uiswitch(userinterfacefigure,'toggle','Items',{'STOP','RUN'},'Position',[200 400 45 20],'Value','RUN');
+toggleswitch_mask_reset_1 = uiswitch(userinterfacefigure,'toggle','Items',{'Off mask 1 reset','On mask 1 reset'},'Position',[300 300 45 20],'Value','Off mask 1 reset');
+toggleswitch_reference_1 = uiswitch(userinterfacefigure,'toggle','Items',{'Ref1 Keep','Ref1 Set'},'Position',[100 400 45 20],'Value','Ref1 Set');
+toggleswitch_reference_2 = uiswitch(userinterfacefigure,'toggle','Items',{'Ref2 Keep','Ref2 Set'},'Position',[200 400 45 20],'Value','Ref2 Set');
+toggleswitch_reference_3 = uiswitch(userinterfacefigure,'toggle','Items',{'Ref3 Keep','Ref3 Set'},'Position',[300 400 45 20],'Value','Ref3 Set');
+toggleswitch_run_stop = uiswitch(userinterfacefigure,'toggle','Items',{'STOP','RUN'},'Position',[200 500 45 20],'Value','RUN');
 
 %%%%%=====CREATE THEODOLITE CONNECTION================%%%%%%
 try
@@ -159,7 +164,7 @@ trigcounter = 0;
 iteration_number = Starting_Iteration_Number-1;
 while iteration_number < Num_iterations && isvalid(userinterfacefigure) ...
          && isvalid(toggleswitch_run_stop) && toggleswitch_run_stop.Value(1)=='R' ...
-         && isvalid(toggleswitch_reference) ...
+         && isvalid(toggleswitch_reference_1) && isvalid(toggleswitch_reference_2) && isvalid(toggleswitch_reference_3) ...
          && isvalid(toggleswitch_mask_update_1) && isvalid(toggleswitch_mask_reset_1) ...
          && isvalid(toggleswitch_mask_update_2) && isvalid(toggleswitch_mask_reset_2) ...
          && isvalid(toggleswitch_mask_update_3) && isvalid(toggleswitch_mask_reset_3)
@@ -322,8 +327,8 @@ end
 
 %%%%=================================================%%%%
 active_station_num = 0;
-reference_angle_valids_num = 0;
-reference_angle_main = 0;
+reference_angle_valids_num = zeros(1,3);
+reference_angle_main = zeros(1,3);
 for j=1:num_stations
     station_start_frequency = station_center_frequency(j)-station_bandwidth(j)/2;
     station_stop_frequency = station_center_frequency(j)+station_bandwidth(j)/2;
@@ -382,13 +387,15 @@ for j=1:num_stations
             directions(j,iteration_number) = directions(j,iteration_number-1);
             %directions(j,i) = 361;
         end
-        if Pxys(j,iteration_number) > 0 % got a good measurenent
-            reference_angle_valids_num = reference_angle_valids_num + 1;
+        if Ans(j,iteration_number) > 0 && Pxys(j,iteration_number) > 0 % got a good measurenent
+            reference_angle_valids_num(s_mask) = reference_angle_valids_num(s_mask) + 1;
             reference_angle_valids(j) = 1;
-            if toggleswitch_reference.Value(5) == 'S' % 'Ref Keep','Ref Set'
+            if (s_mask == 1 && toggleswitch_reference_1.Value(6) == 'S') ... % 'Ref Keep','Ref Set'
+            || (s_mask == 2 && toggleswitch_reference_2.Value(6) == 'S') ...
+            || (s_mask == 3 && toggleswitch_reference_3.Value(6) == 'S')
                 reference_angle_offsets(j) = -1*directions(j,iteration_number);
                 reference_angles(j) = 0;
-                reference_angle_main = 0;
+                reference_angle_main(s_mask) = 0;
             else
                 reference_angles(j) = directions(j,iteration_number) + reference_angle_offsets(j);
                 if reference_angles(j) > 100
@@ -398,7 +405,7 @@ for j=1:num_stations
                         reference_angles(j) = reference_angles(j) + 180;
                     end
                 end
-                reference_angle_main = reference_angle_main + reference_angles(j);
+                reference_angle_main(s_mask) = reference_angle_main(s_mask) + reference_angles(j);
             end
         else
             reference_angle_valids(j) = 0;
@@ -435,23 +442,73 @@ for j=1:num_stations
         end
     end
 end
-if toggleswitch_reference.Value(5) == 'S' % 'Ref Keep','Ref Set'
-    toggleswitch_reference.Value = 'Ref Keep';
-    reference_angle_main = 0;
+
+if toggleswitch_reference_1.Value(6) == 'S' % 'Ref1 Keep','Ref1 Set'
+    toggleswitch_reference_1.Value = 'Ref1 Keep';
+    reference_angle_main(1) = 0;
 else
-    reference_angle_main = reference_angle_main / reference_angle_valids_num;
+    if reference_angle_valids_num(1) > 0
+        reference_angle_main(1) = reference_angle_main(1) / reference_angle_valids_num(1);
+    else
+        reference_angle_main(1) = -1;
+    end
 end
-if(reference_angle_valids_num > 0)
-    fprintf('\nreference_angle_main: %f\n', mod(reference_angle_main,360));
-    fprintf('reference_angle_valids_num: %d\n', reference_angle_valids_num);
+if(reference_angle_valids_num(1) > 0)
+    fprintf('\nreference_angle_main 1: %f\n', mod(reference_angle_main(1),360));
+    fprintf('reference_angle_valids_num 1: %d\n', reference_angle_valids_num(1));
     for j=1:num_stations
-        if reference_angle_valids(j)
-            fprintf('st: %d, ref ang: %f\n', j, mod(reference_angles(j),360));
+        if reference_angle_valids(j) && station_mask_number(j) == 1
+            fprintf('st: %d, f=%.2f kHz, msk#%d, ref ang: %f\n', j, (station_center_frequency(j)/1000), station_mask_number(j), mod(reference_angles(j),360));
         end
     end
 else
-    disp('signals unavailable');
+    disp('signals of group 1 unavailable');
 end
+
+if toggleswitch_reference_2.Value(6) == 'S' % 'Ref2 Keep','Ref2 Set'
+    toggleswitch_reference_2.Value = 'Ref2 Keep';
+    reference_angle_main(2) = 0;
+else
+    if reference_angle_valids_num(2) > 0
+        reference_angle_main(2) = reference_angle_main(2) / reference_angle_valids_num(2);
+    else
+        reference_angle_main(2) = -1;
+    end
+end
+if(reference_angle_valids_num(2) > 0)
+    fprintf('\nreference_angle_main 2: %f\n', mod(reference_angle_main(2),360));
+    fprintf('reference_angle_valids_num 2: %d\n', reference_angle_valids_num(2));
+    for j=1:num_stations
+        if reference_angle_valids(j) && station_mask_number(j) == 2
+            fprintf('st: %d, f=%.2f kHz, msk#%d, ref ang: %f\n', j, (station_center_frequency(j)/1000), station_mask_number(j), mod(reference_angles(j),360));
+        end
+    end
+else
+    disp('signals of group 2 unavailable');
+end
+
+if toggleswitch_reference_3.Value(6) == 'S' % 'Ref3 Keep','Ref3 Set'
+    toggleswitch_reference_3.Value = 'Ref3 Keep';
+    reference_angle_main(3) = 0;
+else
+    if reference_angle_valids_num(1) > 0
+        reference_angle_main(3) = reference_angle_main(3) / reference_angle_valids_num(3);
+    else
+        reference_angle_main(3) = -1;
+    end
+end
+if(reference_angle_valids_num(3) > 0)
+    fprintf('\nreference_angle_main 3: %f\n', mod(reference_angle_main(3),360));
+    fprintf('reference_angle_valids_num 3: %d\n', reference_angle_valids_num(3));
+    for j=1:num_stations
+        if reference_angle_valids(j) && station_mask_number(j) == 3
+            fprintf('st: %d, f=%.2f kHz, msk#%d, ref ang: %f\n', j, (station_center_frequency(j)/1000), station_mask_number(j), mod(reference_angles(j),360));
+        end
+    end
+else
+    disp('signals of group 3 unavailable');
+end
+
 drawnow; % Allow UI updates
 %pause(57.1);
 end

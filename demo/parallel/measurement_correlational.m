@@ -159,7 +159,7 @@ if fig_num > 0
     set(0, 'DefaultFigurePosition', fig_position);
     figure(fig_num);
     set(gcf, 'color', bgcolor);
-    subplot(subplot_x,subplot_y,subplot_p);
+    subplot(subplot_y,subplot_x,subplot_p);
     hold off
     y=(-150:1:150)*cos(pi/180*direction);
     x=(-150:1:150)*sin(pi/180*direction);
