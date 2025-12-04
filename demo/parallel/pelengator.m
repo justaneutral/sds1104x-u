@@ -448,13 +448,18 @@ for j=1:num_stations
             if iteration_number > num_keep
                 unwrapped_directions = unwrap_aoa(directions(j,iteration_number-num_keep:iteration_number));
                 plot(iteration_number-num_keep:iteration_number,unwrapped_directions,'color',ant_color);
-                axis([iteration_number-num_keep iteration_number -180 180]);
+                axx1 = iteration_number-num_keep;
+                axis([axx1 iteration_number -180 180]);
             else
                 unwrapped_directions = unwrap_aoa(directions(j,1:iteration_number));
                 plot(1:iteration_number,unwrapped_directions,'color',ant_color);
-                axis([1 num_keep -180 180]);
+                axx1 = 1;
+                axis([axx1 num_keep -180 180]);
             end
             hold all;
+            p_text = sprintf('A:%3.1f(%1.1f)\nF:%2.1fkHz',mean(unwrapped_directions),std(unwrapped_directions),station_center_frequency(j)/1000);
+            text(axx1+2,50,p_text,'color','black');
+            hold off;
         end
     end
 end
