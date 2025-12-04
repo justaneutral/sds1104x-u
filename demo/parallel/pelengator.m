@@ -5,7 +5,7 @@ close all
 % station_min_correlation      = [  0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1;   0.1];
 % station_max_power_level      = [   15;    17;    50;    16;    18;    12;     4;     5;     5];
 % station_min_power_level      = [    5;     7;    25;     6;     8;     3;    -5;    -4;    -4];
-% station_max_peak_to_average  = [   28;    20;   500;    30;    20;    30;   200;   200;   200];
+% station_max_peak_to_average  = [   28;    20;   500;    30;    500;    30;   200;   200;   200];
 % station_min_peak_to_average  = [    8;     1;    50;    10;     1;     1;    16;    23;    23];
 % station_mask_number          = [    1;     1;     2;     1;     1;     1;     1;     1;     1];
 % station_insist_AoA_return    = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
@@ -13,19 +13,19 @@ close all
 % station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
 % station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
 
-station_center_frequency     = [16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900; 33700; 47750];
-station_bandwidth            = [  190;   220;   220;   400;   200;   300;   500;   400;   600;   200];
-station_min_correlation      = [ -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2; -0.2;];
-station_max_power_level      = [   15;    27;    70;    16;    18;    12;    24;    24;    24;    24];
-station_min_power_level      = [    5;     4;     4;     6;     8;     3;     4;     4;     4;    4;];
-station_max_peak_to_average  = [   28;    20;   500;    30;    20;    30;   200;   200;   200;   200];
-station_min_peak_to_average  = [    8;     1;   130;    10;     1;     1;    16;    23;    23;    23];
-station_mask_number          = [    1;     1;     2;     1;     1;     1;     1;     1;     1;     1];
-station_insist_AoA_return    = [    0;     0;     0;     0;     0;     0;     0;     0;     0;     0];
-station_allow_mask_save_flag = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
-station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
-station_active_flag          = [    0;     1;     1;     0;     1;     1;     0;     0;     0;     0];
-%station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
+station_center_frequency     = [10700; 16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900; 33700; 47750; 60000; 77000];
+station_bandwidth            = [   10;    19;   220;   220;   400;   200;   200;    50;    40;   300;    20;     3;     3];
+station_min_correlation      = [ -0.3; -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2; -0.2;   -0.3;   -0.3];
+station_max_power_level      = [ 50;  15;    27;    70;    16;    18;    12;    24;    24;    24;    24;    50;    50];
+station_min_power_level      = [ 0;   5;     4;     4;     6;     8;     3;     4;     4;     14;    4;     3;   3];
+station_max_peak_to_average  = [ 300;  28;    20;   500;    30;    20;    30;   200;   200;   200;   200;  1000;   1000];
+station_min_peak_to_average  = [ 1;   8;     1;   130;    10;     1;     1;    16;    23;    23;    23;     0;   0];
+station_mask_number          = [ 1;   1;     1;     2;     1;     1;     1;     1;     1;     1;     1;     1;   1];
+station_insist_AoA_return    = [ 0;   0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0;   0];
+station_allow_mask_save_flag = [ 1;   1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;   1];
+station_force_mask_update    = [ 1;   1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;    1];
+%station_active_flag          = [ 0;   0;     1;     1;     0;     1;     0;     0;     0;     0;     0;    1;    1];
+station_active_flag          = [ 1;   1;     1;     1;     0;     1;     1;     1;     1;     1;     1;     1;    1];
 
 
 Fs = 500000;
@@ -33,8 +33,8 @@ N = 700000;
 N_start=1;
 N_end=N;
 
-panorama_start_frequency = 15000; %23000; %47000;
-panorama_stop_frequency =  49000; %26000; %49000;
+panorama_start_frequency = 15000; %59750; %39900; %59950; %23000; %47000;
+panorama_stop_frequency =  66000; %60350; %42000; %60050; %26000; %49000;
 
 panorama_mask_file_name = ['panorama_mask_' date '.mat'];
 panorama_floor_file_name  = ['panorama_floor_' date '.mat'];
@@ -47,9 +47,10 @@ modulation_mask_1_in_file_name = 'modulation_mask_in_1.mat';
 modulation_mask_2_in_file_name = 'modulation_mask_in_2.mat';
 modulation_mask_3_in_file_name = 'modulation_mask_in_3.mat';
 preload_modulation_mask_file = [0,0,0];
-modulation_mask_gain = 0.07;
-station_relaxation_gain = 0.37;
-squelsh_relaxation_gain = 0.17;
+station_relaxation_gain = 0.1;  %0.37;
+station_relaxation_gain_hz = station_relaxation_gain / max(station_bandwidth.*station_active_flag);
+modulation_mask_gain = station_relaxation_gain;
+squelsh_relaxation_gain = station_relaxation_gain*0.1; %0.17;
 squelsh_threshold = 2.0;
 squalsh_separation_gain = 1.01;
 squelsh_band_width = 150;
@@ -62,7 +63,7 @@ Starting_Iteration_Number = 1;
 Num_iterations            = 1000;
 num_keep                  = 16;
 trigtreshold              = 1;
-panorama_gain             = 5;
+panorama_gain             = 10; %40;
 
 %%%%==========averages============%%%%
 M = 2^(ceil(log2(N))-1)-1;
@@ -202,6 +203,7 @@ else
         end
     end
     raw_buffer = read_file_helper(N)';
+    %raw_buffer = generate_and_write_file_helper(N)';
     if record_signal_flag > 0
         save(signal_record_file_name,"raw_buffer");
     end
@@ -264,9 +266,14 @@ r = r.*max_panorama;
 g = g.*max_panorama;
 b = b.*max_panorama;
 
-panorama_history(1+mod(iteration_number-1,num_keep),:,1) = r;
-panorama_history(1+mod(iteration_number-1,num_keep),:,2) = g;
-panorama_history(1+mod(iteration_number-1,num_keep),:,3) = b;
+% panorama_history(1+mod(iteration_number-1,num_keep),:,1) = r;
+% panorama_history(1+mod(iteration_number-1,num_keep),:,2) = g;
+% panorama_history(1+mod(iteration_number-1,num_keep),:,3) = b;
+
+panorama_history(2:end,:,:) = panorama_history(1:end-1,:,:);
+panorama_history(1,:,1) = r;%20*log10(r);
+panorama_history(1,:,2) = g;%20*log10(g);
+panorama_history(1,:,3) = b;%20*log10(b);
 
 if squelsh_relaxation_gain > 1 
     panorama_mask_n = panorama_mask_n + max(panorama(1:3,:));
@@ -301,29 +308,32 @@ for j=1:4
     axis([panorama_fscale(1) panorama_fscale(end) 0 panorama_max]);
 end
 
+panorama_min_db = 20*log10(min(panorama_floor));
+panorama_max_db = 20*log10(panorama_max);
 set(0, 'DefaultFigurePosition', fig2position);
 figure(2);
 set(gcf,'color',bgcolor);
 subplot(2,1,1);
 hold off
-plot(panorama_fscale,panorama_ceil,'color','red');
-hold all
-plot(panorama_fscale,(panorama(1,:)+panorama(2,:)+panorama(3,:))/3,'color','black');
-plot(panorama_fscale,panorama_mask,'color','yellow');
-plot(panorama_fscale,panorama_floor,'color','white');
+plot(panorama_fscale,20*log10(panorama_mask/max(panorama_mask)),'color','yellow');
+hold all;
+plot(panorama_fscale,20*log10(panorama_ceil)-panorama_max_db,'color','red');
+plot(panorama_fscale,20*log10((panorama(1,:)+panorama(2,:)+panorama(3,:))/3)-panorama_max_db,'color','black');
+plot(panorama_fscale,20*log10(panorama_floor)-panorama_max_db,'color','white');
 
-plot(panorama_fscale,1.05*panorama_max+0.15*squelsh_line,'color','yellow');
-plot(panorama_fscale,1.05*panorama_max+0.15*squelsh_base_line,'color','green');
-plot(panorama_fscale,1.05*panorama_max*(1+0.05*squelsh_detected),'color','black');
-axis([panorama_fscale(1) panorama_fscale(end) 0 panorama_max*1.2]);
+%plot(panorama_fscale,1.05*panorama_max+0.15*squelsh_line,'color','yellow');
+%plot(panorama_fscale,1.05*panorama_max+0.15*squelsh_base_line,'color','green');
+%plot(panorama_fscale,1.05*panorama_max*(1+0.05*squelsh_detected),'color','black');
+axis([panorama_fscale(1) panorama_fscale(end) -0.5*(panorama_min_db+panorama_max_db) 0]);
 
 trigcounter = trigcounter + 1;
 if trigcounter >= trigtreshold
     trigcounter = 0;
     subplot(2,1,2);
     %hold all
-    axis([panorama_fscale(1) panorama_fscale(end) 1 num_keep]);
+    %axis([panorama_fscale(1) panorama_fscale(end) 1 num_keep]);
     image(panorama_history);
+    %axis([panorama_fscale(1) panorama_fscale(end) 1 num_keep]);
     %save(panorama_mask_file_name,"panorama_mask");
     %save(panorama_floor_file_name,"panorama_floor");
     %save(panorama_ceil_file_name,"panorama_ceil");
@@ -333,6 +343,8 @@ end
 active_station_num = 0;
 reference_angle_valids_num = zeros(1,3);
 reference_angle_main = zeros(1,3);
+reference_rotation_base = 0;
+reference_rotation_rate = 0;
 for j=1:num_stations
     station_start_frequency = station_center_frequency(j)-station_bandwidth(j)/2;
     station_stop_frequency = station_center_frequency(j)+station_bandwidth(j)/2;
@@ -386,13 +398,13 @@ for j=1:num_stations
             station_max_power_level(j), ...
             station_min_power_level(j), ...
             station_insist_AoA_return(j), ...
-            IQs(j,:),station_relaxation_gain,s_sig,s_latch,s_modulation_mask,reference_angles(j),fig_num,fig4position,subplot_x,subplot_y,subplot_p);
+            IQs(j,:),station_relaxation_gain_hz,s_sig,s_latch,s_modulation_mask,reference_angles(j),fig_num,fig4position,subplot_x,subplot_y,subplot_p);
         if iteration_number>1 && Pxys(j,iteration_number) == 0
             directions(j,iteration_number) = directions(j,iteration_number-1);
             %directions(j,i) = 361;
         end
         if Ans(j,iteration_number) > 0 && Pxys(j,iteration_number) > 0 % got a good measurenent
-            reference_angle_valids_num(s_mask) = reference_angle_valids_num(s_mask) + 1;
+            reference_angle_valids_num(s_mask) = reference_angle_valids_num(s_mask) + station_bandwidth(j);
             reference_angle_valids(j) = 1;
             if (s_mask == 1 && toggleswitch_reference_1.Value(6) == 'S') ... % 'Ref Keep','Ref Set'
             || (s_mask == 2 && toggleswitch_reference_2.Value(6) == 'S') ...
@@ -409,7 +421,7 @@ for j=1:num_stations
                         reference_angles(j) = reference_angles(j) + 180;
                     end
                 end
-                reference_angle_main(s_mask) = reference_angle_main(s_mask) + reference_angles(j);
+                reference_angle_main(s_mask) = reference_angle_main(s_mask) + reference_angles(j)*station_bandwidth(j);
             end
         else
             reference_angle_valids(j) = 0;
@@ -449,20 +461,17 @@ end
 
 if toggleswitch_reference_1.Value(6) == 'S' % 'Ref1 Keep','Ref1 Set'
     toggleswitch_reference_1.Value = 'Ref1 Keep';
-    reference_angle_main(1) = 0;
 else
     if reference_angle_valids_num(1) > 0
         reference_angle_main(1) = reference_angle_main(1) / reference_angle_valids_num(1);
-    else
-        reference_angle_main(1) = -1;
     end
 end
 if(reference_angle_valids_num(1) > 0)
-    fprintf('\nreference_angle_main 1: %f\n', mod(reference_angle_main(1),360));
+    fprintf('\nreference_angle_main 1: %f\n', mod(360-reference_angle_main(1),360));
     fprintf('reference_angle_valids_num 1: %d\n', reference_angle_valids_num(1));
     for j=1:num_stations
         if reference_angle_valids(j) && station_mask_number(j) == 1
-            fprintf('st: %d, f=%.2f kHz, msk#%d, ref ang: %f\n', j, (station_center_frequency(j)/1000), station_mask_number(j), mod(reference_angles(j),360));
+            fprintf('st: %d, f=%.2f kHz, msk#%d, ref ang: %f\n', j, (station_center_frequency(j)/1000), station_mask_number(j), mod(360-reference_angles(j),360));
         end
     end
 else
@@ -471,12 +480,9 @@ end
 
 if toggleswitch_reference_2.Value(6) == 'S' % 'Ref2 Keep','Ref2 Set'
     toggleswitch_reference_2.Value = 'Ref2 Keep';
-    reference_angle_main(2) = 0;
 else
     if reference_angle_valids_num(2) > 0
         reference_angle_main(2) = reference_angle_main(2) / reference_angle_valids_num(2);
-    else
-        reference_angle_main(2) = -1;
     end
 end
 if(reference_angle_valids_num(2) > 0)
@@ -493,12 +499,9 @@ end
 
 if toggleswitch_reference_3.Value(6) == 'S' % 'Ref3 Keep','Ref3 Set'
     toggleswitch_reference_3.Value = 'Ref3 Keep';
-    reference_angle_main(3) = 0;
 else
-    if reference_angle_valids_num(1) > 0
+    if reference_angle_valids_num(3) > 0
         reference_angle_main(3) = reference_angle_main(3) / reference_angle_valids_num(3);
-    else
-        reference_angle_main(3) = -1;
     end
 end
 if(reference_angle_valids_num(3) > 0)
@@ -512,6 +515,16 @@ if(reference_angle_valids_num(3) > 0)
 else
     disp('signals of group 3 unavailable');
 end
+
+reference_rotation_base = sum(reference_angle_main) - reference_rotation_base;
+reference_rotation_rate = reference_rotation_rate + reference_rotation_base;
+reference_rotation_rate = reference_rotation_rate /(1 + abs(max(reference_angle_valids.*reference_angles) - min(reference_angle_valids.*reference_angles)));
+IQs = IQs./(1+abs(reference_rotation_rate));
+fprintf('reference_rotation_rate = %f\n', reference_rotation_rate);
+% if abs(reference_rotation_rate) > 10
+%     IQs = zeros(size(IQs));
+%     reference_rotation_rate = 0;
+% end
 
 drawnow; % Allow UI updates
 %pause(57.1);

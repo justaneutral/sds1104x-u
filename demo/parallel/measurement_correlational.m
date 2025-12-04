@@ -5,7 +5,9 @@ function [direction,Pxy,An,iq_accumulator,ant_color] = measurement_correlational
     max_power_level, ...
     min_power_level, ...
     insist_AoA_return, ...
-    iq_accumulator,iq_relaxation_gain,ant,squelsh_latch,modulation_mask,reference_angle,fig_num,fig_position,subplot_x,subplot_y,subplot_p)
+    iq_accumulator,iq_relaxation_gain_hz,ant,squelsh_latch,modulation_mask,reference_angle,fig_num,fig_position,subplot_x,subplot_y,subplot_p)
+epsilon = 0.0000001;
+
 direction = 0;
 Pxy = 0;
 An = 0;
@@ -16,11 +18,30 @@ g = real(ant(2,:).*conj(ant(2,:)));
 b = real(ant(3,:).*conj(ant(3,:)));
 
 e = r+g+b;
-Peak_to_average = spawn_end*max(e)/sum(e);
+sum_e = sum(e);
+Peak_to_average = spawn_end*max(e)/sum_e;
 
-r = spawn_end/sum(r);
-g = spawn_end/sum(g);
-b = spawn_end/sum(b);
+sum_r = sum(r)/sum_e;
+sum_g = sum(g)/sum_e;
+sum_b = sum(b)/sum_e;
+
+r = 0;
+g = 0;
+b = 0;
+if sum_r<epsilon
+    r = 1;
+end
+if sum_g<epsilon
+    g = 1;
+end
+if sum_b<epsilon
+    b = 1;
+end
+if(r+g+b == 0)
+    r = spawn_end/sum_r;
+    g = spawn_end/sum_g;
+    b = spawn_end/sum_b;
+end
 rn = min(min(r,g),b);
 r = r - rn;
 g = g - rn;
@@ -29,6 +50,7 @@ X = max(max(r,g),b);
 r = r/X;
 g = g/X;
 b = b/X;
+
 X = 2;
 ant_color = floatsToHexColor(r, g, b, X);
 
@@ -36,11 +58,13 @@ cc_channel = [1 2 3]*[floor([r g b])'];
 cc_sig = real(ant(cc_channel,:).*conj(ant(cc_channel,:)));
 cc_sig = cc_sig - mean(cc_sig);
 cc_msk = modulation_mask - mean(modulation_mask);
-cc_nrm = (cc_sig*cc_msk')/sqrt((cc_sig*cc_sig')*(cc_msk*cc_msk'));
+cc_nrm = (cc_sig*cc_msk');
+if abs(cc_nrm)>epsilon
+    cc_nrm = cc_nrm/sqrt((cc_sig*cc_sig')*(cc_msk*cc_msk'));
+end
 
+iq_relaxation_gain = iq_relaxation_gain_hz * spawn_end;
 
-
-epsilon = 0.01;
 bgcolor = '#999999';
 % ant_a = ant(1,:) .* modulation_mask;
 % ant_b = ant(2,:) .* modulation_mask;
@@ -204,4 +228,5 @@ if fig_num > 0
     % title(titstr);
     hold off
 end
+%iq_accumulator %% <= dbg
 end
