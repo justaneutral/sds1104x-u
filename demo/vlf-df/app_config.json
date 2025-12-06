@@ -42,28 +42,111 @@
               {"type": "axes",  "tag": "axesNAAprm",  "row": 1,  "col": 4}
           ]
       },
-
-
-
-    {
-      "title": "Plot Tab",
+      {
+          "title": "NAA_2",
+          "components": [
+              {"type": "axes",  "tag": "axesNAA_2fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axesNAA_2ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axesNAA_2hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axesNAA_2prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "25K0",
+          "components": [
+              {"type": "axes",  "tag": "axes25K0fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes25K0ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes25K0hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes25K0prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "25K2",
+          "components": [
+              {"type": "axes",  "tag": "axes25K2fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes25K2ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes25K2hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes25K2prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "40K7",
+          "components": [
+              {"type": "axes",  "tag": "axes40K7fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes40K7ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes40K7hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes40K7prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "29K3",
+          "components": [
+              {"type": "axes",  "tag": "axes29K3fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes29K3ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes29K3hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes29K3prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "31K9",
+          "components": [
+              {"type": "axes",  "tag": "axes31K9fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes31K9ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes31K9hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes31K9prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "33K7",
+          "components": [
+              {"type": "axes",  "tag": "axes33K7fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes33K7ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes33K7hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes33K7prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "47K7",
+          "components": [
+              {"type": "axes",  "tag": "axes47K7fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes47K7ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes47K7hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes47K7prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "60K0",
+          "components": [
+              {"type": "axes",  "tag": "axes60K0fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes60K0ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes60K0hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes60K0prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "77K0",
+          "components": [
+              {"type": "axes",  "tag": "axes77K0fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes77K0ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes77K0hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes77K0prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+      "title": "Logging",
       "components": [
-        {"type": "button", "text": "Generate Plot Data", "row": 1, "col": 1, "callbackName": "handlePlotButton"},
-        {"type": "axes", "tag": "mainAxes", "row": 2, "col": [1, 3]},
-        {"type": "slider", "tag": "ampSlider", "text": "Adjust Amplitude", "row": 1, "col": 2, "callbackName": "handleSlider"},
-        {"type": "checkbox", "text": "Show Grid", "row": 1, "col": 3, "callbackName": "handleCheckbox"},
         {"type": "textarea", "tag": "logArea", "text": "App Log Area:\n", "row": 3, "col": [1, 3]}
       ]
     },
     {
-      "title": "Info Tab",
+      "title": "Info",
       "components": [
         {"type": "text", "text": "This tab contains general information.", "row": 1, "col": 1}
       ]
     },
 
     {
-      "title": "Visual Tab",
+      "title": "Controls",
       "components": [
         {"type": "led", "tag": "led_mask", "text": "Mask", "row": 1, "col": 1},
         {"type": "led", "tag": "led_reference", "text": "Reference", "row": 1, "col": 3},
