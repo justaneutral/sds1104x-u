@@ -30,7 +30,7 @@ station_active_flag          = [    0;     0;     1;     0;     0;     0;     0;
 station_gui_fft = [GUI.components.axesNAAfft,GUI.components.axesNAAfft,GUI.components.axesNAAfft,GUI.components.axesNAAfft,GUI.components.axesNAAfft,GUI.components.axesNAAfft,GUI.components.axesNAAfft,GUI.components.axesNAAfft,GUI.components.axesNAAfft,GUI.components.axesNAAfft,GUI.components.axesNAAfft,GUI.components.axesNAAfft,GUI.components.axesNAAfft];
 station_gui_ref = [GUI.components.axesNAAref,GUI.components.axesNAAref,GUI.components.axesNAAref,GUI.components.axesNAAref,GUI.components.axesNAAref,GUI.components.axesNAAref,GUI.components.axesNAAref,GUI.components.axesNAAref,GUI.components.axesNAAref,GUI.components.axesNAAref,GUI.components.axesNAAref,GUI.components.axesNAAref,GUI.components.axesNAAref];
 station_gui_hst = [GUI.components.axesNAAhst,GUI.components.axesNAAhst,GUI.components.axesNAAhst,GUI.components.axesNAAhst,GUI.components.axesNAAhst,GUI.components.axesNAAhst,GUI.components.axesNAAhst,GUI.components.axesNAAhst,GUI.components.axesNAAhst,GUI.components.axesNAAhst,GUI.components.axesNAAhst,GUI.components.axesNAAhst,GUI.components.axesNAAhst];
-
+station_gui_prm = [GUI.components.axesNAAprm,GUI.components.axesNAAprm,GUI.components.axesNAAprm,GUI.components.axesNAAprm,GUI.components.axesNAAprm,GUI.components.axesNAAprm,GUI.components.axesNAAprm,GUI.components.axesNAAprm,GUI.components.axesNAAprm,GUI.components.axesNAAprm,GUI.components.axesNAAprm,GUI.components.axesNAAprm,GUI.components.axesNAAprm];
 
 
 Fs = 500000;
@@ -438,7 +438,14 @@ for j=1:num_stations
             station_max_power_level(j), ...
             station_min_power_level(j), ...
             station_insist_AoA_return(j), ...
-            IQs(j,:),station_relaxation_gain_hz,s_sig,s_latch,s_modulation_mask,reference_angles(j),station_active_flag(j),station_gui_ref(j));
+            IQs(j,:), ...
+            station_relaxation_gain_hz, ...
+            s_sig,s_latch, ...
+            s_modulation_mask, ...
+            reference_angles(j), ...
+            station_active_flag(j), ...
+            station_gui_ref(j), ...
+            station_gui_prm(j));
         if iteration_number>1 && Pxys(j,iteration_number) == 0
             directions(j,iteration_number) = directions(j,iteration_number-1);
             %directions(j,i) = 361;
@@ -477,6 +484,10 @@ for j=1:num_stations
             plot(station_gui_fft(j),s_fscale,s_current,'color',ant_color);
             plot(station_gui_fft(j),s_fscale,s_modulation_mask,'color','yellow');
             axis(station_gui_fft(j),[s_fscale(1) s_fscale(end) 0 s_max]);
+            title(station_gui_fft(j),'Signal Fourier Spectrum');
+            legend(station_gui_fft(j),'Signal Presence Indicator','Power Spectrum','Average Mask');
+            ylabel(station_gui_fft(j),'Power Level rel. to Mask Peak');
+            xlabel(station_gui_fft(j),'Frequency [Hz]');
             hold(station_gui_fft(j),"off");
         end
         if (Ans(j,iteration_number) > 0) || (station_force_mask_update(j) > 0)
@@ -492,16 +503,25 @@ for j=1:num_stations
                 unwrapped_directions = unwrap_aoa(directions(j,iteration_number-num_keep:iteration_number));
                 plot(station_gui_hst(j),iteration_number-num_keep:iteration_number,unwrapped_directions,'color',ant_color);
                 axx1 = iteration_number-num_keep;
-                axis(station_gui_hst(j),[axx1 iteration_number -180 180]);
+                axx2 = iteration_number;
+                axy1 = min(unwrapped_directions)-5;
+                axy2 = max(unwrapped_directions)+5;
             else
                 unwrapped_directions = unwrap_aoa(directions(j,1:iteration_number));
                 plot(station_gui_hst(j),1:iteration_number,unwrapped_directions,'color',ant_color);
                 axx1 = 1;
-                axis(station_gui_hst(j),[axx1 num_keep -180 180]);
+                axx2 = num_keep;
+                axy1 = min(unwrapped_directions(1:iteration_number))-5;
+                axy2 = max(unwrapped_directions(1:iteration_number))+5;
             end
+            axis(station_gui_hst(j),[axx1 axx2 axy1 axy2]);
             hold(station_gui_hst(j),"all");
             p_text = sprintf('A:%3.1f(%1.1f)\nF:%2.1fkHz',mean(unwrapped_directions),std(unwrapped_directions),station_center_frequency(j)/1000);
-            text(station_gui_hst(j),axx1+2,50,p_text,'color','black');
+            text(station_gui_hst(j),axx1+2,axy2-2,p_text,'color','black');
+            title(station_gui_hst(j),'Observed Angle of Arrival History');
+            legend(station_gui_hst(j),'Angle of Arrival [degrees]');
+            ylabel(station_gui_hst(j),'Angle of Arrival [degrees]');
+            xlabel(station_gui_hst(j),'Measurement Iteration Number');
             hold(station_gui_hst(j),"off");
         end
     end
@@ -516,10 +536,16 @@ else
 end
 if(reference_angle_valids_num(1) > 0)
     fprintf('\nreference_angle_main 1: %f\n', mod(360-reference_angle_main(1),360));
+    angle_text = "Main Reference 1";
+    angle_value = mod(360-reference_angle_main(1),360);
+    angle_color = "red";
     fprintf('reference_angle_valids_num 1: %d\n', reference_angle_valids_num(1));
     for j=1:num_stations
         if reference_angle_valids(j) && station_mask_number(j) == 1
             fprintf('st: %d, f=%.2f kHz, msk#%d, ref ang: %f\n', j, (station_center_frequency(j)/1000), station_mask_number(j), mod(360-reference_angles(j),360));
+            angle_text = [angle_text, sprintf("%.2fkHz(#%d",station_center_frequency(j)/1000,station_mask_number(j))];
+            angle_value = [angle_value, mod(360-reference_angle_main(1),360)];
+            angle_color = [angle_color, "magenta"];
         end
     end
 else
@@ -563,6 +589,13 @@ if(reference_angle_valids_num(3) > 0)
 else
     disp('signals of group 3 unavailable');
 end
+
+nr = sum(reference_angle_valids_num); %if zero - don't print
+if(nr)
+    plot_angles(nr,GUI.components.axesREFref,"Reference Angles",angle_text,angle_value,angle_color);
+end
+
+
 
 reference_rotation_base = sum(reference_angle_main) - reference_rotation_base;
 reference_rotation_rate = reference_rotation_rate + reference_rotation_base;

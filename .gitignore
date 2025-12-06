@@ -4,6 +4,7 @@
 *.mat
 *.fig
 *.png
+*.jpg
 *.swp
 *.exe
 *.o

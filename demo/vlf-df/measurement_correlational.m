@@ -5,7 +5,7 @@ function [direction,Pxy,An,iq_accumulator,ant_color] = measurement_correlational
     max_power_level, ...
     min_power_level, ...
     insist_AoA_return, ...
-    iq_accumulator,iq_relaxation_gain_hz,ant,squelsh_latch,modulation_mask,reference_angle,fig_num,fig_hndl)
+    iq_accumulator,iq_relaxation_gain_hz,ant,squelsh_latch,modulation_mask,reference_angle,fig_num,fig_hndl,fig_prm)
 epsilon = 0.0000001;
 
 direction = 0;
@@ -205,20 +205,21 @@ if fig_num > 0
     y = (-90:90);
     plot(fig_hndl,0*y,y,'color','yellow');
     plot(fig_hndl,y,0*y,'color','yellow');
-    r_text = sprintf('%1.2f',r);
-    text(fig_hndl,-175,-150,r_text,'color','red');
-    g_text = sprintf('%1.2f',g);
-    text(fig_hndl,-50,-150,g_text,'color','green');
-    b_text = sprintf('%1.2f',b);
-    text(fig_hndl,65,-150,b_text,'color','blue');
-    angle_text = sprintf('%3.1f',direction);
-    text(fig_hndl,-175,160,angle_text,'color',ant_color);
-    power_level_text = sprintf('%d',Power_level);
-    text(fig_hndl,-50,160,power_level_text,'color',power_level_color);
-    Peak_to_average_text = sprintf('%.1f',Peak_to_average);
-    text(fig_hndl,65,160,Peak_to_average_text,'color',Peak_to_average_color);
-    cc_text = sprintf('%1.2f',cc_nrm);
-    text(fig_hndl,-197,99,cc_text,'color',cc_color);
+
+    angle_text = sprintf('AoA = %3.1f deg.',mod(direction,360));
+    y=160*cos(pi/180*direction);
+    x=160*sin(pi/180*direction);
+    text(fig_hndl,x+50*sign(x)-40,y+8*sign(y),angle_text,'color',ant_color);
+    y=-y
+    x=-x;
+    angle_text = sprintf('AoA = %3.1f deg.',mod(direction+180,360));
+    text(fig_hndl,x+50*sign(x)-40,y+8*sign(y),angle_text,'color',ant_color);
+
+    y=180*cos(pi/180*reference_angle);
+    x=180*sin(pi/180*reference_angle);
+    reference_text = sprintf('Ref = %3.1f deg.',reference_angle);
+    text(fig_hndl,x+50*sign(x)-40,y+8*sign(y),reference_text,'color','red');
+
     axis(fig_hndl,[-200 200 -200 200]);
     axis(fig_hndl, 'equal');
     % titstr = sprintf('Ref.A = %+03.2f, AoA = %+03.2f deg.\nPxy=%f, An=%d\na=%+03.2f, b=%+03.2f, c=%+03.2f,\nnp=%f, ga=%f, gb=%f, gc=%f', ...
@@ -227,7 +228,44 @@ if fig_num > 0
     %     sqrt(real(ant_s_a*ant_s_a')), sqrt(real(ant_s_b*ant_s_b')), sqrt(real(ant_s_c*ant_s_c')), ...
     %     noise_level, gain_a,gain_b,gain_c);
     % title(titstr);
+
+    title(fig_hndl,'Reference Angle and Angle of Arrival');
+    AoAlbl = sprintf('Angle of Arrival: %3.1f deg.', mod(direction,360));
+    Reflbl = sprintf('Reference Angle: %3.1f deg.', mod(reference_angle,360));
+    legend(fig_hndl,AoAlbl,Reflbl);
+    ylabel(fig_hndl,'Normalized Cosinusoidal Signal Projection Level');
+    xlabel(fig_hndl,'Normalized Sinusoidal Signal Projection Level');
+    xticks(fig_hndl,[]);
+    yticks(fig_hndl,[]);
     hold(fig_hndl,"off");
+
+    title(fig_prm,'Station Signal Detector Parameters');
+    xticks(fig_prm,[]);
+    yticks(fig_prm,[]);
+    axis(fig_prm,[0 100 0 100]);
+    hold(fig_prm,"off");
+    plot(fig_prm,0,0);
+    x = 5;
+    y = 95;
+    dy = -11;
+    r_text = sprintf('Antenna A (0 deg.) relative energy: %1.2f',r);
+    text(fig_prm,x,y,r_text,'color','red');
+    y = y+dy;
+    g_text = sprintf('Antenna B (+120 deg.) relative energy: %1.2f',g);
+    text(fig_prm,x,y,g_text,'color','green');
+    y = y+dy;
+    b_text = sprintf('Antenna C (-120 deg.) relative energy: %1.2f',b);
+    text(fig_prm,x,y,b_text,'color','blue');
+    y = y+dy;
+    power_level_text = sprintf('Estimated SNR: %d  [dB]',Power_level);
+    text(fig_prm,x,y,power_level_text,'color',power_level_color);
+    y = y+dy;
+    Peak_to_average_text = sprintf('Estimated Peak to Average Ratio: %.1f',Peak_to_average);
+    text(fig_prm,x,y,Peak_to_average_text,'color',Peak_to_average_color);
+    y = y+dy;
+    cc_text = sprintf('Signal to Mask Envelope Normalized Cross Correlation: %.1f',cc_nrm);
+    text(fig_prm,x,y,cc_text,'color',cc_color);
+    hold(fig_prm,"off");
 end
 %iq_accumulator %% <= dbg
 end
