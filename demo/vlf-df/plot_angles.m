@@ -8,12 +8,12 @@ function plot_angles(fig_num,fig_hndl,title_text,angle_text,angle_value,angle_co
             plot(fig_hndl,x,y,'color',angle_color(j));
             hold(fig_hndl,"all");
         end
-        for mark = 10:10:350
+        for mark = 10:10:360
             y=(110:1:120)*cos(pi/180*mark);
             x=(110:1:120)*sin(pi/180*mark);
             plot(fig_hndl,x,y,'color','blue');
         end
-        for mark = 30:30:330
+        for mark = 30:30:360
             y=(90:1:110)*cos(pi/180*mark);
             x=(90:1:110)*sin(pi/180*mark);
             plot(fig_hndl,x,y,'color','green');

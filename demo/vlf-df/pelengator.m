@@ -129,6 +129,7 @@ IQs = zeros(num_stations,9);
 reference_angle_offsets = zeros(1,num_stations);
 reference_angles = zeros(1,num_stations);
 reference_angle_valids = zeros(1,num_stations);
+reference_angle_main_history = zeros(3,num_keep);
 %reference_angle_valids_num = zeros(1,3);
 %reference_angle_main = zeros(1,3);
 %%%===============screen===================%%%%
@@ -536,20 +537,26 @@ else
 end
 if(reference_angle_valids_num(1) > 0)
     fprintf('\nreference_angle_main 1: %f\n', mod(360-reference_angle_main(1),360));
-    angle_text = "Main Reference 1";
+    angle_text = "Group 1 Reference Angle";
     angle_value = mod(360-reference_angle_main(1),360);
     angle_color = "red";
-    fprintf('reference_angle_valids_num 1: %d\n', reference_angle_valids_num(1));
+    fprintf("reference_angle_valids_num 1: %d\n", reference_angle_valids_num(1));
+    texts_prm = "Group 1 combined used bandwidth";
+    values_prm = reference_angle_valids_num(1);
+    colors_prm = "black";
     for j=1:num_stations
         if reference_angle_valids(j) && station_mask_number(j) == 1
             fprintf('st: %d, f=%.2f kHz, msk#%d, ref ang: %f\n', j, (station_center_frequency(j)/1000), station_mask_number(j), mod(360-reference_angles(j),360));
-            angle_text = [angle_text, sprintf("%.2fkHz(#%d",station_center_frequency(j)/1000,station_mask_number(j))];
-            angle_value = [angle_value, mod(360-reference_angle_main(1),360)];
-            angle_color = [angle_color, "magenta"];
+            angle_text = [angle_text, sprintf("Ref. %.1f kHz (#%d)",station_center_frequency(j)/1000,station_mask_number(j))];
+            angle_value = [angle_value, mod(360-reference_angles(j),360)];
+            angle_color = [angle_color, "green"];
         end
     end
 else
-    disp('signals of group 1 unavailable');
+    texts_prm = "Signals of group 1 unavailable";
+    values_prm = NaN;
+    colors_prm = "black";
+    fprintf("%s\n",texts_prm);
 end
 
 if toggleswitch_reference_2.Value(6) == 'S' % 'Ref2 Keep','Ref2 Set'
@@ -561,14 +568,27 @@ else
 end
 if(reference_angle_valids_num(2) > 0)
     fprintf('\nreference_angle_main 2: %f\n', mod(reference_angle_main(2),360));
-    fprintf('reference_angle_valids_num 2: %d\n', reference_angle_valids_num(2));
+    fprintf('reference_angle_valids_num 2: %d\n', reference_angle_valids_num(2))
+    texts_prm = [texts_prm, "Group 2 combined used bandwidth"];
+    values_prm = [value_prms, reference_angle_valids_num(2)];
+    colors_prm = [colors_prm, "black"];
+    fprintf("%s\n",texts_prm(end));
+    angle_text = [angle_text, "Main Reference 2"];
+    angle_value = [angle_value, mod(360-reference_angle_main(2),360)];
+    angle_color = [angle_color, "blue"];
     for j=1:num_stations
         if reference_angle_valids(j) && station_mask_number(j) == 2
             fprintf('st: %d, f=%.2f kHz, msk#%d, ref ang: %f\n', j, (station_center_frequency(j)/1000), station_mask_number(j), mod(reference_angles(j),360));
+            angle_text = [angle_text, sprintf("Ref. %.1f kHz (#%d)",station_center_frequency(j)/1000,station_mask_number(j))];
+            angle_value = [angle_value, mod(360-reference_angles(j),360)];
+            angle_color = [angle_color, "cyan"];
         end
     end
 else
-    disp('signals of group 2 unavailable');
+    texts_prm = [texts_prm, "Signals of group 2 unavailable"];
+    values_prm = [values_prm, NaN];
+    colors_prm = [colors_prm, "black"];
+    fprintf("%s\n",texts_prm(end));
 end
 
 if toggleswitch_reference_3.Value(6) == 'S' % 'Ref3 Keep','Ref3 Set'
@@ -581,31 +601,54 @@ end
 if(reference_angle_valids_num(3) > 0)
     fprintf('\nreference_angle_main 3: %f\n', mod(reference_angle_main(3),360));
     fprintf('reference_angle_valids_num 3: %d\n', reference_angle_valids_num(3));
+    texts_prm = [texts_prm, "Group 3 combined used bandwidth"];
+    values_prm = [values_prm, reference_angle_valids_num(3)];
+    colors_prm = [colors_prm, "black"];
+    fprintf("%s\n",texts_prm(end));
+    angle_text = [angle_text, "Main Reference 3"];
+    angle_value = [angle_value, mod(360-reference_angle_main(3),360)];
+    angle_color = [angle_color, "magenta"];
     for j=1:num_stations
         if reference_angle_valids(j) && station_mask_number(j) == 3
             fprintf('st: %d, f=%.2f kHz, msk#%d, ref ang: %f\n', j, (station_center_frequency(j)/1000), station_mask_number(j), mod(reference_angles(j),360));
+            angle_text = [angle_text, sprintf("Ref. %.1f kHz (#%d)",station_center_frequency(j)/1000,station_mask_number(j))];
+            angle_value = [angle_value, mod(360-reference_angles(j),360)];
+            angle_color = [angle_color, "yellow"];
         end
     end
 else
-    disp('signals of group 3 unavailable');
+    texts_prm = [texts_prm, "Signals of group 3 unavailable"];
+    values_prm = [values_prm, NaN];
+    colors_prm = [colors_prm, "black"];
+    fprintf("%s\n",texts_prm(end));
 end
 
 nr = sum(reference_angle_valids_num); %if zero - don't print
 if(nr)
     plot_angles(nr,GUI.components.axesREFref,"Reference Angles",angle_text,angle_value,angle_color);
+    for j=1:3
+        if reference_angle_valids_num(j) > 0
+            if iteration_number <= num_keep
+                reference_angle_main_history(j,iteration_number) = reference_angle_main(j);
+            else
+                reference_angle_main_history(j,1:end-1) = reference_angle_main_history(j,2:end);
+                reference_angle_main_history(j,end) = reference_angle_main(j);
+            end
+        end
+    end
+    plot_history(reference_angle_valids_num,GUI.components.axesREFhst,reference_angle_main_history,iteration_number,num_keep);
 end
-
-
 
 reference_rotation_base = sum(reference_angle_main) - reference_rotation_base;
 reference_rotation_rate = reference_rotation_rate + reference_rotation_base;
 reference_rotation_rate = reference_rotation_rate /(1 + abs(max(reference_angle_valids.*reference_angles) - min(reference_angle_valids.*reference_angles)));
 IQs = IQs./(1+abs(reference_rotation_rate));
 fprintf('reference_rotation_rate = %f\n', reference_rotation_rate);
-% if abs(reference_rotation_rate) > 10
-%     IQs = zeros(size(IQs));
-%     reference_rotation_rate = 0;
-% end
+texts_prm = [texts_prm, "Reference Rotation Rate [deg./sec]"];
+values_prm = [values_prm, reference_rotation_rate];
+colors_prm = [colors_prm, "blue"];
+
+plot_parameters(GUI.components.axesREFprm,'Indicators',texts_prm,values_prm,colors_prm);
 
 drawnow; % Allow UI updates
 %pause(57.1);
