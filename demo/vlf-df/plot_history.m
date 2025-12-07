@@ -7,14 +7,16 @@ function plot_history(valids,fig_hndl,directions,iteration_number,num_keep)
         for j=1:size(valids,2)
             if valids(j) > 0
                 if iteration_number > num_keep
-                    unwrapped_directions = unwrap_aoa(-1*directions(j,:));
+                    %unwrapped_directions = unwrap_aoa(-1*directions(j,:));
+                    unwrapped_directions = mod(-1*directions(j,:),360);
                     plot(fig_hndl,iteration_number-num_keep+1:iteration_number,unwrapped_directions,'color',colors(j));
                     axx1 = iteration_number-num_keep+1;
                     axx2 = iteration_number;
                     axy1 = min(axy1,min(unwrapped_directions)-5);
                     axy2 = max(axy2,max(unwrapped_directions)+5);
                 else
-                    unwrapped_directions = unwrap_aoa(-1*directions(j,1:iteration_number));
+                    %unwrapped_directions = unwrap_aoa(-1*directions(j,1:iteration_number));
+                    unwrapped_directions = mod(-1*directions(j,1:iteration_number),360);
                     plot(fig_hndl,1:iteration_number,unwrapped_directions,'color',colors(j));
                     axx1 = 1;
                     axx2 = num_keep;
@@ -22,7 +24,7 @@ function plot_history(valids,fig_hndl,directions,iteration_number,num_keep)
                     axy2 = max(axy2,max(unwrapped_directions(1:iteration_number))+5);
                 end
                 hold(fig_hndl,"all");
-                p_text = sprintf('%s: %3.1f, Standart Deviation: %1.1f)',texts(j),mod(mean(unwrapped_directions),360),std(unwrapped_directions));
+                p_text = sprintf('%s: %3.1f, Standart Deviation: %1.1f)',texts(j),mod(mean(unwrapped_directions),360),std(directions(j,:)));
                 text(fig_hndl,axx1+2,axy2-2,p_text,'color',colors(j));
             end %% valids
         end %% j

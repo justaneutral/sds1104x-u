@@ -1,4 +1,4 @@
-function [direction,Pxy,An] = measurement_correlational(ant_s_a,ant_s_b,ant_s_c,noise_level,gain_a,gain_b,gain_c,reference_angle,fig_num,subplot_x,subplot_y,subplot_p)
+function [direction,Pxy,An] = measurement_correlational1(ant_s_a,ant_s_b,ant_s_c,noise_level,gain_a,gain_b,gain_c,reference_angle,fig_num,subplot_x,subplot_y,subplot_p)
     epsilon = 0.1;
     voltage_offset = noise_level*sqrt(ant_s_a*ant_s_a' + ant_s_b*ant_s_b' + ant_s_c*ant_s_c')/3.0;    
    

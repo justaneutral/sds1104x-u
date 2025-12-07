@@ -1,49 +1,61 @@
 N = 70000;
 fignum = 1;
-noise_magnitude = 0.5;
-W = zeros(361,7);
-i = 1;
-for angle = -88:2:86
-    W(i,1) = angle;
-    [ant_a,ant_b,ant_c] = signal_generator(angle,noise_magnitude,fignum);
-    ant_a = fft(ant_a,N);
-    ant_b = fft(ant_b,N);
-    ant_c = fft(ant_c,N);
-    
-    % figure(fignum+1)
-    % hold off
-    % plot([1:N],abs(ant_a),'color','red')
-    % hold all
-    % plot([1:N],abs(ant_b),'color','green')
-    % plot([1:N],abs(ant_c),'color','blue')
-    % hold off
-    noise_level = noise_magnitude;
-    gain_a = 1;
-    gain_b = 1;
-    gain_c = 1;
-    [W(i,2) W(i,3) W(i,4)] = measurement_correlational( ...
-        ant_a,ant_b,ant_c,noise_level,gain_a,gain_b,gain_c, ...
-        angle,fignum+2);
-    i = i+1;
-end
-i = i-1;
-figure(fignum+3)
-hold off
-plot(W(1:i,1),W(1:i,2),'color','black')
-hold all
-plot(W(1:i,1),W(1:i,3),'color','red')
-plot(W(1:i,1),W(1:i,4),'color','blue')
-title(fignum+3,sprintf('noise_magnitude = %d',noise_magnitude))
-legend('Measured anglek','Pxy','An')
-figure(fignum+4)
-hold off
-plot(W(1:i,1),W(1:i,2)-W(1:i,1),'color','black')
-hold all
-plot(W(1:i,1),W(1:i,3),'color','red')
-plot(W(1:i,1),W(1:i,4),'color','blue')
-title(fignum+4,'Measurement Error')
-legend('Angle error','Pxy','An')
 
+noise_levels = [];
+angle_errors = [];
+for noise_magnitude = 0.75:-0.05:0.05
+    W = zeros(361,7);
+    i = 1;
+    for angle = -88:2:86
+        W(i,1) = angle;
+        [ant_a,ant_b,ant_c] = signal_generator(angle,noise_magnitude,fignum);
+        ant_a = fft(ant_a,N);
+        ant_b = fft(ant_b,N);
+        ant_c = fft(ant_c,N);
+        
+        % figure(fignum+1)
+        % hold off
+        % plot([1:N],abs(ant_a),'color','red')
+        % hold all
+        % plot([1:N],abs(ant_b),'color','green')
+        % plot([1:N],abs(ant_c),'color','blue')
+        % hold off
+        noise_level = noise_magnitude;
+        gain_a = 1;
+        gain_b = 1;
+        gain_c = 1;
+        [W(i,2) W(i,3) W(i,4)] = measurement_correlational1( ...
+            ant_a,ant_b,ant_c,noise_level,gain_a,gain_b,gain_c, ...
+            angle,0);
+        i = i+1;
+    end
+    i = i-1;
+    figure(fignum+3)
+    hold off
+    plot(W(1:i,1),W(1:i,2),'color','black')
+    hold all
+    plot(W(1:i,1),W(1:i,3),'color','red')
+    plot(W(1:i,1),W(1:i,4),'color','blue')
+    title(fignum+3,sprintf('noise_magnitude = %d',noise_magnitude))
+    legend('Measured anglek','Pxy','An')
+    figure(fignum+4)
+    hold off
+    plot(W(1:i,1),W(1:i,2)-W(1:i,1),'color','black')
+    hold all
+    plot(W(1:i,1),W(1:i,3),'color','red')
+    plot(W(1:i,1),W(1:i,4),'color','blue')
+    title(fignum+4,'Measurement Error')
+    legend('Angle error','Pxy','An')
+
+    noise_levels = [noise_levels, 20*log10(1/noise_magnitude)];
+    angle_errors = [angle_errors, max(abs(W(1:i,2)-W(1:i,1)))];
+
+end % noise magnitude
+figure
+plot(noise_levels,angle_errors)
+title('Angle measurement SNR performance');
+xlabel('SNR,dB');
+ylabel('Max Error, deg.');
 
 
 

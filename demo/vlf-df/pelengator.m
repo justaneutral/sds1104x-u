@@ -25,7 +25,7 @@ station_mask_number          = [    1;     1;     1;     2;     1;     1;     1;
 station_insist_AoA_return    = [    0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0];
 station_allow_mask_save_flag = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
 station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
-station_active_flag          = [    0;     0;     1;     1;     1;     1;     0;     0;     0;     0;     0;     1;     1];
+station_active_flag          = [    0;     0;     1;     1;     0;     1;     0;     0;     0;     0;     0;     1;     0];
 %^station_active_flag        = [    1;     1;     1;     1;     0;     1;     1;     1;     1;     1;     1;     1;     1];
 station_gui_fft = [
     GUI.components.axesNAAfft, ...
