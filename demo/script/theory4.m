@@ -3,7 +3,7 @@ fignum = 1;
 
 noise_levels = [];
 angle_errors = [];
-for noise_magnitude = 0.75:-0.05:0.05
+for noise_magnitude = 0.65:-0.05:0.05
     W = zeros(361,7);
     i = 1;
     for angle = -88:2:86
@@ -52,7 +52,7 @@ for noise_magnitude = 0.75:-0.05:0.05
 
 end % noise magnitude
 figure
-plot(noise_levels,angle_errors)
+plot(noise_levels(3:end),angle_errors(3:end))
 title('Angle measurement SNR performance');
 xlabel('SNR,dB');
 ylabel('Max Error, deg.');
