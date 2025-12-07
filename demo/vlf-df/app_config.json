@@ -22,7 +22,8 @@
               {"type": "axes",  "tag": "axesPanorama",  "row": 1,     "col": [1,4]},
               {"type": "image", "tag": "imagePanorama", "row": [2,3], "col": [1,4]},
               {"type": "slider","tag": "sliderFrequencyLow",  "text": "Adjust Lower Frequency", "row": 4, "col": 1, "callbackName": "handleSlider"},
-              {"type": "slider","tag": "sliderFrequencyHigh", "text": "Adjust Upper Frequency", "row": 4, "col": 2, "callbackName": "handleSlider"}
+              {"type": "slider","tag": "sliderFrequencyHigh", "text": "Adjust Upper Frequency", "row": 4, "col": 2, "callbackName": "handleSlider"},
+              {"type": "slider","tag": "sliderPanoramaGain", "text": "Adjust Panorama Brightnes", "row": 4, "col": 3, "callbackName": "handleSlider"}
           ]
       },
       {

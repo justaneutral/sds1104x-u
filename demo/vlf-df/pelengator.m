@@ -14,7 +14,7 @@ function pelengator(GUI)
 % station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
 % station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
 
-station_center_frequency     = [10700; 16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900; 33700; 47750; 60000; 77000];
+station_center_frequency     = [10700; 16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900; 33700; 47750; 60000; 77500];
 station_bandwidth            = [   10;    19;   220;   220;   400;   200;   200;    50;    40;   300;    20;     3;     3];
 station_min_correlation      = [ -0.3;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.3;  -0.3];
 station_max_power_level      = [   50;    15;    27;    70;    16;    18;    12;    24;    24;    24;    24;    50;    50];
@@ -25,7 +25,7 @@ station_mask_number          = [    1;     1;     1;     2;     1;     1;     1;
 station_insist_AoA_return    = [    0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0];
 station_allow_mask_save_flag = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
 station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
-station_active_flag          = [    0;     0;     1;     1;     1;     1;     0;     0;     0;     0;     0;     1;     0];
+station_active_flag          = [    0;     0;     1;     1;     1;     1;     0;     0;     0;     0;     0;     1;     1];
 %^station_active_flag        = [    1;     1;     1;     1;     0;     1;     1;     1;     1;     1;     1;     1;     1];
 station_gui_fft = [
     GUI.components.axesNAAfft, ...
@@ -92,12 +92,14 @@ N_end=N;
 
 panorama_start_frequency = 23000; %59750; %39900; %59950; %23000; %47000;
 panorama_stop_frequency =  63000; %60350; %42000; %60050; %26000; %49000;
+panorama_gain           = 3; %40;
 
 GUI.components.sliderFrequencyLow.Limits = [10 80000];
 GUI.components.sliderFrequencyHigh.Limits = [10 80000];
+GUI.components.sliderPanoramaGain.Limits = [0.1 10];
 GUI.components.sliderFrequencyLow.Value = panorama_start_frequency;
 GUI.components.sliderFrequencyHigh.Value = panorama_stop_frequency;
-
+GUI.components.sliderPanoramaGain.Value = panorama_gain;
 
 while(1) %%% chnanges in panorama frequencies
 
@@ -136,7 +138,6 @@ Starting_Iteration_Number = 1;
 Num_iterations            = 1000;
 num_keep                  = 16;
 trigtreshold              = 1;
-panorama_gain             = 3; %40;
 
 %%%%==========averages============%%%%
 M = 2^(ceil(log2(N))-1)-1;
@@ -209,8 +210,8 @@ num_active_stations = 0;
 for j=1:size(station_active_flag,1)
     num_active_stations = num_active_stations + ((station_active_flag(j) ~=0) && ((station_center_frequency(j)-station_bandwidth(j)) > panorama_fscale(1)) && ((station_center_frequency(j)+station_bandwidth(j)) < panorama_fscale(end)));
 end
-[subplot_y, subplot_x] = bestTableShape(num_active_stations);
-bgcolor = '#999999';
+%%%[subplot_y, subplot_x] = bestTableShape(num_active_stations);
+%%%bgcolor = '#999999';
 %%%%==========controls============%%%%
 % Shared variable to store button pressed status
 % Create a UI figures
@@ -331,6 +332,7 @@ end
 panorama = abs(fft_buffer(:,panorama_spawn));
 max_panorama = max(panorama);
 panorama_max = max(max_panorama);
+panorama_gain = GUI.components.sliderPanoramaGain.Value;
 max_panorama = panorama_gain*max_panorama/panorama_max;
 r=1./panorama(1,:);
 g=1./panorama(2,:);
