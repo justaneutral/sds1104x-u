@@ -18,14 +18,14 @@ station_center_frequency     = [10700; 16000; 24000; 24000; 25000; 25200; 40750;
 station_bandwidth            = [   10;    19;   220;   220;   400;   200;   200;    50;    40;   300;    20;     3;     3];
 station_min_correlation      = [ -0.3;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.3;  -0.3];
 station_max_power_level      = [   50;    15;    27;    70;    16;    18;    12;    24;    24;    24;    24;    50;    50];
-station_min_power_level      = [    0;     5;     4;     4;     6;     3;     3;     4;     4;     14;    4;     3;     3];
+station_min_power_level      = [    0;     5;     4;     4;     6;     3;     3;     4;     4;     5;     4;     3;     3];
 station_max_peak_to_average  = [  300;    28;    20;   500;    30;    33;    30;   200;   200;   200;   200;  1000;  1000];
 station_min_peak_to_average  = [    1;     8;     1;   130;    10;     1;     1;    16;    23;    23;    23;     0;     0];
 station_mask_number          = [    1;     1;     1;     2;     1;     1;     1;     1;     1;     1;     1;     1;     1];
 station_insist_AoA_return    = [    0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0];
 station_allow_mask_save_flag = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
 station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
-station_active_flag          = [    0;     0;     1;     1;     0;     1;     0;     0;     0;     1;     0;     1;     0];
+station_active_flag          = [    0;     0;     1;     1;     1;     1;     0;     0;     0;     0;     0;     1;     0];
 %^station_active_flag        = [    1;     1;     1;     1;     0;     1;     1;     1;     1;     1;     1;     1;     1];
 station_gui_fft = [
     GUI.components.axesNAAfft, ...
@@ -91,7 +91,7 @@ N_start=1;
 N_end=N;
 
 panorama_start_frequency = 23000; %59750; %39900; %59950; %23000; %47000;
-panorama_stop_frequency =  26000; %60350; %42000; %60050; %26000; %49000;
+panorama_stop_frequency =  63000; %60350; %42000; %60050; %26000; %49000;
 
 GUI.components.sliderFrequencyLow.Limits = [10 80000];
 GUI.components.sliderFrequencyHigh.Limits = [10 80000];
@@ -264,13 +264,13 @@ else
     try
     if theodolite.NumBytesAvailable > 0
         theodolite_angle = readline(theodolite);
-        disp('theodolite_angle: ' + theodolite_angle);
+        theodolite_reading = sprintf("Theodolite angle: %s", theodolite_angle);
     else
-        disp('theodolite data not received');
+        theodolite_reading = "theodolite data not received";
     end
     writeline(theodolite, "A");
     catch
-        disp('theodolite unavailable');
+        theodolite_reading = "theodolite unavailable";
         try
             clear theodolite;
             theodolite = serialport("COM4", 115200);
@@ -278,9 +278,10 @@ else
             configureTerminator(theodolite, "CR");
             writeline(theodolite, "A");
         catch
-            disp('theodolite not connected');
+            theodolite_reading = "theodolite not connected";
         end
     end
+    disp(theodolite_reading);
     raw_buffer = read_file_helper(N)';
     %raw_buffer = generate_and_write_file_helper(N)';
     if record_signal_flag > 0
@@ -592,9 +593,10 @@ end
 angle_text = [];
 angle_value = [];
 angle_color = [];
-texts_prm = [];
-values_prm = [];
-colors_prm = [];
+texts_prm = [theodolite_reading];
+
+values_prm = [NaN];
+colors_prm = ["black"];
 
 if(reference_angle_valids_num(1) > 0)
     fprintf('\nreference_angle_main 1: %f\n', mod(360-reference_angle_main(1),360));

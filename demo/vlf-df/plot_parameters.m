@@ -6,8 +6,8 @@ function plot_parameters(fig_prm,title_str,texts,values,colors)
     hold(fig_prm,"off");
     plot(fig_prm,0,0);
     x = 5;
-    y = 95;
-    dy = -11;
+    y = 85;
+    dy = -15;
     paramsize = size(values,2);
     for j=1:paramsize
         if isnan(values(j))

@@ -3,7 +3,7 @@ function plot_history(valids,fig_hndl,directions,iteration_number,num_keep)
         axy1 = 400;
         axy2 = -400;
         colors = ["red","green","blue"];
-        texts = ["Group 1 Reference Angle  Mean", "Group 2 Reference Angle  Mean", "Group 1 Reference Angle  Mean"];
+        texts = ["Group 1 Reference Angle", "Group 2 Reference Angle", "Group 3 Reference Angle"];
         for j=1:size(valids,2)
             if valids(j) > 0
                 if iteration_number > num_keep
