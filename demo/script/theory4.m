@@ -1,14 +1,22 @@
-N = 70000;
+N = 500000;
 fignum = 1;
+
+max_angle_error = 0;
+
+
+for observation_time = 1:9:10
+%for bandwidth = 2:198:200
+bandwidth = 200;
 
 noise_levels = [];
 angle_errors = [];
-for noise_magnitude = 0.65:-0.05:0.05
+
+for noise_magnitude = 0.15:-0.01:0.01
     W = zeros(361,7);
     i = 1;
     for angle = -88:2:86
         W(i,1) = angle;
-        [ant_a,ant_b,ant_c] = signal_generator(angle,noise_magnitude,fignum);
+        [ant_a,ant_b,ant_c] = signal_generator(angle,noise_magnitude,fignum,observation_time,bandwidth);
         ant_a = fft(ant_a,N);
         ant_b = fft(ant_b,N);
         ant_c = fft(ant_c,N);
@@ -51,20 +59,32 @@ for noise_magnitude = 0.65:-0.05:0.05
     angle_errors = [angle_errors, max(abs(W(1:i,2)-W(1:i,1)))];
 
 end % noise magnitude
-figure
-plot(noise_levels(3:end),angle_errors(3:end))
-title('Angle measurement SNR performance');
+
+figure(fignum+5)
+plot(noise_levels(1:end),angle_errors(1:end))
+hold all
+plot(noise_levels,100/sqrt(bandwidth*observation_time)*exp(-0.05*noise_levels).^3,'color','black');
+max_angle_error = max(max_angle_error,angle_errors(1));
+
+end %integration time
+%end %bandwidth
+
+title(sprintf("Angle Error Upper Limit Estimation. BW=%dHz",bandwidth));
+axis([floor(noise_levels(1)) ceil(noise_levels(end)) 0 ceil(max_angle_error)]);
 xlabel('SNR,dB');
 ylabel('Max Error, deg.');
+legend('BW:2Hz Time:1s','BW:200Hz Time:1s','BW:2Hz Time:10s','BW:200Hz Time:10s')
+legend('BW:200Hz Time:1s','BW:200Hz Time:10s')
 
 
 
-function [ant_a,ant_b,ant_c] = signal_generator(angle,noise_magnitude,fignum)
-    f = 24000;
-    df = 100;
-    fw = 2000;
-    fs = 500000;
-    T = 70000/fs;
+
+function [ant_a,ant_b,ant_c] = signal_generator(angle,noise_magnitude,fignum,observation_time,bandwidth)
+    %f = 24000;
+    %df = 100;
+    %fw = 2000;
+    fs = bandwidth*2;
+    T = observation_time;
     dt = 1/fs;
     t = [0:dt:T-dt];
     %signal = df/(2*fw)*exp(sqrt(-1)*2*pi*f*t);
