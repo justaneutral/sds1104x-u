@@ -1,0 +1,167 @@
+{
+  "figureProps": {
+    "Name": "VLF-DF"
+  },
+  "tabs": [
+      {
+          "title": "Channels",
+          "components": [
+              {"type": "axes", "tag": "axesCh1Waveform", "row": 1, "col": [1,2]},
+              {"type": "axes", "tag": "axesCh1FFT", "row": 1, "col": [3,4]},
+              {"type": "axes", "tag": "axesCh2Waveform", "row": 2, "col": [1,2]},
+              {"type": "axes", "tag": "axesCh2FFT", "row": 2, "col": [3,4]},
+              {"type": "axes", "tag": "axesCh3Waveform", "row": 3, "col": [1,2]},
+              {"type": "axes", "tag": "axesCh3FFT", "row": 3, "col": [3,4]},
+              {"type": "axes", "tag": "axesCh4Waveform", "row": 4, "col": [1,2]},
+              {"type": "axes", "tag": "axesCh4FFT", "row": 4, "col": [3,4]}
+          ]
+      },
+      {
+          "title": "Panorama",
+          "components": [
+              {"type": "axes",  "tag": "axesPanorama",  "row": 1,     "col": [1,4]},
+              {"type": "image", "tag": "imagePanorama", "row": [2,3], "col": [1,4]},
+              {"type": "slider","tag": "sliderFrequencyLow",  "text": "Adjust Lower Frequency", "row": 4, "col": 1, "callbackName": "handleSlider"},
+              {"type": "slider","tag": "sliderFrequencyHigh", "text": "Adjust Upper Frequency", "row": 4, "col": 2, "callbackName": "handleSlider"},
+              {"type": "slider","tag": "sliderPanoramaGain", "text": "Adjust Panorama Brightnes", "row": 4, "col": 3, "callbackName": "handleSlider"}
+          ]
+      },
+      {
+          "title": "Reference",
+          "components": [
+              {"type": "axes",  "tag": "axesREFref",  "row": [1,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axesREFhst",  "row": [1,3],  "col": [3,4]},
+              {"type": "axes",  "tag": "axesREFprm",  "row": 4,  "col": [3,4]}
+          ]
+      },
+      {
+          "title": "NAA",
+          "components": [
+              {"type": "axes",  "tag": "axesNAAfft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axesNAAref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axesNAAhst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axesNAAprm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "NAA_2",
+          "components": [
+              {"type": "axes",  "tag": "axesNAA_2fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axesNAA_2ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axesNAA_2hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axesNAA_2prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "25K0",
+          "components": [
+              {"type": "axes",  "tag": "axes25K0fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes25K0ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes25K0hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes25K0prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "25K2",
+          "components": [
+              {"type": "axes",  "tag": "axes25K2fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes25K2ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes25K2hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes25K2prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "40K7",
+          "components": [
+              {"type": "axes",  "tag": "axes40K7fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes40K7ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes40K7hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes40K7prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "29K3",
+          "components": [
+              {"type": "axes",  "tag": "axes29K3fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes29K3ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes29K3hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes29K3prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "31K9",
+          "components": [
+              {"type": "axes",  "tag": "axes31K9fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes31K9ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes31K9hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes31K9prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "33K7",
+          "components": [
+              {"type": "axes",  "tag": "axes33K7fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes33K7ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes33K7hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes33K7prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "47K7",
+          "components": [
+              {"type": "axes",  "tag": "axes47K7fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes47K7ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes47K7hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes47K7prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "60K0",
+          "components": [
+              {"type": "axes",  "tag": "axes60K0fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes60K0ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes60K0hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes60K0prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+          "title": "77K0",
+          "components": [
+              {"type": "axes",  "tag": "axes77K0fft",  "row": 1,  "col": [1,3]},
+              {"type": "axes",  "tag": "axes77K0ref",  "row": [2,4],  "col": [1,2]},
+              {"type": "axes",  "tag": "axes77K0hst",  "row": [2,4],  "col": [3,4]},
+              {"type": "axes",  "tag": "axes77K0prm",  "row": 1,  "col": 4}
+          ]
+      },
+      {
+      "title": "Logging",
+      "components": [
+        {"type": "textarea", "tag": "logArea", "text": "App Log Area:\n", "row": 3, "col": [1, 3]}
+      ]
+    },
+    {
+      "title": "Info",
+      "components": [
+        {"type": "text", "text": "This tab contains general information.", "row": 1, "col": 1}
+      ]
+    },
+
+    {
+      "title": "Controls",
+      "components": [
+        {"type": "led", "tag": "led_mask", "text": "Mask", "row": 1, "col": 1},
+        {"type": "led", "tag": "led_reference", "text": "Reference", "row": 1, "col": 3},
+          {"type": "toggleswitch", "tag": "toggleswitch_mask_update_3", "text": "mask 3 update", "row": 4, "col": 3, "callbackName": "handle_toggleswitch_mask_update_3"},
+          {"type": "toggleswitch", "tag": "toggleswitch_mask_reset_3" , "text": "mask 3 reset", "row": 4, "col": 4, "callbackName": "handle_toggleswitch_mask_reset_3"},
+          {"type": "toggleswitch", "tag": "toggleswitch_mask_update_2", "text": "mask 2 update", "row": 3, "col": 3, "callbackName": "handle_toggleswitch_mask_update_2"},
+          {"type": "toggleswitch", "tag": "toggleswitch_mask_reset_2" , "text": "mask 2 reset", "row": 3, "col": 4, "callbackName": "handle_toggleswitch_mask_reset_2"},
+          {"type": "toggleswitch", "tag": "toggleswitch_mask_update_1", "text": "mask 1 update", "row": 2, "col": 3, "callbackName": "handle_toggleswitch_mask_update_1"},
+          {"type": "toggleswitch", "tag": "toggleswitch_mask_reset_1" , "text": "mask 1 reset", "row": 2, "col": 4, "callbackName": "handle_toggleswitch_mask_reset_1"},
+          {"type": "toggleswitch", "tag": "toggleswitch_reference_1", "text": "ref 1 set", "row": 2, "col": 2, "callbackName": "handle_toggleswitch_reference_1"},
+          {"type": "toggleswitch", "tag": "toggleswitch_reference_2", "text": "ref 2 set", "row": 3, "col": 2, "callbackName": "handle_toggleswitch_reference_2"},
+          {"type": "toggleswitch", "tag": "toggleswitch_reference_3", "text": "ref 3 set", "row": 4, "col": 2, "callbackName": "handle_toggleswitch_reference_3"},
+          {"type": "toggleswitch", "tag": "toggleswitch_run_stop", "text": "STOP", "row": 3, "col": 1, "callbackName": "handle_toggleswitch_run_stop"}
+      ]
+    }
+  ]
+}
