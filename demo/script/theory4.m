@@ -5,8 +5,8 @@ max_angle_error = 0;
 
 
 for observation_time = 1:9:10
-%for bandwidth = 2:198:200
-bandwidth = 200;
+for bandwidth = 2:198:200
+%bandwidth = 200;
 
 noise_levels = [];
 angle_errors = [];
@@ -60,21 +60,28 @@ for noise_magnitude = 0.15:-0.01:0.01
 
 end % noise magnitude
 
+angle_errors1 = 100/sqrt(bandwidth*observation_time)*exp(-0.05*noise_levels).^3;
+angle_errors2 = 180/pi*atan(1/sqrt(bandwidth*observation_time)*exp(-0.05*noise_levels*exp(pi/3)));
+
 figure(fignum+5)
 plot(noise_levels(1:end),angle_errors(1:end))
 hold all
-plot(noise_levels,100/sqrt(bandwidth*observation_time)*exp(-0.05*noise_levels).^3,'color','black');
+plot(noise_levels,angle_errors1,'color','red');
+plot(noise_levels,angle_errors2,'color','green');
+
 max_angle_error = max(max_angle_error,angle_errors(1));
+max_angle_error = max(max_angle_error,angle_errors1(1));
+max_angle_error = max(max_angle_error,angle_errors2(1));
 
 end %integration time
-%end %bandwidth
+end %bandwidth
 
 title(sprintf("Angle Error Upper Limit Estimation. BW=%dHz",bandwidth));
 axis([floor(noise_levels(1)) ceil(noise_levels(end)) 0 ceil(max_angle_error)]);
 xlabel('SNR,dB');
 ylabel('Max Error, deg.');
-legend('BW:2Hz Time:1s','BW:200Hz Time:1s','BW:2Hz Time:10s','BW:200Hz Time:10s')
-legend('BW:200Hz Time:1s','BW:200Hz Time:10s')
+legend('BW:2Hz Time:1s','BW:2Hz Time:1s U','BW:2Hz Time:1s L','BW:2Hz Time:10s','BW:2Hz Time:10s U','BW:2Hz Time:10s L','BW200Hz Time:1s','BW:200Hz Time:1s U','BW:200Hz Time:1s L','BW:200Hz Time:10s','BW:200Hz Time:10s U','BW:200Hz Time:10s L')
+%legend('BW:200Hz Time:1s','BW:200Hz Time:10s')
 
 
 

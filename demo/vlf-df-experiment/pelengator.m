@@ -14,20 +14,21 @@ function pelengator(GUI)
 % station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
 % station_active_flag          = [    1;     1;     1;     1;     1;     1;     1;     1;     1];
 
-station_center_frequency     = [10700; 16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900; 33700; 47750; 60000; 77500];
-station_bandwidth            = [   10;    19;   220;   220;   400;   200;   200;    50;    40;   300;    20;     3;     3];
-station_min_correlation      = [ -0.3;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.3;  -0.3];
-station_max_power_level      = [   50;    15;    27;    70;    16;    18;    12;    24;    24;    24;    24;    50;    50];
-station_min_power_level      = [    0;     5;     4;     4;     6;     3;     3;     4;     4;     5;     4;     3;     3];
-station_max_peak_to_average  = [  300;    28;    20;   500;    30;    33;    30;   200;   200;   200;   200;  1000;  1000];
-station_min_peak_to_average  = [    1;     8;     1;   130;    10;     1;     1;    16;    23;    23;    23;     0;     0];
-station_mask_number          = [    1;     1;     1;     2;     1;     1;     1;     1;     1;     1;     1;     1;     1];
-station_insist_AoA_return    = [    0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0];
-station_allow_mask_save_flag = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
-station_force_mask_update    = [    1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
-station_active_flag          = [    0;     0;     1;     1;     0;     1;     0;     0;     0;     0;     0;     1;     0];
-%^station_active_flag        = [    1;     1;     1;     1;     0;     1;     1;     1;     1;     1;     1;     1;     1];
+station_center_frequency     = [7600; 10700; 16000; 24000; 24000; 25000; 25200; 40750; 29350; 31900; 33700; 47750; 60000; 77500];
+station_bandwidth            = [ 400;  10;    19;   220;   220;   400;   200;   200;    50;    40;   300;    20;     3;     3];
+station_min_correlation      = [-0.5;  -0.3;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.2;  -0.3;  -0.3];
+station_max_power_level      = [ 300;  50;    15;    27;    70;    16;    18;    12;    24;    24;    24;    24;    50;    50];
+station_min_power_level      = [   0;   0;     5;     4;     4;     6;     3;     3;     4;     4;     5;     4;     3;     3];
+station_max_peak_to_average  = [ 300;  300;    28;    20;   500;    30;    33;    30;   200;   200;   200;   200;  1000;  1000];
+station_min_peak_to_average  = [   1;    1;     8;     1;   130;    10;     1;     1;    16;    23;    23;    23;     0;     0];
+station_mask_number          = [   1;    1;     1;     1;     2;     1;     1;     1;     1;     1;     1;     1;     1;     1];
+station_insist_AoA_return    = [   0;    0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0;     0];
+station_allow_mask_save_flag = [   1;    1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
+station_force_mask_update    = [   1;    1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1;     1];
+%station_active_flag         = [   1;    0;     0;     1;     1;     1;     1;     1;     1;     0;     1;     0;     1;     0];
+station_active_flag          = [   0;    0;     0;     1;     0;     0;     0;     1;     0;     0;     1;     0;     0;     0];
 station_gui_fft = [
+    GUI.components.axes7K6fft, ...
     GUI.components.axesNAAfft, ...
     GUI.components.axesNAAfft, ...
     GUI.components.axesNAAfft, ...
@@ -42,6 +43,7 @@ station_gui_fft = [
     GUI.components.axes60K0fft, ...
     GUI.components.axes77K0fft];
 station_gui_ref = [
+    GUI.components.axes7K6ref, ...
     GUI.components.axesNAAref, ...
     GUI.components.axesNAAref, ...
     GUI.components.axesNAAref, ...
@@ -56,6 +58,7 @@ station_gui_ref = [
     GUI.components.axes60K0ref, ...
     GUI.components.axes77K0ref];
 station_gui_hst = [
+    GUI.components.axes7K6hst, ...
     GUI.components.axesNAAhst, ...
     GUI.components.axesNAAhst, ...
     GUI.components.axesNAAhst, ...
@@ -70,6 +73,7 @@ station_gui_hst = [
     GUI.components.axes60K0hst, ...
     GUI.components.axes77K0hst];
 station_gui_prm = [
+    GUI.components.axes7K6prm, ...
     GUI.components.axesNAAprm, ...
     GUI.components.axesNAAprm, ...
     GUI.components.axesNAAprm, ...
@@ -89,7 +93,7 @@ preload_modulation_mask_file = [0,0,0];
 station_relaxation_gain = 0.1; %0.37;
 
 panorama_start_frequency = 23000; %59750; %39900; %59950; %23000; %47000;
-panorama_stop_frequency =  63000; %60350; %42000; %60050; %26000; %49000;
+panorama_stop_frequency =  26000; %60350; %42000; %60050; %26000; %49000;
 panorama_gain           = 3; %40;
 
 
@@ -136,14 +140,14 @@ squelsh_band_width_step = 3;
 
 record_signal_flag        = 0;
 playback_signal_flag      = 0;
-signal_record_file_name_prefix = 'recorded_signal_va_112625';
+signal_record_file_name_prefix = '../recorded_signals/va_112625/recorded_signal_va_112625';
 Starting_Iteration_Number = 1;
 Num_iterations            = 10000;
 num_keep                  = 16;
 trigtreshold              = 1;
 
 %%%%==========averages============%%%%
-M = 2^(ceil(log2(N))-1)-1;
+M = 2^(ceil(log2(N))-(-1))-1;
 colors = ['#ff0000'; '#00ff00'; '#0000ff'; '#000000'];
 dT = 1/Fs;
 N_spawn = (N_start:N_end);
@@ -490,6 +494,9 @@ for j=1:num_stations
             modulation_mask(s_mask,s_spawn-panorama_start+1) = ones(1,s_end-s_start+1);
         end
 
+
+        [rg,rb,gb] = toa_offset(fft_buffer,s_spawn);
+
         %reference_angle = 0;
         directions(:,1:end-1) = directions(:,2:end);
         Pxys(:,1:end-1) = Pxys(:,2:end);
@@ -509,7 +516,8 @@ for j=1:num_stations
             reference_angles(j), ...
             station_active_flag(j), ...
             station_gui_ref(j), ...
-            station_gui_prm(j));
+            station_gui_prm(j), ...
+            rg,rb,gb);
         %if iteration_number>1 && Pxys(j,iteration_number) == 0
         %    directions(j,iteration_number) = directions(j,iteration_number-1);
         %    %directions(j,i) = 361;
